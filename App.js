@@ -1,8 +1,9 @@
 import React from 'react';
-import { StyleSheet, Text, View, Button } from 'react-native';
+import { StyleSheet, Text, View, Button, TouchableOpacity } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 
-
+/* Disabled home screen as not required yet
+/*
 class HomeScreen extends React.Component {
   static navigationOptions = {
     title: 'GZCLP',
@@ -19,6 +20,7 @@ class HomeScreen extends React.Component {
     );
   }
 }
+*/
 
 class WorkoutA1 extends React.Component {
   static navigationOptions = ({ navigation }) => ({
@@ -28,9 +30,9 @@ class WorkoutA1 extends React.Component {
     const { navigate } = this.props.navigation;
     return (
       <View style={styles.container}>
-        <Text>T1 Squat</Text>
-        <Text>T2 Bench</Text>
-        <Text>T3 Lat Pulldown</Text>
+        <Text style={styles.liftName}>T1 Squat</Text>
+        <Text style={styles.liftName}>T2 Bench</Text>
+        <Text style={styles.liftName}>T3 Lat Pulldown</Text>
         <Button
           onPress={() => navigate('B1')}
           title="Done"
@@ -48,9 +50,9 @@ class WorkoutB1 extends React.Component {
     const { navigate } = this.props.navigation;
     return (
       <View style={styles.container}>
-        <Text>T1 OHP</Text>
-        <Text>T2 Deadlift</Text>
-        <Text>T3 Dumbbell Row</Text>
+        <Text style={styles.liftName}>T1 OHP</Text>
+        <Text style={styles.liftName}>T2 Deadlift</Text>
+        <Text style={styles.liftName}>T3 Dumbbell Row</Text>
         <Button
           onPress={() => navigate('A2')}
           title="Done"
@@ -68,9 +70,9 @@ class WorkoutA2 extends React.Component {
     const { navigate } = this.props.navigation;
     return (
       <View style={styles.container}>
-        <Text>T1 Bench</Text>
-        <Text>T2 Squat</Text>
-        <Text>T3 Lat Pulldown</Text>
+        <Text style={styles.liftName}>T1 Bench</Text>
+        <Text style={styles.liftName}>T2 Squat</Text>
+        <Text style={styles.liftName}>T3 Lat Pulldown</Text>
         <Button
           onPress={() => navigate('B2')}
           title="Done"
@@ -88,9 +90,9 @@ class WorkoutB2 extends React.Component {
     const { navigate } = this.props.navigation;
     return (
       <View style={styles.container}>
-        <Text>T1 Deadlift</Text>
-        <Text>T2 OHP</Text>
-        <Text>T3 Dumbbell Row</Text>
+        <Text style={styles.liftName}>T1 Deadlift</Text>
+        <Text style={styles.liftName}>T2 OHP</Text>
+        <Text style={styles.liftName}>T3 Dumbbell Row</Text>
         <Button
           onPress={() => navigate('A1')}
           title="Done"
@@ -101,7 +103,7 @@ class WorkoutB2 extends React.Component {
 }
 
 const App = StackNavigator({
-  Home: { screen: HomeScreen },
+  //Home: { screen: HomeScreen },
   A1: { screen: WorkoutA1 },
   B1: { screen: WorkoutB1 },
   A2: { screen: WorkoutA2 },
@@ -111,9 +113,11 @@ export default App;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
+  liftName: {
+    paddingHorizontal: 10,
+    paddingVertical: 20,
+    fontSize: 16,
+  }
 });
