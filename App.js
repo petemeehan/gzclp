@@ -1,5 +1,13 @@
 import React from 'react';
-import { StyleSheet, Text, View, Button, TouchableOpacity } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  Button,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
 import { StackNavigator } from 'react-navigation';
 
 /* Disabled home screen as not required yet
@@ -22,17 +30,51 @@ class HomeScreen extends React.Component {
 }
 */
 
+class RepButton extends React.Component {
+  _onPressButton() {
+
+  }
+
+  render() {
+    return (
+      <TouchableOpacity style={styles.setButton} onPress={this._onPressButton}>
+        <Text style={styles.setButtonText}>{this.state.reps}</Text>
+      </TouchableOpacity>
+    )
+  }
+}
+
 class WorkoutA1 extends React.Component {
   static navigationOptions = ({ navigation }) => ({
     title: `Workout A1`,
   });
   render() {
-    const { navigate } = this.props.navigation;
+    const {navigate} = this.props.navigation;
     return (
       <View style={styles.container}>
         <Text style={styles.liftName}>T1 Squat</Text>
+        <View style={styles.setButtonContainer}>
+          <RepButton />
+          <RepButton />
+          <RepButton />
+          <RepButton />
+          <RepButton />
+        </View>
+
         <Text style={styles.liftName}>T2 Bench</Text>
+        <View style={styles.setButtonContainer}>
+          <RepButton />
+          <RepButton />
+          <RepButton />
+        </View>
+
         <Text style={styles.liftName}>T3 Lat Pulldown</Text>
+        <View style={styles.setButtonContainer}>
+          <RepButton />
+          <RepButton />
+          <RepButton />
+        </View>
+
         <Button
           onPress={() => navigate('B1')}
           title="Done"
@@ -116,8 +158,25 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   liftName: {
-    paddingHorizontal: 10,
-    paddingVertical: 20,
+    marginHorizontal: 10,
+    marginTop: 20,
+    marginBottom: 10,
     fontSize: 16,
+  },
+  setButtonContainer: {
+    flexDirection: 'row',
+    marginHorizontal: 10
+  },
+  setButton: {
+    backgroundColor: '#fa375a',
+    margin: 5,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  setButtonText: {
+    color: '#fff',
   }
 });
