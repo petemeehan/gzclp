@@ -30,49 +30,69 @@ class HomeScreen extends React.Component {
 }
 */
 
-class RepButton extends React.Component {
-  _onPressButton() {
+class SetButton extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { pressStatus: false };
+  }
 
+  onPressButton() {
+    this.setState(
+      previousState => {
+        return { pressStatus: !(previousState.pressStatus) };
+      }
+    );
   }
 
   render() {
+    let currentStyle = this.state.pressStatus ?
+      styles.setButtonSuccess : styles.setButtonBlank;
+    let currentTextStyle = this.state.pressStatus ?
+      styles.setButtonTextSuccess : styles.setButtonTextBlank;
+    let currentText = this.state.pressStatus ? '✓' : this.props.reps;
     return (
-      <TouchableOpacity style={styles.setButton} onPress={this._onPressButton}>
-        <Text style={styles.setButtonText}>{this.state.reps}</Text>
+      <TouchableOpacity
+        style={currentStyle}
+        onPress={this.onPressButton.bind(this)}
+      >
+        <Text style={currentTextStyle}>{currentText}</Text>
       </TouchableOpacity>
     )
   }
 }
+
 
 class WorkoutA1 extends React.Component {
   static navigationOptions = ({ navigation }) => ({
     title: `Workout A1`,
   });
   render() {
+    console.log(this.props);
+
     const {navigate} = this.props.navigation;
     return (
       <View style={styles.container}>
         <Text style={styles.liftName}>T1 Squat</Text>
         <View style={styles.setButtonContainer}>
-          <RepButton />
-          <RepButton />
-          <RepButton />
-          <RepButton />
-          <RepButton />
+          <SetButton reps='3' />
+          <SetButton reps='3' />
+          <SetButton reps='3' />
+          <SetButton reps='3' />
+          <SetButton reps='3+' />
         </View>
 
         <Text style={styles.liftName}>T2 Bench</Text>
         <View style={styles.setButtonContainer}>
-          <RepButton />
-          <RepButton />
-          <RepButton />
+          <SetButton reps='10' />
+          <SetButton reps='10' />
+          <SetButton reps='10' />
         </View>
 
         <Text style={styles.liftName}>T3 Lat Pulldown</Text>
         <View style={styles.setButtonContainer}>
-          <RepButton />
-          <RepButton />
-          <RepButton />
+          <SetButton reps='15' />
+          <SetButton reps='15' />
+          <SetButton reps='15+' />
         </View>
 
         <Button
@@ -93,8 +113,28 @@ class WorkoutB1 extends React.Component {
     return (
       <View style={styles.container}>
         <Text style={styles.liftName}>T1 OHP</Text>
+        <View style={styles.setButtonContainer}>
+          <SetButton reps='3' />
+          <SetButton reps='3' />
+          <SetButton reps='3' />
+          <SetButton reps='3' />
+          <SetButton reps='3+' />
+        </View>
+
         <Text style={styles.liftName}>T2 Deadlift</Text>
+        <View style={styles.setButtonContainer}>
+          <SetButton reps='10' />
+          <SetButton reps='10' />
+          <SetButton reps='10' />
+        </View>
+
         <Text style={styles.liftName}>T3 Dumbbell Row</Text>
+        <View style={styles.setButtonContainer}>
+          <SetButton reps='15' />
+          <SetButton reps='15' />
+          <SetButton reps='15+' />
+        </View>
+
         <Button
           onPress={() => navigate('A2')}
           title="Done"
@@ -113,8 +153,28 @@ class WorkoutA2 extends React.Component {
     return (
       <View style={styles.container}>
         <Text style={styles.liftName}>T1 Bench</Text>
+        <View style={styles.setButtonContainer}>
+          <SetButton reps='3' />
+          <SetButton reps='3' />
+          <SetButton reps='3' />
+          <SetButton reps='3' />
+          <SetButton reps='3+' />
+        </View>
+
         <Text style={styles.liftName}>T2 Squat</Text>
+        <View style={styles.setButtonContainer}>
+          <SetButton reps='10' />
+          <SetButton reps='10' />
+          <SetButton reps='10' />
+        </View>
+
         <Text style={styles.liftName}>T3 Lat Pulldown</Text>
+        <View style={styles.setButtonContainer}>
+          <SetButton reps='15' />
+          <SetButton reps='15' />
+          <SetButton reps='15+' />
+        </View>
+
         <Button
           onPress={() => navigate('B2')}
           title="Done"
@@ -133,8 +193,28 @@ class WorkoutB2 extends React.Component {
     return (
       <View style={styles.container}>
         <Text style={styles.liftName}>T1 Deadlift</Text>
+        <View style={styles.setButtonContainer}>
+          <SetButton reps='3' />
+          <SetButton reps='3' />
+          <SetButton reps='3' />
+          <SetButton reps='3' />
+          <SetButton reps='3+' />
+        </View>
+
         <Text style={styles.liftName}>T2 OHP</Text>
+        <View style={styles.setButtonContainer}>
+          <SetButton reps='10' />
+          <SetButton reps='10' />
+          <SetButton reps='10' />
+        </View>
+
         <Text style={styles.liftName}>T3 Dumbbell Row</Text>
+        <View style={styles.setButtonContainer}>
+          <SetButton reps='15' />
+          <SetButton reps='15' />
+          <SetButton reps='15+' />
+        </View>
+
         <Button
           onPress={() => navigate('A1')}
           title="Done"
@@ -144,6 +224,7 @@ class WorkoutB2 extends React.Component {
   }
 }
 
+
 const App = StackNavigator({
   //Home: { screen: HomeScreen },
   A1: { screen: WorkoutA1 },
@@ -152,6 +233,7 @@ const App = StackNavigator({
   B2: { screen: WorkoutB2 },
 });
 export default App;
+
 
 const styles = StyleSheet.create({
   container: {
@@ -167,7 +249,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginHorizontal: 10
   },
-  setButton: {
+  setButtonBlank: {
+    backgroundColor: '#fff',
+    borderColor: '#fa375a',
+    borderWidth: 1,
+    margin: 5,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  setButtonSuccess: {
     backgroundColor: '#fa375a',
     margin: 5,
     width: 40,
@@ -176,7 +269,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  setButtonText: {
+  setButtonTextBlank: {
+    color: '#fa375a',
+  },
+  setButtonTextSuccess: {
     color: '#fff',
   }
 });
