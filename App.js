@@ -71,7 +71,7 @@ class WorkoutA1 extends React.Component {
 
     const {navigate} = this.props.navigation;
     return (
-      <View style={styles.container}>
+      <ScrollView style={styles.container}>
         <Text style={styles.liftName}>T1 Squat</Text>
         <View style={styles.setButtonContainer}>
           <SetButton reps='3' />
@@ -99,7 +99,7 @@ class WorkoutA1 extends React.Component {
           onPress={() => navigate('B1')}
           title="Done"
         />
-      </View>
+      </ScrollView>
     );
   }
 }
@@ -111,7 +111,7 @@ class WorkoutB1 extends React.Component {
   render() {
     const { navigate } = this.props.navigation;
     return (
-      <View style={styles.container}>
+      <ScrollView style={styles.container}>
         <Text style={styles.liftName}>T1 OHP</Text>
         <View style={styles.setButtonContainer}>
           <SetButton reps='3' />
@@ -139,7 +139,7 @@ class WorkoutB1 extends React.Component {
           onPress={() => navigate('A2')}
           title="Done"
         />
-      </View>
+      </ScrollView>
     );
   }
 }
@@ -151,7 +151,7 @@ class WorkoutA2 extends React.Component {
   render() {
     const { navigate } = this.props.navigation;
     return (
-      <View style={styles.container}>
+      <ScrollView style={styles.container}>
         <Text style={styles.liftName}>T1 Bench</Text>
         <View style={styles.setButtonContainer}>
           <SetButton reps='3' />
@@ -179,7 +179,7 @@ class WorkoutA2 extends React.Component {
           onPress={() => navigate('B2')}
           title="Done"
         />
-      </View>
+      </ScrollView>
     );
   }
 }
@@ -191,7 +191,7 @@ class WorkoutB2 extends React.Component {
   render() {
     const { navigate } = this.props.navigation;
     return (
-      <View style={styles.container}>
+      <ScrollView style={styles.container}>
         <Text style={styles.liftName}>T1 Deadlift</Text>
         <View style={styles.setButtonContainer}>
           <SetButton reps='3' />
@@ -219,7 +219,7 @@ class WorkoutB2 extends React.Component {
           onPress={() => navigate('A1')}
           title="Done"
         />
-      </View>
+      </ScrollView>
     );
   }
 }
