@@ -7,6 +7,7 @@ import {
   Button,
   TouchableOpacity,
   Alert,
+  Dimensions,
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 
@@ -29,6 +30,9 @@ class HomeScreen extends React.Component {
   }
 }
 */
+
+const DEVICE_W = Dimensions.get('window').width;
+const DEVICE_H = Dimensions.get('window').height;
 
 class SetButton extends React.Component {
   constructor(props) {
@@ -67,8 +71,7 @@ class WorkoutA1 extends React.Component {
     title: `Workout A1`,
   });
   render() {
-    console.log(this.props);
-
+    console.log(DEVICE_W);
     const {navigate} = this.props.navigation;
     return (
       <ScrollView style={styles.container}>
@@ -247,25 +250,25 @@ const styles = StyleSheet.create({
   },
   setButtonContainer: {
     flexDirection: 'row',
-    marginHorizontal: 10
+    marginHorizontal: 0.03125 * DEVICE_W,
+    flexWrap: 'wrap',
   },
   setButtonBlank: {
-    backgroundColor: '#fff',
     borderColor: '#fa375a',
     borderWidth: 1,
-    margin: 5,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    marginHorizontal: 0.015625 * DEVICE_W,
+    width: 0.15625 * DEVICE_W,
+    height: 0.15625 * DEVICE_W,
+    borderRadius: 0.15625 * DEVICE_W / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
   setButtonSuccess: {
     backgroundColor: '#fa375a',
-    margin: 5,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    marginHorizontal: 0.015625 * DEVICE_W,
+    width: 0.15625 * DEVICE_W,
+    height: 0.15625 * DEVICE_W,
+    borderRadius: 0.15625 * DEVICE_W / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
