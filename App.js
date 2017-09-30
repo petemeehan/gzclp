@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
   setButtonBlank: {
     borderColor: '#fa375a',
     borderWidth: 1,
-    marginHorizontal: 0.015625 * DEVICE_W,
+    margin: 0.015625 * DEVICE_W,
     width: 0.15625 * DEVICE_W,
     height: 0.15625 * DEVICE_W,
     borderRadius: 0.15625 * DEVICE_W / 2,
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
   },
   setButtonSuccess: {
     backgroundColor: '#fa375a',
-    marginHorizontal: 0.015625 * DEVICE_W,
+    margin: 0.015625 * DEVICE_W,
     width: 0.15625 * DEVICE_W,
     height: 0.15625 * DEVICE_W,
     borderRadius: 0.15625 * DEVICE_W / 2,
