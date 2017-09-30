@@ -78,30 +78,45 @@ const REP_SCHEMES = {
 class SetButton extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { pressStatus: false };
+
+    this.state = {
+      isActive: true,
+      pressStatus: false,
+    };
   }
 
   onPressButton() {
-    this.setState(
-      previousState => {
-        return { pressStatus: !(previousState.pressStatus) };
-      }
-    );
+    if (this.state.isActive) {
+      this.setState(
+        previousState => {
+          return { pressStatus: !(previousState.pressStatus) };
+        }
+      );
+    }
   }
 
   render() {
-    let currentStyle = this.state.pressStatus ?
-      styles.setButtonSuccess : styles.setButtonBlank;
-    let currentTextStyle = this.state.pressStatus ?
-      styles.setButtonTextSuccess : styles.setButtonTextBlank;
-    let currentText = this.state.pressStatus ?
+    let buttonText, currentStyle, currentTextStyle;
+
+    buttonText = this.state.pressStatus ?
       '✓' : this.props.reps + (this.props.amrap ? '+' : '');
+
+    if (this.state.isActive) {
+      currentStyle = this.state.pressStatus ?
+        styles.setButtonSuccess : styles.setButtonActive;
+      currentTextStyle = this.state.pressStatus ?
+        styles.setButtonTextSuccess : styles.setButtonText;
+    } else {
+      currentStyle = styles.setButtonInactive;
+      currentTextStyle = styles.setButtonTextInactive;
+    }
+
     return (
       <TouchableOpacity
         style={currentStyle}
         onPress={this.onPressButton.bind(this)}
       >
-        <Text style={currentTextStyle}>{currentText}</Text>
+        <Text style={currentTextStyle}>{buttonText}</Text>
       </TouchableOpacity>
     )
   }
@@ -245,8 +260,18 @@ const styles = StyleSheet.create({
     marginHorizontal: 0.03125 * DEVICE_W,
     flexWrap: 'wrap',
   },
-  setButtonBlank: {
+  setButtonActive: {
     borderColor: '#fa375a',
+    borderWidth: 1,
+    margin: 0.015625 * DEVICE_W,
+    width: 0.15625 * DEVICE_W,
+    height: 0.15625 * DEVICE_W,
+    borderRadius: 0.15625 * DEVICE_W / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  setButtonInactive: {
+    borderColor: '#bbb',
     borderWidth: 1,
     margin: 0.015625 * DEVICE_W,
     width: 0.15625 * DEVICE_W,
@@ -264,8 +289,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  setButtonTextBlank: {
+  setButtonText: {
     color: '#fa375a',
+  },
+  setButtonTextInactive: {
+    color: '#bbb',
   },
   setButtonTextSuccess: {
     color: '#fff',
