@@ -69,21 +69,23 @@ class Lift extends React.Component {
     var isAmrap = REP_SCHEMES[this.props.tier].isAmrap;
 
     // Populate an array of SetButtons for display, and if the rep scheme calls
-    // for an isAmrap final set, represent that in the final button in the array
+    // for an AMRAP final set, pass the isAmrap prop with TRUE value
     var setButtons = [];
     for (var i = 1; i <= sets; i++) {
       setButtons.push(
         <SetButton id={i} key={i} reps={reps} isAmrap={i == sets ? isAmrap : false}
           isActive={i <= this.state.lastClickedButton + 1}
           isClicked={i <= this.state.lastClickedButton}
-          setLastClickedButton={(lastClickedButton) => this.setState({lastClickedButton})}
+          setLastClickedButton={(lastClickedButton) => this.setState( {lastClickedButton} )}
         />
       );
     }
 
     return (
       <View>
-        <Text style={styles.liftName}>{this.props.tier} {this.props.exercise}</Text>
+        <Text style={styles.liftName}>
+          {this.props.tier} {this.props.exercise}
+        </Text>
         <View style={styles.setButtonContainer}>
           {setButtons}
         </View>
@@ -95,17 +97,22 @@ class Lift extends React.Component {
 
 class SetButton extends React.Component {
   render() {
+    var isClicked = this.props.isClicked,
+        isActive = this.props.isActive,
+        setLastClickedButton = this.props.setLastClickedButton,
+        id = this.props.id;
+
     // If button is clicked, display a tick. Otherwise display number of reps.
     // And if set is an AMRAP set, display a '+' sign with the number
-    var buttonText = this.props.isClicked ?
+    var buttonText = isClicked ?
       '✓' : this.props.reps + (this.props.amrap ? '+' : '');
 
     // Apply style depending on whether button is inactive, active or clicked
     var currentStyle, currentTextStyle;
-    if (this.props.isClicked) {
+    if (isClicked) {
       currentStyle = styles.setButtonClicked;
       currentTextStyle = styles.setButtonTextClicked;
-    } else if (this.props.isActive) {
+    } else if (isActive) {
       currentStyle = styles.setButtonActive;
       currentTextStyle = styles.setButtonTextActive;
     } else {
@@ -118,12 +125,12 @@ class SetButton extends React.Component {
         style={currentStyle}
 
         onPress={() => {
-          if (this.props.isActive) {
-            this.props.setLastClickedButton(!this.props.isClicked ? this.props.id : this.props.id - 1)
-          }
+          if (isActive) { setLastClickedButton(!isClicked ? id : id - 1) }
         }}
       >
-        <Text style={currentTextStyle}>{buttonText}</Text>
+        <Text style={currentTextStyle}>
+          {buttonText}
+        </Text>
       </TouchableOpacity>
     )
   }
