@@ -29,7 +29,7 @@ const REP_SCHEMES = {
       sets: 10,
       reps: 1,
     },
-    amrap: true,
+    isAmrap: true,
   },
   T2: {
     1: {
@@ -44,14 +44,14 @@ const REP_SCHEMES = {
       sets: 3,
       reps: 6,
     },
-    amrap: false,
+    isAmrap: false,
   },
   T3: {
     1: {
       sets: 3,
       reps: 15,
     },
-    amrap: true,
+    isAmrap: true,
   },
 }
 
@@ -61,7 +61,7 @@ class Lift extends React.Component {
     super(props);
 
     this.state = {
-      activeSetButton: 0,
+      activeSetButtons: 0,
     };
 
     setInterval(() => {
@@ -70,28 +70,21 @@ class Lift extends React.Component {
   }
 
   render() {
-    let sets = REP_SCHEMES[this.props.tier][this.props.repScheme].sets;
-    let reps = REP_SCHEMES[this.props.tier][this.props.repScheme].reps;
-    let amrap = REP_SCHEMES[this.props.tier].amrap;
-
-
+    var sets = REP_SCHEMES[this.props.tier][this.props.repScheme].sets;
+    var reps = REP_SCHEMES[this.props.tier][this.props.repScheme].reps;
+    var isAmrap = REP_SCHEMES[this.props.tier].isAmrap;
 
     // Populate an array of SetButtons for display, and if the rep scheme calls
-    // for an AMRAP final set, represent that in the final button in the array
-    let setButtons = [];
-    for (var i = 0; i < sets - 1; i++) {
+    // for an isAmrap final set, represent that in the final button in the array
+    var setButtons = [];
+    for (var i = 1; i <= sets; i++) {
       setButtons.push(
-        <SetButton id={i} key={i} reps={reps} isActive={this.state.activeSetButton == i}
-          setActiveSetButton={(activeSetButton) => this.setState({activeSetButton})}
+        <SetButton id={i} key={i} reps={reps} isAmrap={i == sets ? isAmrap : false}
+          isActive={i - 1 <= this.state.activeSetButtons}
+          setActiveSetButtons={(activeSetButtons) => this.setState({activeSetButtons})}
         />
       );
     }
-    setButtons.push(
-      <SetButton id={i} key={i} reps={reps} amrap={amrap} isActive={this.state.activeSetButton == i}
-        setActiveSetButton={(activeSetButton) => this.setState({activeSetButton})}
-      />
-    );
-
 
     return (
       <View>
@@ -107,13 +100,11 @@ class Lift extends React.Component {
 
 class SetButton extends React.Component {
   render() {
-    var active = this.props.isActive;
+    // If 'isAmrap' prop is passed to component, display a + sign with the number
+    var buttonText = this.props.reps + (this.props.isAmrap ? '+' : '');
 
-    let buttonText, currentStyle, currentTextStyle;
-
-    buttonText = this.props.reps + (this.props.amrap ? '+' : '');
-
-    if (active) {
+    var currentStyle, currentTextStyle;
+    if (this.props.isActive) {
       currentStyle = styles.setButtonActive;
       currentTextStyle = styles.setButtonTextActive;
     } else {
@@ -124,7 +115,7 @@ class SetButton extends React.Component {
     return (
       <TouchableOpacity
         style={currentStyle}
-        onPress={() => this.props.setActiveSetButton(this.props.id)}
+        onPress={() => this.props.setActiveSetButtons(this.props.id)}
       >
         <Text style={currentTextStyle}>{buttonText}</Text>
       </TouchableOpacity>
@@ -263,7 +254,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  setButtonSuccess: {
+  setButtonClicked: {
     backgroundColor: '#fa375a',
     margin: 0.015625 * DEVICE_W,
     width: 0.15625 * DEVICE_W,
