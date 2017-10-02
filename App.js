@@ -60,13 +60,7 @@ class Lift extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      activeSetButtons: 0,
-    };
-
-    setInterval(() => {
-      console.log(this.state);
-    }, 2000);
+    this.state = { lastClickedButton: 0 };
   }
 
   render() {
@@ -80,8 +74,9 @@ class Lift extends React.Component {
     for (var i = 1; i <= sets; i++) {
       setButtons.push(
         <SetButton id={i} key={i} reps={reps} isAmrap={i == sets ? isAmrap : false}
-          isActive={i - 1 <= this.state.activeSetButtons}
-          setActiveSetButtons={(activeSetButtons) => this.setState({activeSetButtons})}
+          isActive={i <= this.state.lastClickedButton + 1}
+          isClicked={i <= this.state.lastClickedButton}
+          setLastClickedButton={(lastClickedButton) => this.setState({lastClickedButton})}
         />
       );
     }
@@ -100,11 +95,17 @@ class Lift extends React.Component {
 
 class SetButton extends React.Component {
   render() {
-    // If 'isAmrap' prop is passed to component, display a + sign with the number
-    var buttonText = this.props.reps + (this.props.isAmrap ? '+' : '');
+    // If button is clicked, display a tick. Otherwise display number of reps.
+    // And if set is an AMRAP set, display a '+' sign with the number
+    var buttonText = this.props.isClicked ?
+      '✓' : this.props.reps + (this.props.amrap ? '+' : '');
 
+    // Apply style depending on whether button is inactive, active or clicked
     var currentStyle, currentTextStyle;
-    if (this.props.isActive) {
+    if (this.props.isClicked) {
+      currentStyle = styles.setButtonClicked;
+      currentTextStyle = styles.setButtonTextClicked;
+    } else if (this.props.isActive) {
       currentStyle = styles.setButtonActive;
       currentTextStyle = styles.setButtonTextActive;
     } else {
@@ -115,7 +116,12 @@ class SetButton extends React.Component {
     return (
       <TouchableOpacity
         style={currentStyle}
-        onPress={() => this.props.setActiveSetButtons(this.props.id)}
+
+        onPress={() => {
+          if (this.props.isActive) {
+            this.props.setLastClickedButton(!this.props.isClicked ? this.props.id : this.props.id - 1)
+          }
+        }}
       >
         <Text style={currentTextStyle}>{buttonText}</Text>
       </TouchableOpacity>
@@ -133,8 +139,8 @@ class WorkoutA1 extends React.Component {
     return (
       <ScrollView style={styles.container}>
         <Lift tier='T1' repScheme='1' exercise='Squat' />
-        {/*<Lift tier='T2' repScheme='1' exercise='Bench Press' />
-        <Lift tier='T3' repScheme='1' exercise='Lat Pulldown' />*/}
+        <Lift tier='T2' repScheme='1' exercise='Bench Press' />
+        <Lift tier='T3' repScheme='1' exercise='Lat Pulldown' />
 
         <Button
           onPress={() => navigate('B1')}
@@ -145,7 +151,6 @@ class WorkoutA1 extends React.Component {
   }
 }
 
-/*
 class WorkoutB1 extends React.Component {
   static navigationOptions = ({ navigation }) => ({
     title: `Workout B1`,
@@ -208,13 +213,13 @@ class WorkoutB2 extends React.Component {
     );
   }
 }
-*/
+
 
 const App = StackNavigator({
   A1: { screen: WorkoutA1 },
-  //B1: { screen: WorkoutB1 },
-  //A2: { screen: WorkoutA2 },
-  //B2: { screen: WorkoutB2 },
+  B1: { screen: WorkoutB1 },
+  A2: { screen: WorkoutA2 },
+  B2: { screen: WorkoutB2 },
 });
 export default App;
 
@@ -236,7 +241,7 @@ const styles = StyleSheet.create({
   },
   setButtonActive: {
     borderColor: '#fa375a',
-    borderWidth: 1,
+    borderWidth: 1.5,
     margin: 0.015625 * DEVICE_W,
     width: 0.15625 * DEVICE_W,
     height: 0.15625 * DEVICE_W,
@@ -269,7 +274,7 @@ const styles = StyleSheet.create({
   setButtonTextInactive: {
     color: '#bbb',
   },
-  setButtonTextSuccess: {
+  setButtonTextClicked: {
     color: '#fff',
   }
 });
