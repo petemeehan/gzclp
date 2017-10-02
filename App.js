@@ -11,25 +11,6 @@ import {
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 
-/* Disabled home screen as not required yet
-/*
-class HomeScreen extends React.Component {
-  static navigationOptions = {
-    title: 'GZCLP',
-  };
-  render() {
-    const { navigate } = this.props.navigation;
-    return (
-      <View style={styles.container}>
-        <Button
-          onPress={() => navigate('A1')}
-          title="Proceed to First Workout"
-        />
-      </View>
-    );
-  }
-}
-*/
 
 const DEVICE_W = Dimensions.get('window').width;
 const DEVICE_H = Dimensions.get('window').height;
@@ -75,67 +56,42 @@ const REP_SCHEMES = {
 }
 
 
-class SetButton extends React.Component {
+class Lift extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      isActive: true,
-      pressStatus: false,
+      activeSetButton: 0,
     };
+
+    setInterval(() => {
+      console.log(this.state);
+    }, 2000);
   }
 
-  onPressButton() {
-    if (this.state.isActive) {
-      this.setState(
-        previousState => {
-          return { pressStatus: !(previousState.pressStatus) };
-        }
-      );
-    }
-  }
-
-  render() {
-    let buttonText, currentStyle, currentTextStyle;
-
-    buttonText = this.state.pressStatus ?
-      '✓' : this.props.reps + (this.props.amrap ? '+' : '');
-
-    if (this.state.isActive) {
-      currentStyle = this.state.pressStatus ?
-        styles.setButtonSuccess : styles.setButtonActive;
-      currentTextStyle = this.state.pressStatus ?
-        styles.setButtonTextSuccess : styles.setButtonText;
-    } else {
-      currentStyle = styles.setButtonInactive;
-      currentTextStyle = styles.setButtonTextInactive;
-    }
-
-    return (
-      <TouchableOpacity
-        style={currentStyle}
-        onPress={this.onPressButton.bind(this)}
-      >
-        <Text style={currentTextStyle}>{buttonText}</Text>
-      </TouchableOpacity>
-    )
-  }
-}
-
-
-class Lift extends React.Component {
   render() {
     let sets = REP_SCHEMES[this.props.tier][this.props.repScheme].sets;
     let reps = REP_SCHEMES[this.props.tier][this.props.repScheme].reps;
     let amrap = REP_SCHEMES[this.props.tier].amrap;
 
+
+
     // Populate an array of SetButtons for display, and if the rep scheme calls
     // for an AMRAP final set, represent that in the final button in the array
     let setButtons = [];
     for (var i = 0; i < sets - 1; i++) {
-      setButtons.push(<SetButton reps={reps} key={i} />);
+      setButtons.push(
+        <SetButton id={i} key={i} reps={reps} isActive={this.state.activeSetButton == i}
+          setActiveSetButton={(activeSetButton) => this.setState({activeSetButton})}
+        />
+      );
     }
-    setButtons.push(<SetButton reps={reps} amrap={amrap} key={i} />);
+    setButtons.push(
+      <SetButton id={i} key={i} reps={reps} amrap={amrap} isActive={this.state.activeSetButton == i}
+        setActiveSetButton={(activeSetButton) => this.setState({activeSetButton})}
+      />
+    );
+
 
     return (
       <View>
@@ -149,18 +105,45 @@ class Lift extends React.Component {
 }
 
 
+class SetButton extends React.Component {
+  render() {
+    var active = this.props.isActive;
+
+    let buttonText, currentStyle, currentTextStyle;
+
+    buttonText = this.props.reps + (this.props.amrap ? '+' : '');
+
+    if (active) {
+      currentStyle = styles.setButtonActive;
+      currentTextStyle = styles.setButtonTextActive;
+    } else {
+      currentStyle = styles.setButtonInactive;
+      currentTextStyle = styles.setButtonTextInactive;
+    }
+
+    return (
+      <TouchableOpacity
+        style={currentStyle}
+        onPress={() => this.props.setActiveSetButton(this.props.id)}
+      >
+        <Text style={currentTextStyle}>{buttonText}</Text>
+      </TouchableOpacity>
+    )
+  }
+}
+
+
 class WorkoutA1 extends React.Component {
   static navigationOptions = ({ navigation }) => ({
     title: `Workout A1`,
   });
   render() {
-    console.log(DEVICE_W);
     const {navigate} = this.props.navigation;
     return (
       <ScrollView style={styles.container}>
         <Lift tier='T1' repScheme='1' exercise='Squat' />
-        <Lift tier='T2' repScheme='1' exercise='Bench' />
-        <Lift tier='T3' repScheme='1' exercise='Lat Pulldown' />
+        {/*<Lift tier='T2' repScheme='1' exercise='Bench Press' />
+        <Lift tier='T3' repScheme='1' exercise='Lat Pulldown' />*/}
 
         <Button
           onPress={() => navigate('B1')}
@@ -171,6 +154,7 @@ class WorkoutA1 extends React.Component {
   }
 }
 
+/*
 class WorkoutB1 extends React.Component {
   static navigationOptions = ({ navigation }) => ({
     title: `Workout B1`,
@@ -233,14 +217,13 @@ class WorkoutB2 extends React.Component {
     );
   }
 }
-
+*/
 
 const App = StackNavigator({
-  //Home: { screen: HomeScreen },
   A1: { screen: WorkoutA1 },
-  B1: { screen: WorkoutB1 },
-  A2: { screen: WorkoutA2 },
-  B2: { screen: WorkoutB2 },
+  //B1: { screen: WorkoutB1 },
+  //A2: { screen: WorkoutA2 },
+  //B2: { screen: WorkoutB2 },
 });
 export default App;
 
@@ -289,7 +272,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  setButtonText: {
+  setButtonTextActive: {
     color: '#fa375a',
   },
   setButtonTextInactive: {
