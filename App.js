@@ -59,7 +59,6 @@ const REP_SCHEMES = {
 class Lift extends React.Component {
   constructor(props) {
     super(props);
-
     this.state = { lastClickedButton: 0 };
   }
 
