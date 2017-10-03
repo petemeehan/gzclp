@@ -57,20 +57,50 @@ const REP_SCHEMES = {
 
 const workingWeights = {
   T1: {
-    'Squat': 50,
-    'OHP': 30,
-    'Bench': 40,
-    'Deadlift': 60,
+    squat: {
+      label: 'Squat',
+      weight: 50,
+    },
+    deadlift: {
+      label: 'Deadlift',
+      weight: 60,
+    },
+    bench: {
+      label: 'Bench Press',
+      weight: 40,
+    },
+    ohp: {
+      label: 'Overhead Press',
+      weight: 30,
+    },
   },
   T2: {
-    'Bench Press': 30,
-    'Deadlift': 50,
-    'Squat': 40,
-    'OHP': 20,
+    squat: {
+      label: 'Squat',
+      weight: 40,
+    },
+    deadlift: {
+      label: 'Deadlift',
+      weight: 50,
+    },
+    bench: {
+      label: 'Bench Press',
+      weight: 30,
+    },
+    ohp: {
+      label: 'Overhead Press',
+      weight: 20,
+    },
   },
   T3: {
-    'Lat Pulldown': 20,
-    'Dumbbell Row': 10,
+    latPulldown: {
+      label: 'Lat Pulldown',
+      weight: 20,
+    },
+    dbRow: {
+      label: 'Dumbbell Row',
+      weight: 10,
+    },
   },
 }
 
@@ -90,7 +120,7 @@ class Lift extends React.Component {
         reps = REP_SCHEMES[tier][repScheme].reps,
         isAmrap = REP_SCHEMES[tier].isAmrap;
 
-    var weight = workingWeights[tier][exercise];
+    var weight = workingWeights[tier][exercise].weight;
 
     // Populate an array of SetButtons for display, and if the rep scheme calls
     // for an AMRAP final set, pass the isAmrap prop with TRUE value
@@ -132,7 +162,7 @@ class LiftInfo extends React.Component {
     return (
       <View>
         <Text style={styles.liftName}>
-          {tier} {exercise}
+          {tier} {workingWeights[tier][exercise].label}
         </Text>
         <Text style={styles.liftDetails}>
           {weight}kg  {sets} x {reps}{isAmrap ? '+' : ''}
@@ -186,6 +216,8 @@ class SetButton extends React.Component {
 }
 
 
+
+
 class WorkoutA1 extends React.Component {
   static navigationOptions = ({ navigation }) => ({
     title: `Workout A1`,
@@ -194,9 +226,9 @@ class WorkoutA1 extends React.Component {
     const {navigate} = this.props.navigation;
     return (
       <ScrollView style={styles.container}>
-        <Lift tier='T1' repScheme='1' exercise='Squat' />
-        <Lift tier='T2' repScheme='1' exercise='Bench Press' />
-        <Lift tier='T3' repScheme='1' exercise='Lat Pulldown' />
+        <Lift tier='T1' repScheme='1' exercise='squat' />
+        <Lift tier='T2' repScheme='1' exercise='bench' />
+        <Lift tier='T3' repScheme='1' exercise='latPulldown' />
 
         <Button
           onPress={() => navigate('B1')}
@@ -215,9 +247,9 @@ class WorkoutB1 extends React.Component {
     const { navigate } = this.props.navigation;
     return (
       <ScrollView style={styles.container}>
-        <Lift tier='T1' repScheme='1' exercise='OHP' />
-        <Lift tier='T2' repScheme='1' exercise='Deadlift' />
-        <Lift tier='T3' repScheme='1' exercise='Dumbbell Row' />
+        <Lift tier='T1' repScheme='1' exercise='ohp' />
+        <Lift tier='T2' repScheme='1' exercise='deadlift' />
+        <Lift tier='T3' repScheme='1' exercise='dbRow' />
 
         <Button
           onPress={() => navigate('A2')}
@@ -236,9 +268,9 @@ class WorkoutA2 extends React.Component {
     const { navigate } = this.props.navigation;
     return (
       <ScrollView style={styles.container}>
-        <Lift tier='T1' repScheme='1' exercise='Bench' />
-        <Lift tier='T2' repScheme='1' exercise='Squat' />
-        <Lift tier='T3' repScheme='1' exercise='Lat Pulldown' />
+        <Lift tier='T1' repScheme='1' exercise='bench' />
+        <Lift tier='T2' repScheme='1' exercise='squat' />
+        <Lift tier='T3' repScheme='1' exercise='latPulldown' />
 
         <Button
           onPress={() => navigate('B2')}
@@ -257,9 +289,9 @@ class WorkoutB2 extends React.Component {
     const { navigate } = this.props.navigation;
     return (
       <ScrollView style={styles.container}>
-        <Lift tier='T1' repScheme='1' exercise='Deadlift' />
-        <Lift tier='T2' repScheme='1' exercise='OHP' />
-        <Lift tier='T3' repScheme='1' exercise='Dumbbell Row' />
+        <Lift tier='T1' repScheme='1' exercise='deadlift' />
+        <Lift tier='T2' repScheme='1' exercise='ohp' />
+        <Lift tier='T3' repScheme='1' exercise='dbRow' />
 
         <Button
           onPress={() => navigate('A1')}
@@ -286,10 +318,11 @@ const styles = StyleSheet.create({
   },
   liftContainer: {
     backgroundColor: '#fff',
+    marginBottom: 3,
   },
   liftInfoContainer: {
     marginHorizontal: (0.03125+0.015625) * DEVICE_W,
-    marginTop: 10,
+    marginTop: 5 + 0.015625 * DEVICE_W,
     marginBottom: 5,
   },
   liftName: {
@@ -299,7 +332,7 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   setButtonContainer: {
-    marginBottom: 15,
+    marginBottom: 10,
     flexDirection: 'row',
     marginHorizontal: 0.03125 * DEVICE_W,
     flexWrap: 'wrap',
