@@ -7,55 +7,179 @@ import {
   Button,
   TouchableOpacity,
   Alert,
+  Dimensions,
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 
-/* Disabled home screen as not required yet
-/*
-class HomeScreen extends React.Component {
-  static navigationOptions = {
-    title: 'GZCLP',
-  };
+
+const DEVICE_W = Dimensions.get('window').width;
+const DEVICE_H = Dimensions.get('window').height;
+
+const REP_SCHEMES = {
+  T1: {
+    1: {
+      sets: 5,
+      reps: 3,
+    },
+    2: {
+      sets: 6,
+      reps: 2,
+    },
+    3: {
+      sets: 10,
+      reps: 1,
+    },
+    isAmrap: true,
+  },
+  T2: {
+    1: {
+      sets: 3,
+      reps: 10,
+    },
+    2: {
+      sets: 3,
+      reps: 8,
+    },
+    3: {
+      sets: 3,
+      reps: 6,
+    },
+    isAmrap: false,
+  },
+  T3: {
+    1: {
+      sets: 3,
+      reps: 15,
+    },
+    isAmrap: true,
+  },
+}
+
+const workingWeights = {
+  T1: {
+    'Squat': 50,
+    'OHP': 30,
+    'Bench': 40,
+    'Deadlift': 60,
+  },
+  T2: {
+    'Bench Press': 30,
+    'Deadlift': 50,
+    'Squat': 40,
+    'OHP': 20,
+  },
+  T3: {
+    'Lat Pulldown': 20,
+    'Dumbbell Row': 10,
+  },
+}
+
+
+class Lift extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { lastClickedButton: 0 };
+  }
+
   render() {
-    const { navigate } = this.props.navigation;
-    return (
-      <View style={styles.container}>
-        <Button
-          onPress={() => navigate('A1')}
-          title="Proceed to First Workout"
+    var tier = this.props.tier,
+        repScheme = this.props.repScheme,
+        exercise = this.props.exercise;
+
+    var sets = REP_SCHEMES[tier][repScheme].sets,
+        reps = REP_SCHEMES[tier][repScheme].reps,
+        isAmrap = REP_SCHEMES[tier].isAmrap;
+
+    var weight = workingWeights[tier][exercise];
+
+    // Populate an array of SetButtons for display, and if the rep scheme calls
+    // for an AMRAP final set, pass the isAmrap prop with TRUE value
+    var setButtons = [];
+    for (var i = 1; i <= sets; i++) {
+      setButtons.push(
+        <SetButton id={i} key={i} reps={reps} isAmrap={i == sets ? isAmrap : false}
+          isActive={i <= this.state.lastClickedButton + 1}
+          isClicked={i <= this.state.lastClickedButton}
+          setLastClickedButton={(lastClickedButton) => this.setState( {lastClickedButton} )}
         />
+      );
+    }
+
+    return (
+      <View style={styles.liftContainer}>
+        <View style={styles.liftInfoContainer}>
+          <LiftInfo tier={tier} exercise={exercise} weight={weight} sets={sets} reps={reps} isAmrap={isAmrap}  />
+        </View>
+
+        <View style={styles.setButtonContainer}>
+          {setButtons}
+        </View>
       </View>
     );
   }
 }
-*/
+
+
+class LiftInfo extends React.Component {
+  render() {
+    var tier = this.props.tier,
+        exercise = this.props.exercise,
+        weight = this.props.weight,
+        sets = this.props.sets,
+        reps = this.props.reps,
+        isAmrap = this.props.isAmrap;
+
+    return (
+      <View>
+        <Text style={styles.liftName}>
+          {tier} {exercise}
+        </Text>
+        <Text style={styles.liftDetails}>
+          {weight}kg  {sets} x {reps}{isAmrap ? '+' : ''}
+        </Text>
+    </View>
+    )
+  }
+}
+
 
 class SetButton extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { pressStatus: false };
-  }
-
-  onPressButton() {
-    this.setState(
-      previousState => {
-        return { pressStatus: !(previousState.pressStatus) };
-      }
-    );
-  }
-
   render() {
-    let currentStyle = this.state.pressStatus ?
-      styles.setButtonSuccess : styles.setButtonBlank;
-    let currentTextStyle = this.state.pressStatus ?
-      styles.setButtonTextSuccess : styles.setButtonTextBlank;
-    let currentText = this.state.pressStatus ? '✓' : this.props.reps;
+    var reps = this.props.reps,
+        isAmrap = this.props.isAmrap,
+        isClicked = this.props.isClicked,
+        isActive = this.props.isActive,
+        setLastClickedButton = this.props.setLastClickedButton,
+        id = this.props.id;
+
+    // If button is clicked, display a tick. Otherwise display number of reps.
+    // And if set is an AMRAP set, display a '+' sign with the number
+    var buttonText = isClicked ? '✓' : reps + (isAmrap ? '+' : '');
+
+    // Apply style depending on whether button is inactive, active or clicked
+    var currentStyle, currentTextStyle;
+    if (isClicked) {
+      currentStyle = styles.setButtonClicked;
+      currentTextStyle = styles.setButtonTextClicked;
+    } else if (isActive) {
+      currentStyle = styles.setButtonActive;
+      currentTextStyle = styles.setButtonTextActive;
+    } else {
+      currentStyle = styles.setButtonInactive;
+      currentTextStyle = styles.setButtonTextInactive;
+    }
+
     return (
       <TouchableOpacity
+        activeOpacity={0.8}
         style={currentStyle}
-        onPress={this.onPressButton.bind(this)}
+        onPress={() => {
+          if (isActive) { setLastClickedButton(!isClicked ? id : id - 1) }
+        }}
       >
-        <Text style={currentTextStyle}>{currentText}</Text>
+        <Text style={currentTextStyle}>
+          {buttonText}
+        </Text>
       </TouchableOpacity>
     )
   }
@@ -67,39 +191,18 @@ class WorkoutA1 extends React.Component {
     title: `Workout A1`,
   });
   render() {
-    console.log(this.props);
-
     const {navigate} = this.props.navigation;
     return (
-      <View style={styles.container}>
-        <Text style={styles.liftName}>T1 Squat</Text>
-        <View style={styles.setButtonContainer}>
-          <SetButton reps='3' />
-          <SetButton reps='3' />
-          <SetButton reps='3' />
-          <SetButton reps='3' />
-          <SetButton reps='3+' />
-        </View>
-
-        <Text style={styles.liftName}>T2 Bench</Text>
-        <View style={styles.setButtonContainer}>
-          <SetButton reps='10' />
-          <SetButton reps='10' />
-          <SetButton reps='10' />
-        </View>
-
-        <Text style={styles.liftName}>T3 Lat Pulldown</Text>
-        <View style={styles.setButtonContainer}>
-          <SetButton reps='15' />
-          <SetButton reps='15' />
-          <SetButton reps='15+' />
-        </View>
+      <ScrollView style={styles.container}>
+        <Lift tier='T1' repScheme='1' exercise='Squat' />
+        <Lift tier='T2' repScheme='1' exercise='Bench Press' />
+        <Lift tier='T3' repScheme='1' exercise='Lat Pulldown' />
 
         <Button
           onPress={() => navigate('B1')}
           title="Done"
         />
-      </View>
+      </ScrollView>
     );
   }
 }
@@ -111,35 +214,16 @@ class WorkoutB1 extends React.Component {
   render() {
     const { navigate } = this.props.navigation;
     return (
-      <View style={styles.container}>
-        <Text style={styles.liftName}>T1 OHP</Text>
-        <View style={styles.setButtonContainer}>
-          <SetButton reps='3' />
-          <SetButton reps='3' />
-          <SetButton reps='3' />
-          <SetButton reps='3' />
-          <SetButton reps='3+' />
-        </View>
-
-        <Text style={styles.liftName}>T2 Deadlift</Text>
-        <View style={styles.setButtonContainer}>
-          <SetButton reps='10' />
-          <SetButton reps='10' />
-          <SetButton reps='10' />
-        </View>
-
-        <Text style={styles.liftName}>T3 Dumbbell Row</Text>
-        <View style={styles.setButtonContainer}>
-          <SetButton reps='15' />
-          <SetButton reps='15' />
-          <SetButton reps='15+' />
-        </View>
+      <ScrollView style={styles.container}>
+        <Lift tier='T1' repScheme='1' exercise='OHP' />
+        <Lift tier='T2' repScheme='1' exercise='Deadlift' />
+        <Lift tier='T3' repScheme='1' exercise='Dumbbell Row' />
 
         <Button
           onPress={() => navigate('A2')}
           title="Done"
         />
-      </View>
+      </ScrollView>
     );
   }
 }
@@ -151,35 +235,16 @@ class WorkoutA2 extends React.Component {
   render() {
     const { navigate } = this.props.navigation;
     return (
-      <View style={styles.container}>
-        <Text style={styles.liftName}>T1 Bench</Text>
-        <View style={styles.setButtonContainer}>
-          <SetButton reps='3' />
-          <SetButton reps='3' />
-          <SetButton reps='3' />
-          <SetButton reps='3' />
-          <SetButton reps='3+' />
-        </View>
-
-        <Text style={styles.liftName}>T2 Squat</Text>
-        <View style={styles.setButtonContainer}>
-          <SetButton reps='10' />
-          <SetButton reps='10' />
-          <SetButton reps='10' />
-        </View>
-
-        <Text style={styles.liftName}>T3 Lat Pulldown</Text>
-        <View style={styles.setButtonContainer}>
-          <SetButton reps='15' />
-          <SetButton reps='15' />
-          <SetButton reps='15+' />
-        </View>
+      <ScrollView style={styles.container}>
+        <Lift tier='T1' repScheme='1' exercise='Bench' />
+        <Lift tier='T2' repScheme='1' exercise='Squat' />
+        <Lift tier='T3' repScheme='1' exercise='Lat Pulldown' />
 
         <Button
           onPress={() => navigate('B2')}
           title="Done"
         />
-      </View>
+      </ScrollView>
     );
   }
 }
@@ -191,42 +256,22 @@ class WorkoutB2 extends React.Component {
   render() {
     const { navigate } = this.props.navigation;
     return (
-      <View style={styles.container}>
-        <Text style={styles.liftName}>T1 Deadlift</Text>
-        <View style={styles.setButtonContainer}>
-          <SetButton reps='3' />
-          <SetButton reps='3' />
-          <SetButton reps='3' />
-          <SetButton reps='3' />
-          <SetButton reps='3+' />
-        </View>
-
-        <Text style={styles.liftName}>T2 OHP</Text>
-        <View style={styles.setButtonContainer}>
-          <SetButton reps='10' />
-          <SetButton reps='10' />
-          <SetButton reps='10' />
-        </View>
-
-        <Text style={styles.liftName}>T3 Dumbbell Row</Text>
-        <View style={styles.setButtonContainer}>
-          <SetButton reps='15' />
-          <SetButton reps='15' />
-          <SetButton reps='15+' />
-        </View>
+      <ScrollView style={styles.container}>
+        <Lift tier='T1' repScheme='1' exercise='Deadlift' />
+        <Lift tier='T2' repScheme='1' exercise='OHP' />
+        <Lift tier='T3' repScheme='1' exercise='Dumbbell Row' />
 
         <Button
           onPress={() => navigate('A1')}
           title="Done"
         />
-      </View>
+      </ScrollView>
     );
   }
 }
 
 
 const App = StackNavigator({
-  //Home: { screen: HomeScreen },
   A1: { screen: WorkoutA1 },
   B1: { screen: WorkoutB1 },
   A2: { screen: WorkoutA2 },
@@ -237,42 +282,64 @@ export default App;
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: '#eee',
+  },
+  liftContainer: {
     backgroundColor: '#fff',
+  },
+  liftInfoContainer: {
+    marginHorizontal: (0.03125+0.015625) * DEVICE_W,
+    marginTop: 10,
+    marginBottom: 5,
   },
   liftName: {
-    marginHorizontal: 10,
-    marginTop: 20,
-    marginBottom: 10,
     fontSize: 16,
   },
+  liftDetails: {
+    marginVertical: 5,
+  },
   setButtonContainer: {
+    marginBottom: 15,
     flexDirection: 'row',
-    marginHorizontal: 10
+    marginHorizontal: 0.03125 * DEVICE_W,
+    flexWrap: 'wrap',
   },
-  setButtonBlank: {
-    backgroundColor: '#fff',
+  setButtonActive: {
     borderColor: '#fa375a',
+    borderWidth: 1.5,
+    margin: 0.015625 * DEVICE_W,
+    width: 0.15625 * DEVICE_W,
+    height: 0.15625 * DEVICE_W,
+    borderRadius: 0.15625 * DEVICE_W / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  setButtonInactive: {
+    borderColor: '#bbb',
     borderWidth: 1,
-    margin: 5,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    margin: 0.015625 * DEVICE_W,
+    width: 0.15625 * DEVICE_W,
+    height: 0.15625 * DEVICE_W,
+    borderRadius: 0.15625 * DEVICE_W / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  setButtonSuccess: {
+  setButtonClicked: {
     backgroundColor: '#fa375a',
-    margin: 5,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    margin: 0.015625 * DEVICE_W,
+    width: 0.15625 * DEVICE_W,
+    height: 0.15625 * DEVICE_W,
+    borderRadius: 0.15625 * DEVICE_W / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  setButtonTextBlank: {
+  setButtonTextActive: {
     color: '#fa375a',
   },
-  setButtonTextSuccess: {
+  setButtonTextInactive: {
+    color: '#bbb',
+  },
+  setButtonTextClicked: {
     color: '#fff',
   }
 });
