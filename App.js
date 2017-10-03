@@ -105,7 +105,7 @@ class SetButton extends React.Component {
     // If button is clicked, display a tick. Otherwise display number of reps.
     // And if set is an AMRAP set, display a '+' sign with the number
     var buttonText = isClicked ?
-      '✓' : this.props.reps + (this.props.amrap ? '+' : '');
+      '✓' : this.props.reps + (this.props.isAmrap ? '+' : '');
 
     // Apply style depending on whether button is inactive, active or clicked
     var currentStyle, currentTextStyle;
