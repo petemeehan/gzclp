@@ -120,7 +120,6 @@ class Lift extends React.Component {
     super(props);
     this.state = {
       lastClickedButton: 0,
-      isLiftComplete: false,
     };
   }
 
@@ -146,8 +145,8 @@ class Lift extends React.Component {
     var weight = workingWeights[tier][exercise].weight;
 
 
-    // Populate an array of SetButtons to display, and if the rep scheme calls
-    // for an AMRAP final set, pass the isAmrap prop with TRUE value.
+    // Populate an array of SetButtons to display, and if the rep scheme calls for
+    // AMRAP final set, pass the isAmrap prop with TRUE value for the last set button
     var setButtons = [];
     for (var i = 1; i <= sets; i++) {
       setButtons.push(
@@ -159,14 +158,10 @@ class Lift extends React.Component {
           setLastClickedButton={(lastClickedButton) => {
             this.setState({lastClickedButton})
           }}
-          // Set whole lift to be complete when all sets complete
+          // When all sets are complete (ie. all buttons are clicked), set whole
+          // lift to be complete in parent 'Workout' component
           setLiftComplete={(id) => {
-            // 1ST WAY
             this.props.setLiftComplete( this.isLastButtonClicked(id, sets) );
-
-            // POSS SECOND WAY??
-            let isLiftComplete = this.isLastButtonClicked(id, sets);
-            this.setState({isLiftComplete});
           }}
         />
       );
@@ -221,7 +216,7 @@ class SetButton extends React.Component {
         id = this.props.id;
 
     // If button is clicked, display a tick. Otherwise display number of reps.
-    // And if set is an AMRAP set, display a '+' sign with the number
+    // And if set is an AMRAP set, display a '+' sign next the rep number
     var buttonText = isClicked ? '✓' : reps + (isAmrap ? '+' : '');
 
     // Apply style depending on whether button is inactive, active or clicked
@@ -283,19 +278,13 @@ class WorkoutA1 extends React.Component {
     return (
       <ScrollView style={styles.container}>
         <Lift tier='T1' repScheme='1' exercise='squat'
-          setLiftComplete={(squat) => {
-            this.setState({squat})
-          }}
+          setLiftComplete={(squat) => { this.setState({squat}) }}
         />
         <Lift tier='T2' repScheme='1' exercise='bench'
-          setLiftComplete={(bench) => {
-            this.setState({bench})
-          }}
+          setLiftComplete={(bench) => { this.setState({bench}) }}
         />
         <Lift tier='T3' repScheme='1' exercise='latPulldown'
-          setLiftComplete={(latPulldown) => {
-            this.setState({latPulldown})
-          }}
+          setLiftComplete={(latPulldown) => { this.setState({latPulldown}) }}
         />
 
         <Button
@@ -321,6 +310,8 @@ class WorkoutA1 extends React.Component {
   }
 }
 
+// Other workouts commented out, so testing can focus on just first workout
+/*
 class WorkoutB1 extends React.Component {
   static navigationOptions = ({ navigation }) => ({
     title: `Workout B1`,
@@ -383,7 +374,7 @@ class WorkoutB2 extends React.Component {
     );
   }
 }
-
+*/
 
 const App = StackNavigator({
   A1: { screen: WorkoutA1 },
@@ -422,6 +413,7 @@ const styles = StyleSheet.create({
   setButtonActive: {
     borderColor: '#fa375a',
     borderWidth: 1.5,
+    //backgroundColor: '#ff728c',
     margin: 0.015625 * DEVICE_W,
     width: 0.15625 * DEVICE_W,
     height: 0.15625 * DEVICE_W,
@@ -430,8 +422,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   setButtonInactive: {
-    borderColor: '#bbb',
-    borderWidth: 1,
+    //borderColor: '#bbb',
+    backgroundColor: '#eee',
+    //borderWidth: 1,
     margin: 0.015625 * DEVICE_W,
     width: 0.15625 * DEVICE_W,
     height: 0.15625 * DEVICE_W,
@@ -450,9 +443,11 @@ const styles = StyleSheet.create({
   },
   setButtonTextActive: {
     color: '#fa375a',
+    //color: '#fff',
   },
   setButtonTextInactive: {
-    color: '#bbb',
+    //color: '#bbb',
+    color: '#777'
   },
   setButtonTextClicked: {
     color: '#fff',
