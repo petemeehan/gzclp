@@ -1,1 +1,1 @@
-heh, uh, yeh p-praise the sun
+heh, uh, yes praise th-.. praise the sun
