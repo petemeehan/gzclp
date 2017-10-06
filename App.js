@@ -17,41 +17,20 @@ const DEVICE_H = Dimensions.get('window').height;
 
 const REP_SCHEMES = {
   T1: {
-    1: {
-      sets: 5,
-      reps: 3,
-    },
-    2: {
-      sets: 6,
-      reps: 2,
-    },
-    3: {
-      sets: 10,
-      reps: 1,
-    },
+    1: [3,3,3,3,5],
+    2: [2,2,2,2,2,2],
+    3: [1,1,1,1,1,1,1,1,1,1],
     isAmrap: true,
   },
   T2: {
-    1: {
-      sets: 3,
-      reps: 10,
-    },
-    2: {
-      sets: 3,
-      reps: 8,
-    },
-    3: {
-      sets: 3,
-      reps: 6,
-    },
+    1: [10,10,10],
+    2: [8,8,8],
+    3: [6,6,6],
     isAmrap: false,
   },
   T3: {
-    1: {
-      sets: 3,
-      reps: 15,
-    },
-    isAmrap: true,
+    1: [15,15,25],
+    isAmrap: false,
   },
 }
 
@@ -138,8 +117,8 @@ class Lift extends React.Component {
         repScheme = this.props.repScheme,
         exercise = this.props.exercise;
 
-    var sets = REP_SCHEMES[tier][repScheme].sets,
-        reps = REP_SCHEMES[tier][repScheme].reps,
+    var sets = REP_SCHEMES[tier][repScheme].length,
+        reps = REP_SCHEMES[tier][repScheme],
         isAmrap = REP_SCHEMES[tier].isAmrap;
 
     var weight = workingWeights[tier][exercise].weight;
@@ -150,7 +129,7 @@ class Lift extends React.Component {
     var setButtons = [];
     for (var i = 1; i <= sets; i++) {
       setButtons.push(
-        <SetButton id={i} key={i} reps={reps} isAmrap={i == sets ? isAmrap : false}
+        <SetButton id={i} key={i} reps={reps[i - 1]} isAmrap={i == sets ? isAmrap : false}
           // Keep track of whether each button is in inactive/active/clicked state
           isActive={i <= this.state.lastClickedButton + 1}
           isClicked={i <= this.state.lastClickedButton}
@@ -170,7 +149,7 @@ class Lift extends React.Component {
     return (
       <View style={styles.liftContainer}>
         <View style={styles.liftInfoContainer}>
-          <LiftInfo tier={tier} exercise={exercise} weight={weight} sets={sets} reps={reps} isAmrap={isAmrap}  />
+          <LiftInfo tier={tier} exercise={exercise} weight={weight} sets={sets} reps={reps[0]} isAmrap={isAmrap}  />
         </View>
 
         <View style={styles.setButtonContainer}>
@@ -299,7 +278,7 @@ class WorkoutA1 extends React.Component {
               workingWeights['T2']['bench']['weight'] += 2.5;
             }
             if (this.state.latPulldown) {
-              Alert.alert('WORK IN PROGRESS', '[T3 progression to be implemented]');
+              workingWeights['T3']['latPulldown']['weight'] += 10;
             }
 
             navigate('B1');
