@@ -34,7 +34,7 @@ const REP_SCHEMES = {
   },
 }
 
-var workingWeights = {
+var currentProgramState = {
   T1: {
     squat: {
       label: 'Squat',
@@ -131,7 +131,7 @@ class Lift extends React.Component {
         reps = REP_SCHEMES[tier][repScheme],
         isAmrap = REP_SCHEMES[tier].isAmrap;
 
-    var weight = workingWeights[tier][exercise].weight;
+    var weight = currentProgramState[tier][exercise].weight;
 
 
     // Populate an array of SetButtons to display, and if the rep scheme calls for
@@ -183,7 +183,7 @@ class LiftInfo extends React.Component {
     return (
       <View>
         <Text style={styles.liftName}>
-          {tier} {workingWeights[tier][exercise].label}
+          {tier} {currentProgramState[tier][exercise].label}
         </Text>
         <Text style={styles.liftDetails}>
           {weight}kg  {sets} x {reps}{isAmrap ? '+' : ''}
@@ -245,26 +245,29 @@ class SetButton extends React.Component {
 }
 
 
-
-
 class Workout extends React.Component {
   constructor(props) {
     super(props);
+    // Workout state used to keep track of which lifts are complete
     this.state = {};
   }
 
   render() {
     const {navigate} = this.props.navigation;
 
+    // lifts prop is in the form of an array where each element is a 2-element array
+    // that specifies each lifts Tier (first element) and Exercise (second element)
     var lifts = this.props.lifts;
     var nextSession = this.props.nextSession;
 
-    // Populate an array of Lift components to display
+    // Populate an array of Lift components to display, with the props passed to
+    // this Workout component
     var liftComponents = [];
     lifts.forEach((lift, index) => {
       liftComponents.push(
         <Lift key={index} tier={lift[0]} exercise={lift[1]}
-          repScheme={workingWeights[ lift[0] ][ lift[1] ].repScheme}
+          repScheme={currentProgramState[ lift[0] ][ lift[1] ].repScheme}
+          // Test for whether all sets are complete
           setLiftComplete={(isComplete) => {this.setState({[ lift[1] ]:isComplete})}}
         />
       )
@@ -277,11 +280,12 @@ class Workout extends React.Component {
         <Button
           title="Done"
           onPress={() => {
-            this.setState({});  // Uncomment if testing without navigating as this forces rerender
+            //this.setState({});  // Uncomment if testing without navigating as this forces rerender
 
+            // If a lift is complete, clicking "Done" button increments that lift for next time
             lifts.forEach((lift) => {
               if (this.state[ lift[1] ]) {
-                let todaysLift = workingWeights[ lift[0] ][ lift[1] ];
+                let todaysLift = currentProgramState[ lift[0] ][ lift[1] ];
                 todaysLift.weight += todaysLift.increment;
               }
             });
@@ -293,6 +297,7 @@ class Workout extends React.Component {
     );
   }
 }
+
 
 const App = StackNavigator({
   A1: {
