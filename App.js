@@ -17,7 +17,7 @@ const DEVICE_H = Dimensions.get('window').height;
 
 const REP_SCHEMES = {
   T1: {
-    1: [3,3,3,3,5],
+    1: [3,3,3,3,3],
     2: [2,2,2,2,2,2],
     3: [1,1,1,1,1,1,1,1,1,1],
     isAmrap: true,
@@ -40,21 +40,25 @@ var workingWeights = {
       label: 'Squat',
       weight: 50,
       repScheme: 1,
+      increment: 5,
     },
     deadlift: {
       label: 'Deadlift',
       weight: 60,
       repScheme: 1,
+      increment: 5,
     },
     bench: {
       label: 'Bench Press',
       weight: 40,
       repScheme: 1,
+      increment: 2.5,
     },
     ohp: {
       label: 'Overhead Press',
       weight: 30,
       repScheme: 1,
+      increment: 2.5,
     },
   },
   T2: {
@@ -62,21 +66,25 @@ var workingWeights = {
       label: 'Squat',
       weight: 40,
       repScheme: 1,
+      increment: 2.5,
     },
     deadlift: {
       label: 'Deadlift',
       weight: 50,
       repScheme: 1,
+      increment: 2.5,
     },
     bench: {
       label: 'Bench Press',
       weight: 30,
       repScheme: 1,
+      increment: 2.5,
     },
     ohp: {
       label: 'Overhead Press',
       weight: 20,
       repScheme: 1,
+      increment: 2.5,
     },
   },
   T3: {
@@ -84,11 +92,13 @@ var workingWeights = {
       label: 'Lat Pulldown',
       weight: 20,
       repScheme: 1,
+      increment: 10,
     },
     dbRow: {
       label: 'Dumbbell Row',
       weight: 10,
       repScheme: 1,
+      increment: 4,
     },
   },
 }
@@ -103,7 +113,7 @@ class Lift extends React.Component {
   }
 
   componentDidUpdate() {
-    console.log(this.state);
+    //console.log(this.state);
   }
 
   // If last set button is clicked, pass this to parent so it knows
@@ -129,7 +139,7 @@ class Lift extends React.Component {
     var setButtons = [];
     for (var i = 1; i <= sets; i++) {
       setButtons.push(
-        <SetButton id={i} key={i} reps={reps[i - 1]} isAmrap={i == sets ? isAmrap : false}
+        <SetButton key={i} id={i} reps={reps[i - 1]} isAmrap={i == sets ? isAmrap : false}
           // Keep track of whether each button is in inactive/active/clicked state
           isActive={i <= this.state.lastClickedButton + 1}
           isClicked={i <= this.state.lastClickedButton}
@@ -220,8 +230,9 @@ class SetButton extends React.Component {
           // set to "clicked" state. If it has been, undo its "clicked" state
           // and make the button to the left of it the last "clicked" button
           if (isActive) {
-            setLastClickedButton(isClicked ? id - 1 : id);
-            setLiftComplete(isClicked ? id - 1 : id);
+            let lastClickedButton = isClicked ? id - 1 : id;
+            setLastClickedButton(lastClickedButton);
+            setLiftComplete(lastClickedButton);
           }
         }}
       >
@@ -236,52 +247,46 @@ class SetButton extends React.Component {
 
 
 
-class WorkoutA1 extends React.Component {
-  static navigationOptions = ({ navigation }) => ({
-    title: `Workout A1`,
-  });
-
+class Workout extends React.Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      squat: false,
-      bench: false,
-      latPulldown: false,
-    };
+    this.state = {};
   }
 
   render() {
     const {navigate} = this.props.navigation;
 
+    var lifts = this.props.lifts;
+    var nextSession = this.props.nextSession;
+
+    // Populate an array of Lift components to display
+    var liftComponents = [];
+    lifts.forEach((lift, index) => {
+      liftComponents.push(
+        <Lift key={index} tier={lift[0]} exercise={lift[1]}
+          repScheme={workingWeights[ lift[0] ][ lift[1] ].repScheme}
+          setLiftComplete={(isComplete) => {this.setState({[ lift[1] ]:isComplete})}}
+        />
+      )
+    });
+
     return (
       <ScrollView style={styles.container}>
-        <Lift tier='T1' repScheme='1' exercise='squat'
-          setLiftComplete={(squat) => { this.setState({squat}) }}
-        />
-        <Lift tier='T2' repScheme='1' exercise='bench'
-          setLiftComplete={(bench) => { this.setState({bench}) }}
-        />
-        <Lift tier='T3' repScheme='1' exercise='latPulldown'
-          setLiftComplete={(latPulldown) => { this.setState({latPulldown}) }}
-        />
+        {liftComponents}
 
         <Button
           title="Done"
           onPress={() => {
-            this.setState({});
+            this.setState({});  // Uncomment if testing without navigating as this forces rerender
 
-            if (this.state.squat) {
-              workingWeights['T1']['squat']['weight'] += 5;
-            }
-            if (this.state.bench) {
-              workingWeights['T2']['bench']['weight'] += 2.5;
-            }
-            if (this.state.latPulldown) {
-              workingWeights['T3']['latPulldown']['weight'] += 10;
-            }
+            lifts.forEach((lift) => {
+              if (this.state[ lift[1] ]) {
+                let todaysLift = workingWeights[ lift[0] ][ lift[1] ];
+                todaysLift.weight += todaysLift.increment;
+              }
+            });
 
-            navigate('B1');
+            navigate(nextSession);
           }}
         />
       </ScrollView>
@@ -289,79 +294,58 @@ class WorkoutA1 extends React.Component {
   }
 }
 
-// Other workouts commented out, so testing can focus on just first workout
-/*
-class WorkoutB1 extends React.Component {
-  static navigationOptions = ({ navigation }) => ({
-    title: `Workout B1`,
-  });
-  render() {
-    const { navigate } = this.props.navigation;
-    return (
-      <ScrollView style={styles.container}>
-        <Lift tier='T1' repScheme='1' exercise='ohp' />
-        <Lift tier='T2' repScheme='1' exercise='deadlift' />
-        <Lift tier='T3' repScheme='1' exercise='dbRow' />
-
-        <Button
-          onPress={() => navigate('A2')}
-          title="Done"
-        />
-      </ScrollView>
-    );
-  }
-}
-
-class WorkoutA2 extends React.Component {
-  static navigationOptions = ({ navigation }) => ({
-    title: `Workout A2`,
-  });
-  render() {
-    const { navigate } = this.props.navigation;
-    return (
-      <ScrollView style={styles.container}>
-        <Lift tier='T1' repScheme='1' exercise='bench' />
-        <Lift tier='T2' repScheme='1' exercise='squat' />
-        <Lift tier='T3' repScheme='1' exercise='latPulldown' />
-
-        <Button
-          onPress={() => navigate('B2')}
-          title="Done"
-        />
-      </ScrollView>
-    );
-  }
-}
-
-class WorkoutB2 extends React.Component {
-  static navigationOptions = ({ navigation }) => ({
-    title: `Workout B2`,
-  });
-  render() {
-    const { navigate } = this.props.navigation;
-    return (
-      <ScrollView style={styles.container}>
-        <Lift tier='T1' repScheme='1' exercise='deadlift' />
-        <Lift tier='T2' repScheme='1' exercise='ohp' />
-        <Lift tier='T3' repScheme='1' exercise='dbRow' />
-
-        <Button
-          onPress={() => navigate('A1')}
-          title="Done"
-        />
-      </ScrollView>
-    );
-  }
-}
-*/
-
 const App = StackNavigator({
-  A1: { screen: WorkoutA1 },
-  //B1: { screen: WorkoutB1 },
-  //A2: { screen: WorkoutA2 },
-  //B2: { screen: WorkoutB2 },
+  A1: {
+    screen: props => <Workout {...props} {...{
+      lifts:[
+        ['T1', 'squat'],
+        ['T2', 'bench'],
+        ['T3', 'latPulldown']
+      ],
+      nextSession: 'B1'
+    }} />,
+    navigationOptions: {title: "Workout A1"}
+  },
+
+  B1: {
+    screen: props => <Workout {...props} {...{
+      lifts:[
+        ['T1', 'ohp'],
+        ['T2', 'deadlift'],
+        ['T3', 'dbRow']
+      ],
+      nextSession: 'A2',
+    }} />,
+    navigationOptions: {title: "Workout B1"}
+  },
+
+  A2: {
+    screen: props => <Workout {...props} {...{
+      lifts:[
+        ['T1', 'bench'],
+        ['T2', 'squat'],
+        ['T3', 'latPulldown']
+      ],
+      nextSession: 'B2',
+    }} />,
+    navigationOptions: {title: "Workout A2"}
+  },
+
+  B2: {
+    screen: props => <Workout {...props} {...{
+      lifts:[
+        ['T1', 'deadlift'],
+        ['T2', 'ohp'],
+        ['T3', 'dbRow']
+      ],
+      nextSession: 'A1',
+    }} />,
+    navigationOptions: {title: "Workout B2"}
+  },
 });
 export default App;
+
+
 
 
 const styles = StyleSheet.create({
