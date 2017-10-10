@@ -140,6 +140,99 @@ var currentProgramState = {
 
 
 
+class HomeScreen extends React.Component {
+  static navigationOptions = {
+    title: 'GZCLP',
+    headerTintColor: '#fff',
+    headerStyle: {
+      backgroundColor: appColour,
+    }
+  };
+  render() {
+    const { navigate } = this.props.navigation;
+
+    return (
+      <View>
+        <Button
+          title='Proceed to First Workout'
+          color={appColour}
+          onPress={() => navigate('Workout', WORKOUTS[workoutCounter])}
+        />
+      </View>
+    );
+  }
+}
+
+
+
+class WorkoutScreen extends React.Component {
+  constructor(props) {
+    super(props);
+    // Workout state used to keep track of which lifts are complete
+    this.state = {};
+  }
+
+  static navigationOptions = ({ navigation }) => ({
+    title: 'Workout ' + navigation.state.params.name,
+    headerTintColor: '#fff',
+    headerStyle: {
+      backgroundColor: appColour,
+    }
+  });
+
+  render() {
+    const { navigate } = this.props.navigation;
+    const { params } = this.props.navigation.state;
+
+    // lifts prop is in the form of an array where each element is a 2-element array
+    // that specifies each lifts Tier (first element) and Exercise (second element)
+    var lifts = params.lifts;
+
+    // Populate an array of Lift components to display, with the props passed to
+    // this Workout component
+    var liftComponents = [];
+    lifts.forEach((lift, index) => {
+      liftComponents.push(
+        <Lift key={index} tier={lift[0]} exercise={lift[1]}
+          repScheme={currentProgramState[ lift[0] ][ lift[1] ].repScheme}
+          // Test for whether all sets are complete
+          setLiftComplete={(isComplete) => {this.setState({[ lift[1] ]:isComplete})}}
+        />
+      )
+    });
+
+    return (
+      <ScrollView style={styles.container}>
+        {liftComponents}
+
+        <Button
+          title='Done'
+          color={appColour}
+          onPress={() => {
+            this.setState({});  // Uncomment if testing without navigating as this forces rerender
+
+            // If a lift is complete, clicking "Done" button increments that lift for next time
+            lifts.forEach((lift) => {
+              if (this.state[ lift[1] ]) {
+                let todaysLift = currentProgramState[ lift[0] ][ lift[1] ];
+                todaysLift.weight += todaysLift.increment;
+              }
+            });
+
+            // Increment the workout counter so workouts are cycled from A1 to B2
+            // and back to A1 and so on
+            workoutCounter = (workoutCounter + 1) % 4;
+
+            navigate('Workout', WORKOUTS[workoutCounter]);
+          }}
+        />
+      </ScrollView>
+    );
+  }
+}
+
+
+
 class Lift extends React.Component {
   constructor(props) {
     super(props);
@@ -275,100 +368,6 @@ class SetButton extends React.Component {
         </Text>
       </TouchableOpacity>
     )
-  }
-}
-
-
-
-class WorkoutScreen extends React.Component {
-  constructor(props) {
-    super(props);
-    // Workout state used to keep track of which lifts are complete
-    this.state = {};
-  }
-
-  static navigationOptions = ({ navigation }) => ({
-    title: 'Workout ' + navigation.state.params.name,
-    headerTintColor: '#fff',
-    headerStyle: {
-      backgroundColor: appColour,
-    }
-  });
-
-  render() {
-    const { navigate } = this.props.navigation;
-    const { params } = this.props.navigation.state;
-
-    // lifts prop is in the form of an array where each element is a 2-element array
-    // that specifies each lifts Tier (first element) and Exercise (second element)
-    var lifts = params.lifts;
-
-    // Populate an array of Lift components to display, with the props passed to
-    // this Workout component
-    var liftComponents = [];
-    lifts.forEach((lift, index) => {
-      liftComponents.push(
-        <Lift key={index} tier={lift[0]} exercise={lift[1]}
-          repScheme={currentProgramState[ lift[0] ][ lift[1] ].repScheme}
-          // Test for whether all sets are complete
-          setLiftComplete={(isComplete) => {this.setState({[ lift[1] ]:isComplete})}}
-        />
-      )
-    });
-
-    return (
-      <ScrollView style={styles.container}>
-        {liftComponents}
-
-        <Button
-          title='Done'
-          color={appColour}
-          onPress={() => {
-            this.setState({});  // Uncomment if testing without navigating as this forces rerender
-
-            // If a lift is complete, clicking "Done" button increments that lift for next time
-            lifts.forEach((lift) => {
-              if (this.state[ lift[1] ]) {
-                let todaysLift = currentProgramState[ lift[0] ][ lift[1] ];
-                todaysLift.weight += todaysLift.increment;
-              }
-            });
-
-            // Increment the workout counter so workouts are cycled from A1 to B2
-            // and back to A1 and so on
-            workoutCounter = (workoutCounter + 1) % 4;
-
-            navigate('Workout', WORKOUTS[workoutCounter]);
-          }}
-        />
-      </ScrollView>
-    );
-  }
-}
-
-
-
-class HomeScreen extends React.Component {
-  static navigationOptions = {
-    title: 'GZCLP',
-    headerTintColor: '#fff',
-    headerStyle: {
-      backgroundColor: appColour,
-    }
-  };
-  render() {
-    const { navigate } = this.props.navigation;
-
-    return (
-      <View>
-        <Button
-          title='Proceed to First Workout'
-          color={appColour}
-          style={{backgroundColor: appColour}}
-          onPress={() => navigate('Workout', WORKOUTS[workoutCounter])}
-        />
-      </View>
-    );
   }
 }
 
