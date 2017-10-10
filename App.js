@@ -104,6 +104,8 @@ var currentProgramState = {
 }
 
 
+
+
 class Lift extends React.Component {
   constructor(props) {
     super(props);
@@ -171,6 +173,8 @@ class Lift extends React.Component {
 }
 
 
+
+
 class LiftInfo extends React.Component {
   render() {
     var tier = this.props.tier,
@@ -192,6 +196,8 @@ class LiftInfo extends React.Component {
     )
   }
 }
+
+
 
 
 class SetButton extends React.Component {
@@ -243,6 +249,8 @@ class SetButton extends React.Component {
     )
   }
 }
+
+
 
 
 class Workout extends React.Component {
@@ -299,17 +307,26 @@ class Workout extends React.Component {
 }
 
 
+
+
 const App = StackNavigator({
   A1: {
     screen: props => <Workout {...props} {...{
-      lifts:[
+      lifts: [
         ['T1', 'squat'],
         ['T2', 'bench'],
         ['T3', 'latPulldown']
       ],
       nextSession: 'B1'
     }} />,
-    navigationOptions: {title: "Workout A1"}
+
+    navigationOptions: {
+      title: 'Workout A1',
+      headerTintColor: '#fff',
+      headerStyle: {
+        backgroundColor: '#fa375a',
+      }
+    }
   },
 
   B1: {
@@ -321,7 +338,14 @@ const App = StackNavigator({
       ],
       nextSession: 'A2',
     }} />,
-    navigationOptions: {title: "Workout B1"}
+
+    navigationOptions: {
+      title: 'Workout B1',
+      headerTintColor: '#fff',
+      headerStyle: {
+        backgroundColor: '#fa375a',
+      }
+    }
   },
 
   A2: {
@@ -333,7 +357,14 @@ const App = StackNavigator({
       ],
       nextSession: 'B2',
     }} />,
-    navigationOptions: {title: "Workout A2"}
+
+    navigationOptions: {
+      title: 'Workout A2',
+      headerTintColor: '#fff',
+      headerStyle: {
+        backgroundColor: '#fa375a',
+      }
+    }
   },
 
   B2: {
@@ -345,7 +376,14 @@ const App = StackNavigator({
       ],
       nextSession: 'A1',
     }} />,
-    navigationOptions: {title: "Workout B2"}
+
+    navigationOptions: {
+      title: 'Workout B2',
+      headerTintColor: '#fff',
+      headerStyle: {
+        backgroundColor: '#fa375a',
+      }
+    }
   },
 });
 export default App;
