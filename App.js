@@ -11,9 +11,41 @@ import {
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 
-
+const appColour = '#fa375a';
 const DEVICE_W = Dimensions.get('window').width;
 const DEVICE_H = Dimensions.get('window').height;
+
+const WORKOUTS = [
+  {
+    name: 'A1',
+    lifts: [
+      ['T1', 'squat'],
+      ['T2', 'bench'],
+      ['T3', 'latPulldown'],
+    ],
+  }, {
+    name: 'B1',
+    lifts: [
+      ['T1', 'ohp'],
+      ['T2', 'deadlift'],
+      ['T3', 'dbRow'],
+    ],
+  }, {
+    name: 'A2',
+    lifts: [
+      ['T1', 'bench'],
+      ['T2', 'squat'],
+      ['T3', 'latPulldown'],
+    ],
+  }, {
+    name: 'B2',
+    lifts: [
+      ['T1', 'deadlift'],
+      ['T2', 'ohp'],
+      ['T3', 'dbRow'],
+    ],
+  }
+]
 
 const REP_SCHEMES = {
   T1: {
@@ -34,6 +66,9 @@ const REP_SCHEMES = {
   },
 }
 
+
+// NOTE: THIS DATA STRUCSH WILL BE REFACTORED AS A CLASS LATER
+var workoutCounter = 0;
 var currentProgramState = {
   T1: {
     squat: {
@@ -105,17 +140,12 @@ var currentProgramState = {
 
 
 
-
 class Lift extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       lastClickedButton: 0,
     };
-  }
-
-  componentDidUpdate() {
-    //console.log(this.state);
   }
 
   // If last set button is clicked, pass this to parent so it knows
@@ -174,7 +204,6 @@ class Lift extends React.Component {
 
 
 
-
 class LiftInfo extends React.Component {
   render() {
     var tier = this.props.tier,
@@ -196,7 +225,6 @@ class LiftInfo extends React.Component {
     )
   }
 }
-
 
 
 
@@ -252,21 +280,28 @@ class SetButton extends React.Component {
 
 
 
-
-class Workout extends React.Component {
+class WorkoutScreen extends React.Component {
   constructor(props) {
     super(props);
     // Workout state used to keep track of which lifts are complete
     this.state = {};
   }
 
+  static navigationOptions = ({ navigation }) => ({
+    title: 'Workout ' + navigation.state.params.name,
+    headerTintColor: '#fff',
+    headerStyle: {
+      backgroundColor: appColour,
+    }
+  });
+
   render() {
-    const {navigate} = this.props.navigation;
+    const { navigate } = this.props.navigation;
+    const { params } = this.props.navigation.state;
 
     // lifts prop is in the form of an array where each element is a 2-element array
     // that specifies each lifts Tier (first element) and Exercise (second element)
-    var lifts = this.props.lifts;
-    var nextSession = this.props.nextSession;
+    var lifts = params.lifts;
 
     // Populate an array of Lift components to display, with the props passed to
     // this Workout component
@@ -286,9 +321,10 @@ class Workout extends React.Component {
         {liftComponents}
 
         <Button
-          title="Done"
+          title='Done'
+          color={appColour}
           onPress={() => {
-            //this.setState({});  // Uncomment if testing without navigating as this forces rerender
+            this.setState({});  // Uncomment if testing without navigating as this forces rerender
 
             // If a lift is complete, clicking "Done" button increments that lift for next time
             lifts.forEach((lift) => {
@@ -298,7 +334,11 @@ class Workout extends React.Component {
               }
             });
 
-            navigate(nextSession);
+            // Increment the workout counter so workouts are cycled from A1 to B2
+            // and back to A1 and so on
+            workoutCounter = (workoutCounter + 1) % 4;
+
+            navigate('Workout', WORKOUTS[workoutCounter]);
           }}
         />
       </ScrollView>
@@ -308,86 +348,37 @@ class Workout extends React.Component {
 
 
 
+class HomeScreen extends React.Component {
+  static navigationOptions = {
+    title: 'GZCLP',
+    headerTintColor: '#fff',
+    headerStyle: {
+      backgroundColor: appColour,
+    }
+  };
+  render() {
+    const { navigate } = this.props.navigation;
+
+    return (
+      <View>
+        <Button
+          title='Proceed to First Workout'
+          color={appColour}
+          style={{backgroundColor: appColour}}
+          onPress={() => navigate('Workout', WORKOUTS[workoutCounter])}
+        />
+      </View>
+    );
+  }
+}
+
+
 
 const App = StackNavigator({
-  A1: {
-    screen: props => <Workout {...props} {...{
-      lifts: [
-        ['T1', 'squat'],
-        ['T2', 'bench'],
-        ['T3', 'latPulldown']
-      ],
-      nextSession: 'B1'
-    }} />,
-
-    navigationOptions: {
-      title: 'Workout A1',
-      headerTintColor: '#fff',
-      headerStyle: {
-        backgroundColor: '#fa375a',
-      }
-    }
-  },
-
-  B1: {
-    screen: props => <Workout {...props} {...{
-      lifts:[
-        ['T1', 'ohp'],
-        ['T2', 'deadlift'],
-        ['T3', 'dbRow']
-      ],
-      nextSession: 'A2',
-    }} />,
-
-    navigationOptions: {
-      title: 'Workout B1',
-      headerTintColor: '#fff',
-      headerStyle: {
-        backgroundColor: '#fa375a',
-      }
-    }
-  },
-
-  A2: {
-    screen: props => <Workout {...props} {...{
-      lifts:[
-        ['T1', 'bench'],
-        ['T2', 'squat'],
-        ['T3', 'latPulldown']
-      ],
-      nextSession: 'B2',
-    }} />,
-
-    navigationOptions: {
-      title: 'Workout A2',
-      headerTintColor: '#fff',
-      headerStyle: {
-        backgroundColor: '#fa375a',
-      }
-    }
-  },
-
-  B2: {
-    screen: props => <Workout {...props} {...{
-      lifts:[
-        ['T1', 'deadlift'],
-        ['T2', 'ohp'],
-        ['T3', 'dbRow']
-      ],
-      nextSession: 'A1',
-    }} />,
-
-    navigationOptions: {
-      title: 'Workout B2',
-      headerTintColor: '#fff',
-      headerStyle: {
-        backgroundColor: '#fa375a',
-      }
-    }
-  },
+  Home: {screen: HomeScreen},
+  Workout: {screen: WorkoutScreen}
 });
 export default App;
-
 
 
 
@@ -417,9 +408,8 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   setButtonActive: {
-    borderColor: '#fa375a',
+    borderColor: appColour,
     borderWidth: 1.5,
-    //backgroundColor: '#ff728c',
     margin: 0.015625 * DEVICE_W,
     width: 0.15625 * DEVICE_W,
     height: 0.15625 * DEVICE_W,
@@ -428,9 +418,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   setButtonInactive: {
-    //borderColor: '#bbb',
     backgroundColor: '#eee',
-    //borderWidth: 1,
     margin: 0.015625 * DEVICE_W,
     width: 0.15625 * DEVICE_W,
     height: 0.15625 * DEVICE_W,
@@ -439,7 +427,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   setButtonClicked: {
-    backgroundColor: '#fa375a',
+    backgroundColor: appColour,
     margin: 0.015625 * DEVICE_W,
     width: 0.15625 * DEVICE_W,
     height: 0.15625 * DEVICE_W,
@@ -448,11 +436,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   setButtonTextActive: {
-    color: '#fa375a',
-    //color: '#fff',
+    color: appColour,
   },
   setButtonTextInactive: {
-    //color: '#bbb',
     color: '#777'
   },
   setButtonTextClicked: {
