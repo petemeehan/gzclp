@@ -202,8 +202,10 @@ class WorkoutScreen extends React.Component {
     });
 
     return (
-      <ScrollView style={styles.container}>
-        {liftComponents}
+      <View style={styles.container}>
+        <ScrollView>
+          {liftComponents}
+        </ScrollView>
 
         <Button
           title='Done'
@@ -221,12 +223,12 @@ class WorkoutScreen extends React.Component {
 
             // Increment the workout counter so workouts are cycled from A1 to B2
             // and back to A1 and so on
-            workoutCounter = (workoutCounter + 1) % 4;
+            workoutCounter = (workoutCounter + 1) % WORKOUTS.length;
 
             navigate('Workout', WORKOUTS[workoutCounter]);
           }}
         />
-      </ScrollView>
+    </View>
     );
   }
 }
@@ -383,7 +385,7 @@ export default App;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#eee',
+    flex: 1,
   },
   liftContainer: {
     backgroundColor: '#fff',
