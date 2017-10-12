@@ -19,7 +19,7 @@ const DEVICE_H = Dimensions.get('window').height;
 
 StatusBar.setBarStyle('light-content');
 
-const WORKOUTS = [
+const SESSIONS = [
   {
     name: 'A1',
     lifts: [
@@ -52,49 +52,49 @@ const WORKOUTS = [
 ]
 
 const REP_SCHEMES = {
-  T1: {
-    1: ['3','3','3','3','3+'],
-    2: ['2','2','2','2','2','2+'],
-    3: ['1','1','1','1','1','1','1','1','1','1+'],
-  },
-  T2: {
-    1: ['10','10','10'],
-    2: ['8','8','8'],
-    3: ['6','6','6'],
-  },
-  T3: {
-    1: ['15','15','25'],
-  },
+  T1: [
+    ['3','3','3','3','3+'],
+    ['2','2','2','2','2','2+'],
+    ['1','1','1','1','1','1','1','1','1','1+'],
+  ],
+  T2: [
+    ['10','10','10'],
+    ['8','8','8'],
+    ['6','6','6'],
+  ],
+  T3: [
+    ['15','15','25'],
+  ]
 }
 
 
 
 // NOTE: THIS DATA STRUCSH WILL BE REFACTORED AS A CLASS LATER
-const initialSessionCounter = 0;
-const initialProgramState = {
+const INITIAL_SESSION_COUNTER = 0;
+const INITIAL_PROGRAM_STATE = {
   T1: {
     squat: {
       label: 'Squat',
       weight: 50,
-      repScheme: 1,
+      repScheme: 0,
       increment: 5,
     },
     deadlift: {
       label: 'Deadlift',
       weight: 60,
-      repScheme: 1,
+      repScheme: 0,
       increment: 5,
     },
     bench: {
       label: 'Bench Press',
       weight: 40,
-      repScheme: 1,
+      repScheme: 0,
       increment: 2.5,
     },
     ohp: {
       label: 'Overhead Press',
       weight: 30,
-      repScheme: 1,
+      repScheme: 0,
       increment: 2.5,
     },
   },
@@ -102,25 +102,25 @@ const initialProgramState = {
     squat: {
       label: 'Squat',
       weight: 40,
-      repScheme: 1,
+      repScheme: 0,
       increment: 2.5,
     },
     deadlift: {
       label: 'Deadlift',
       weight: 50,
-      repScheme: 1,
+      repScheme: 0,
       increment: 2.5,
     },
     bench: {
       label: 'Bench Press',
       weight: 30,
-      repScheme: 1,
+      repScheme: 0,
       increment: 2.5,
     },
     ohp: {
       label: 'Overhead Press',
       weight: 20,
-      repScheme: 1,
+      repScheme: 0,
       increment: 2.5,
     },
   },
@@ -128,19 +128,19 @@ const initialProgramState = {
     latPulldown: {
       label: 'Lat Pulldown',
       weight: 20,
-      repScheme: 1,
+      repScheme: 0,
       increment: 10,
     },
     dbRow: {
       label: 'Dumbbell Row',
       weight: 10,
-      repScheme: 1,
+      repScheme: 0,
       increment: 4,
     },
   },
 }
-var sessionCounter = initialSessionCounter;
-var programState = initialProgramState;
+var sessionCounter = INITIAL_SESSION_COUNTER;
+var programState = INITIAL_PROGRAM_STATE;
 
 
 
@@ -181,10 +181,10 @@ class HomeScreen extends React.Component {
     return (
       <View>
         <Button
-          title={this.state.isFirstSession ? 'Proceed to First session': "Continue Last Session"}
+          title={this.state.isFirstSession ? 'Proceed to First Session': "Continue Last Session"}
           color={appColour}
           onPress={() => {
-            navigate('Session', WORKOUTS[sessionCounter]);
+            navigate('Session', SESSIONS[sessionCounter]);
           }}
         />
         <Button
@@ -194,8 +194,8 @@ class HomeScreen extends React.Component {
             // Remove stored data and rest program state to initial values
             try {
               await AsyncStorage.multiRemove(['sessionCounter','programState'], () => console.log("Data removed"));
-              sessionCounter = initialSessionCounter;
-              programState = initialProgramState;
+              sessionCounter = INITIAL_SESSION_COUNTER;
+              programState = INITIAL_PROGRAM_STATE;
               this.setState({isFirstSession: true});
               console.log("Last session: " + sessionCounter);
             } catch (error) {
@@ -258,18 +258,23 @@ class SessionScreen extends React.Component {
 
             // If all sets of a lift complete, clicking "Done" button increments that lift for next time
             // If not, the lift moves onto its next rep scheme for next time
-            lifts.forEach((lift) => { console.log(lift);
+            lifts.forEach((lift) => {
+              let todaysLift = programState[ lift[0] ][ lift[1] ];
+
               if (this.state[ lift[1] ]) {
-                let todaysLift = programState[ lift[0] ][ lift[1] ];
                 todaysLift.weight += todaysLift.increment;
+              } else {
+                // Cycle through rep schemes based on whether lift is T1/T2/T3
+                // (There are three each for T1 and T2, one for T3)
+                todaysLift.repScheme = (todaysLift.repScheme + 1) % REP_SCHEMES[lift[0]].length;
               }
             });
 
             // Increment the session counter so sessions are cycled from A1 to B2
             // and back to A1 and so on
-            sessionCounter = (sessionCounter + 1) % WORKOUTS.length;
+            sessionCounter = (sessionCounter + 1) % SESSIONS.length;
 
-            navigate('Session', WORKOUTS[sessionCounter]);
+            navigate('Session', SESSIONS[sessionCounter]);
 
             // Store current state of the app
             try {
