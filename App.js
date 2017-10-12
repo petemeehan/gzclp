@@ -53,22 +53,20 @@ const WORKOUTS = [
 
 const REP_SCHEMES = {
   T1: {
-    1: [3,3,3,3,3],
-    2: [2,2,2,2,2,2],
-    3: [1,1,1,1,1,1,1,1,1,1],
-    isAmrap: true,
+    1: ['3','3','3','3','3+'],
+    2: ['2','2','2','2','2','2+'],
+    3: ['1','1','1','1','1','1','1','1','1','1+'],
   },
   T2: {
-    1: [10,10,10],
-    2: [8,8,8],
-    3: [6,6,6],
-    isAmrap: false,
+    1: ['10','10','10'],
+    2: ['8','8','8'],
+    3: ['6','6','6'],
   },
   T3: {
-    1: [15,15,25],
-    isAmrap: false,
+    1: ['15','15','25'],
   },
 }
+
 
 
 // NOTE: THIS DATA STRUCSH WILL BE REFACTORED AS A CLASS LATER
@@ -149,15 +147,13 @@ var programState = initialProgramState;
 class HomeScreen extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {isFirstSession: true};
+    this.state = { isFirstSession: true };
   }
 
   static navigationOptions = {
     title: 'GZCLP',
     headerTintColor: '#fff',
-    headerStyle: {
-      backgroundColor: appColour,
-    },
+    headerStyle: { backgroundColor: appColour },
   };
 
   async componentDidMount() {
@@ -224,9 +220,7 @@ class SessionScreen extends React.Component {
   static navigationOptions = ({ navigation }) => ({
     title: 'Session ' + navigation.state.params.name,
     headerTintColor: '#fff',
-    headerStyle: {
-      backgroundColor: appColour,
-    }
+    headerStyle: { backgroundColor: appColour }
   });
 
   render() {
@@ -262,8 +256,9 @@ class SessionScreen extends React.Component {
           onPress={async () => {
             this.setState({});  // Uncomment if testing without navigating as this forces rerender
 
-            // If a lift is complete, clicking "Done" button increments that lift for next time
-            lifts.forEach((lift) => {
+            // If all sets of a lift complete, clicking "Done" button increments that lift for next time
+            // If not, the lift moves onto its next rep scheme for next time
+            lifts.forEach((lift) => { console.log(lift);
               if (this.state[ lift[1] ]) {
                 let todaysLift = programState[ lift[0] ][ lift[1] ];
                 todaysLift.weight += todaysLift.increment;
@@ -295,9 +290,7 @@ class SessionScreen extends React.Component {
 class Lift extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      lastClickedButton: 0,
-    };
+    this.state = { lastClickedButton: 0 };
   }
 
   // If last set button is clicked, pass this to parent so it knows
@@ -311,19 +304,17 @@ class Lift extends React.Component {
         repScheme = this.props.repScheme,
         exercise = this.props.exercise;
 
-    var sets = REP_SCHEMES[tier][repScheme].length,
-        reps = REP_SCHEMES[tier][repScheme],
-        isAmrap = REP_SCHEMES[tier].isAmrap;
+    var numberOfSets = REP_SCHEMES[tier][repScheme].length,
+        repsArray = REP_SCHEMES[tier][repScheme];
 
     var weight = programState[tier][exercise].weight;
 
 
-    // Populate an array of SetButtons to display, and if the rep scheme calls for
-    // AMRAP final set, pass the isAmrap prop with TRUE value for the last set button
+    // Populate an array of SetButtons to display
     var setButtons = [];
-    for (var i = 1; i <= sets; i++) {
+    for (var i = 1; i <= numberOfSets; i++) {
       setButtons.push(
-        <SetButton key={i} id={i} reps={reps[i - 1]} isAmrap={i == sets ? isAmrap : false}
+        <SetButton key={i} id={i} reps={repsArray[i - 1]}
           // Keep track of whether each button is in inactive/active/clicked state
           isActive={i <= this.state.lastClickedButton + 1}
           isClicked={i <= this.state.lastClickedButton}
@@ -334,7 +325,7 @@ class Lift extends React.Component {
           // When all sets are complete (ie. all buttons are clicked), set whole
           // lift to be complete in parent 'Session' component
           setLiftComplete={(id) => {
-            this.props.setLiftComplete( this.isLastButtonClicked(id, sets) );
+            this.props.setLiftComplete( this.isLastButtonClicked(id, numberOfSets) );
           }}
         />
       );
@@ -343,7 +334,7 @@ class Lift extends React.Component {
     return (
       <View style={styles.liftContainer}>
         <View style={styles.liftInfoContainer}>
-          <LiftInfo tier={tier} exercise={exercise} weight={weight} sets={sets} reps={reps[0]} isAmrap={isAmrap}  />
+          <LiftInfo tier={tier} exercise={exercise} weight={weight} sets={numberOfSets} reps={repsArray[0]} />
         </View>
 
         <View style={styles.setButtonContainer}>
@@ -362,8 +353,7 @@ class LiftInfo extends React.Component {
         exercise = this.props.exercise,
         weight = this.props.weight,
         sets = this.props.sets,
-        reps = this.props.reps,
-        isAmrap = this.props.isAmrap;
+        reps = this.props.reps;
 
     return (
       <View>
@@ -371,7 +361,7 @@ class LiftInfo extends React.Component {
           {tier} {programState[tier][exercise].label}
         </Text>
         <Text style={styles.liftDetails}>
-          {weight}kg  {sets} x {reps}{isAmrap ? '+' : ''}
+          {weight}kg   {sets} × {reps}
         </Text>
     </View>
     )
@@ -383,7 +373,6 @@ class LiftInfo extends React.Component {
 class SetButton extends React.Component {
   render() {
     var reps = this.props.reps,
-        isAmrap = this.props.isAmrap,
         isClicked = this.props.isClicked,
         isActive = this.props.isActive,
         setLastClickedButton = this.props.setLastClickedButton,
@@ -392,7 +381,7 @@ class SetButton extends React.Component {
 
     // If button is clicked, display a tick. Otherwise display number of reps.
     // And if set is an AMRAP set, display a '+' sign next the rep number
-    var buttonText = isClicked ? '✓' : reps + (isAmrap ? '+' : '');
+    var buttonText = isClicked ? '✓' : reps;
 
     // Apply style depending on whether button is inactive, active or clicked
     var currentStyle, currentTextStyle;
