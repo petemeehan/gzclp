@@ -67,7 +67,7 @@ const REP_SCHEMES = {
   ]
 }
 
-
+const MINIMUM_INCREMENT = 2.5;
 
 // NOTE: THIS DATA STRUCSH WILL BE REFACTORED AS A CLASS LATER
 const INITIAL_SESSION_COUNTER = 0;
@@ -264,8 +264,20 @@ class SessionScreen extends React.Component {
               if (this.state[ lift[1] ]) {
                 todaysLift.weight += todaysLift.increment;
               } else {
-                // Cycle through rep schemes based on whether lift is T1/T2/T3
-                // (There are three each for T1 and T2, one for T3)
+                // On failure, cycle through rep schemes based on whether lift is T1/T2/T3
+                // (There are three for T1, three for T2, one for T3)
+                // On failing last rep scheme, strategy varies depending on tier:
+                // T1: restart new cycle on first repscheme with 85% of last weight attempted
+                // T2: restart new cycle on first repscheme with weight 5kg heavier than what was last lifted on first repscheme
+                // T3: no change
+                if (todaysLift.repScheme == REP_SCHEMES[lift[0]].length - 1) {
+                  if (lift[0] == 'T1') {
+                    todaysLift.weight = roundDownToNearestIncrement(todaysLift.weight * 0.85, MINIMUM_INCREMENT);
+                  }
+                  if (lift[0] == 'T2') {
+                    todaysLift.weight = roundDownToNearestIncrement(todaysLift.weight * 0.85, MINIMUM_INCREMENT);
+                  }
+                }
                 todaysLift.repScheme = (todaysLift.repScheme + 1) % REP_SCHEMES[lift[0]].length;
               }
             });
@@ -504,4 +516,8 @@ function getCopyOfObject( origObj ) {
   var newObj = {};
   for (var key in origObj) newObj[key] = origObj[key];
   return newObj;
+}
+
+function roundDownToNearestIncrement( number, increment ) {
+  return Math.floor(number * (1/increment)) / (1/increment);
 }
