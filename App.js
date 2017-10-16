@@ -320,7 +320,7 @@ class Lift extends React.Component {
 
   renderTimer() {
     if (this.state.isTimerVisible) {
-      return (<SetTimer />)
+      return (<Timer />)
     } else {
       return null
     }
@@ -462,7 +462,7 @@ class SetButton extends React.Component {
 
 
 
-class SetTimer extends React.Component {
+class Timer extends React.Component {
   constructor(props) {
     super(props);
     this.state = {timeElapsed: 0};
@@ -476,10 +476,19 @@ class SetTimer extends React.Component {
     }, 1000);
   }
 
+  convertToMinutesAndSeconds(time) {
+    var minutes = Math.floor(time / 60);
+    var seconds = time % 60;
+    // Prefix single-digit seconds with a 0
+    var paddedSeconds = seconds.toString().length == 1 ? '0' + seconds : seconds;
+
+    return minutes + ':' + paddedSeconds;
+  }
+
   render() {
     return (
       <View ref='myRef' style={styles.timerContainer}>
-        <Text style={styles.timerText}>{this.state.timeElapsed}</Text>
+        <Text style={styles.timerText}>{this.convertToMinutesAndSeconds(this.state.timeElapsed)}</Text>
       </View>
     )
   }
@@ -564,6 +573,8 @@ const styles = StyleSheet.create({
     marginHorizontal: (0.03125+0.015625) * DEVICE_W,
     marginVertical: 2,
     color: '#fff',
+    fontSize: 16,
+    fontFamily: 'Courier',
   }
 });
 
