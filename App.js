@@ -1,3 +1,5 @@
+"use strict";
+
 import React from 'react';
 import {
   StyleSheet,
@@ -21,28 +23,28 @@ StatusBar.setBarStyle('light-content');
 
 const SESSIONS = [
   {
-    name: 'A1',
+    label: 'A1',
     lifts: [
       ['T1', 'squat'],
       ['T2', 'bench'],
       ['T3', 'latPulldown'],
     ],
   }, {
-    name: 'B1',
+    label: 'B1',
     lifts: [
       ['T1', 'ohp'],
       ['T2', 'deadlift'],
       ['T3', 'dbRow'],
     ],
   }, {
-    name: 'A2',
+    label: 'A2',
     lifts: [
       ['T1', 'bench'],
       ['T2', 'squat'],
       ['T3', 'latPulldown'],
     ],
   }, {
-    name: 'B2',
+    label: 'B2',
     lifts: [
       ['T1', 'deadlift'],
       ['T2', 'ohp'],
@@ -140,7 +142,7 @@ const INITIAL_PROGRAM_STATE = {
   },
 }
 var sessionCounter = INITIAL_SESSION_COUNTER;
-var programState = INITIAL_PROGRAM_STATE;
+var programState = getCopyOfObject(INITIAL_PROGRAM_STATE);
 
 
 
@@ -165,7 +167,6 @@ class HomeScreen extends React.Component {
       if (storedSessionCounter !== null) {
         sessionCounter = JSON.parse(storedSessionCounter);
         this.setState({isFirstSession: false});
-        console.log("Last session: " + sessionCounter);
       }
       if (storedProgramState !== null) {
         programState = JSON.parse(storedProgramState);
@@ -195,9 +196,8 @@ class HomeScreen extends React.Component {
             try {
               await AsyncStorage.multiRemove(['sessionCounter','programState'], () => console.log("Data removed"));
               sessionCounter = INITIAL_SESSION_COUNTER;
-              programState = INITIAL_PROGRAM_STATE;
+              programState = getCopyOfObject(INITIAL_PROGRAM_STATE);
               this.setState({isFirstSession: true});
-              console.log("Last session: " + sessionCounter);
             } catch (error) {
               console.log("Error removing data");
             }
@@ -218,9 +218,9 @@ class SessionScreen extends React.Component {
   }
 
   static navigationOptions = ({ navigation }) => ({
-    title: 'Session ' + navigation.state.params.name,
+    title: 'Session ' + navigation.state.params.label,
     headerTintColor: '#fff',
-    headerStyle: { backgroundColor: appColour }
+    headerStyle: { backgroundColor: appColour },
   });
 
   render() {
@@ -285,7 +285,6 @@ class SessionScreen extends React.Component {
             // Increment the session counter so sessions are cycled from A1 to B2
             // and back to A1 and so on
             sessionCounter = (sessionCounter + 1) % SESSIONS.length;
-
             navigate('Session', SESSIONS[sessionCounter]);
 
             // Store current state of the app
@@ -307,13 +306,24 @@ class SessionScreen extends React.Component {
 class Lift extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { lastClickedButton: 0 };
+    this.state = {
+      lastClickedButton: 0,
+      isTimerVisible: false,
+    };
   }
 
   // If last set button is clicked, pass this to parent so it knows
   // all sets are complete and lift was successful
-  isLastButtonClicked(id, sets) {
+  areAllSetButtonsClicked(id, sets) {
     return (id == sets)
+  }
+
+  renderTimer() {
+    if (this.state.isTimerVisible) {
+      return (<SetTimer />)
+    } else {
+      return null
+    }
   }
 
   render() {
@@ -325,7 +335,6 @@ class Lift extends React.Component {
         repsArray = REP_SCHEMES[tier][repScheme];
 
     var weight = programState[tier][exercise].weight;
-
 
     // Populate an array of SetButtons to display
     var setButtons = [];
@@ -342,8 +351,19 @@ class Lift extends React.Component {
           // When all sets are complete (ie. all buttons are clicked), set whole
           // lift to be complete in parent 'Session' component
           setLiftComplete={(id) => {
-            this.props.setLiftComplete( this.isLastButtonClicked(id, numberOfSets) );
+            this.props.setLiftComplete( this.areAllSetButtonsClicked(id, numberOfSets) );
           }}
+
+          // If activating timer, disable it first to force it to restart after each set
+          // Also check if set is last one, as no need for timer after that
+          activateTimer={(isTimerVisible, id) => {
+            this.setState({isTimerVisible: false}, () => {
+              //if (!this.areAllSetButtonsClicked(id, numberOfSets)) {  //NOTE need to check again why this doesnt work
+              if (!this.areAllSetButtonsClicked(id, numberOfSets)) {
+                this.setState({isTimerVisible})
+              }
+            }
+          )}}
         />
       );
     }
@@ -357,6 +377,8 @@ class Lift extends React.Component {
         <View style={styles.setButtonContainer}>
           {setButtons}
         </View>
+
+        {this.renderTimer()}
       </View>
     );
   }
@@ -394,6 +416,7 @@ class SetButton extends React.Component {
         isActive = this.props.isActive,
         setLastClickedButton = this.props.setLastClickedButton,
         setLiftComplete = this.props.setLiftComplete,
+        activateTimer = this.props.activateTimer,
         id = this.props.id;
 
     // If button is clicked, display a tick. Otherwise display number of reps.
@@ -420,11 +443,12 @@ class SetButton extends React.Component {
         onPress={() => {
           // If button is clicked, and hasn't already been clicked,
           // set to "clicked" state. If it has been, undo its "clicked" state
-          // and make the button to the left of it the last "clicked" button
+          // and make the button to the immediate left of it the last "clicked" button
           if (isActive) {
             let lastClickedButton = isClicked ? id - 1 : id;
             setLastClickedButton(lastClickedButton);
             setLiftComplete(lastClickedButton);
+            activateTimer(isClicked ? false : true, lastClickedButton);
           }
         }}
       >
@@ -432,6 +456,31 @@ class SetButton extends React.Component {
           {buttonText}
         </Text>
       </TouchableOpacity>
+    )
+  }
+}
+
+
+
+class SetTimer extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {timeElapsed: 0};
+
+    setInterval( () => {
+      if (this.refs.myRef) {    // Check component exists first as it may have been disabled
+        this.setState((prevState) => {
+          return { timeElapsed: prevState.timeElapsed + 1 };
+        });
+      }
+    }, 1000);
+  }
+
+  render() {
+    return (
+      <View ref='myRef' style={styles.timerContainer}>
+        <Text style={styles.timerText}>{this.state.timeElapsed}</Text>
+      </View>
     )
   }
 }
@@ -507,15 +556,21 @@ const styles = StyleSheet.create({
   },
   setButtonTextClicked: {
     color: '#fff',
+  },
+  timerContainer: {
+    backgroundColor: '#777',
+  },
+  timerText: {
+    marginHorizontal: (0.03125+0.015625) * DEVICE_W,
+    marginVertical: 2,
+    color: '#fff',
   }
 });
 
 
 
-function getCopyOfObject( origObj ) {
-  var newObj = {};
-  for (var key in origObj) newObj[key] = origObj[key];
-  return newObj;
+function getCopyOfObject( obj ) {
+  return JSON.parse(JSON.stringify(obj));
 }
 
 function roundDownToNearestIncrement( number, increment ) {
