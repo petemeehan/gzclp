@@ -388,11 +388,13 @@ class Lift extends React.Component {
 
 class LiftInfo extends React.Component {
   render() {
-    var tier = this.props.tier,
-        exercise = this.props.exercise,
-        weight = this.props.weight,
-        sets = this.props.sets,
-        reps = this.props.reps;
+    var {
+      tier,
+      exercise,
+      weight,
+      sets,
+      reps
+    } = this.props;
 
     return (
       <View>
@@ -411,13 +413,15 @@ class LiftInfo extends React.Component {
 
 class SetButton extends React.Component {
   render() {
-    var reps = this.props.reps,
-        isClicked = this.props.isClicked,
-        isActive = this.props.isActive,
-        setLastClickedButton = this.props.setLastClickedButton,
-        setLiftComplete = this.props.setLiftComplete,
-        activateTimer = this.props.activateTimer,
-        id = this.props.id;
+    var {
+      reps,
+      isClicked,
+      isActive,
+      setLastClickedButton,
+      setLiftComplete,
+      activateTimer,
+      id
+    } = this.props;
 
     // If button is clicked, display a tick. Otherwise display number of reps.
     // And if set is an AMRAP set, display a '+' sign next the rep number
