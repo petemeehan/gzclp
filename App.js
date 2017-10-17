@@ -1,25 +1,18 @@
-"use strict";
+
 
 import React from 'react';
 import {
-  StyleSheet,
   Text,
   View,
   ScrollView,
   Button,
   TouchableOpacity,
-  Alert,
-  Dimensions,
-  StatusBar,
   AsyncStorage
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
+import styles from './styles';
 
-const appColour = '#fa375a';
-const DEVICE_W = Dimensions.get('window').width;
-const DEVICE_H = Dimensions.get('window').height;
-
-StatusBar.setBarStyle('light-content');
+const primaryColour = '#fa375a';
 
 const SESSIONS = [
   {
@@ -149,13 +142,13 @@ var programState = getCopyOfObject(INITIAL_PROGRAM_STATE);
 class HomeScreen extends React.Component {
   constructor(props) {
     super(props);
-    //this.state = { isFirstSession: true };
+    console.log(styles);
   }
 
   static navigationOptions = {
     title: 'GZCLP',
     headerTintColor: '#fff',
-    headerStyle: { backgroundColor: appColour },
+    headerStyle: { backgroundColor: primaryColour },
   };
 
   async componentDidMount() {
@@ -183,7 +176,7 @@ class HomeScreen extends React.Component {
       <View>
         <Button
           title={'Begin ' + SESSIONS[sessionCounter].label + ' Session'}
-          color={appColour}
+          color={primaryColour}
           // Navigate to session screen and pass as two parameters the required session
           // and the callback function that will refresh the home screen when session is finished
           onPress={() => {
@@ -231,7 +224,7 @@ class ProgressData extends React.Component {
           tier + " " +
           REP_SCHEMES[tier][lift.repScheme].length + '×' +
           REP_SCHEMES[tier][lift.repScheme][0] + ' \t' +
-          lift.weight + 'kg  ' +
+          lift.weight + 'kg\t ' +
           lift.label +
           '\n'
         );
@@ -254,7 +247,7 @@ class SessionScreen extends React.Component {
   static navigationOptions = ({ navigation }) => ({
     title: 'Session ' + navigation.state.params.session.label,
     headerTintColor: '#fff',
-    headerStyle: { backgroundColor: appColour },
+    headerStyle: { backgroundColor: primaryColour },
   });
 
   render() {
@@ -287,7 +280,7 @@ class SessionScreen extends React.Component {
 
         <Button
           title='Done'
-          color={appColour}
+          color={primaryColour}
           onPress={async () => {
             //refresh(this);  // Uncomment if testing without navigating as this forces rerender
 
@@ -392,7 +385,7 @@ class Lift extends React.Component {
           // Also check if set is last one, as no need for timer after that
           activateTimer={(isTimerVisible, id) => {
             this.setState({isTimerVisible: false}, () => {
-              //if (!this.areAllSetButtonsClicked(id, numberOfSets)) {  //NOTE need to check again why this doesnt work
+              //if (!this.areAllSetButtonsClicked(i, numberOfSets)) {  //NOTE need to check again why this doesnt work
               if (!this.areAllSetButtonsClicked(id, numberOfSets)) {
                 this.setState({isTimerVisible})
               }
@@ -438,7 +431,7 @@ class LiftInfo extends React.Component {
         <Text style={styles.liftDetails}>
           {weight}kg   {sets} × {reps}
         </Text>
-    </View>
+      </View>
     )
   }
 }
@@ -534,11 +527,10 @@ class Timer extends React.Component {
 
 
 // Main route of app
-const App = StackNavigator({
+export default StackNavigator({
   Home: {screen: HomeScreen},
   Session: {screen: SessionScreen}
 });
-export default App;
 
 
 
@@ -555,88 +547,3 @@ function getCopyOfObject( obj ) {
 function roundDownToNearestIncrement( number, increment ) {
   return Math.floor(number * (1/increment)) / (1/increment);
 }
-
-
-
-/*---------------STYLES---------------*/
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  progressDataContainer: {
-    backgroundColor: '#fff',
-    paddingHorizontal: (0.03125+0.015625) * DEVICE_W,
-  },
-  progressDataText: {
-    fontFamily: 'Courier New',
-  },
-  liftContainer: {
-    backgroundColor: '#fff',
-    marginBottom: 3,
-  },
-  liftInfoContainer: {
-    marginHorizontal: (0.03125+0.015625) * DEVICE_W,
-    marginTop: 5 + 0.015625 * DEVICE_W,
-    marginBottom: 5,
-  },
-  liftName: {
-    fontSize: 16,
-  },
-  liftDetails: {
-    marginVertical: 5,
-  },
-  setButtonContainer: {
-    marginBottom: 10,
-    flexDirection: 'row',
-    marginHorizontal: 0.03125 * DEVICE_W,
-    flexWrap: 'wrap',
-  },
-  setButtonActive: {
-    borderColor: appColour,
-    borderWidth: 1.5,
-    margin: 0.015625 * DEVICE_W,
-    width: 0.15625 * DEVICE_W,
-    height: 0.15625 * DEVICE_W,
-    borderRadius: 0.15625 * DEVICE_W / 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  setButtonInactive: {
-    backgroundColor: '#eee',
-    margin: 0.015625 * DEVICE_W,
-    width: 0.15625 * DEVICE_W,
-    height: 0.15625 * DEVICE_W,
-    borderRadius: 0.15625 * DEVICE_W / 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  setButtonClicked: {
-    backgroundColor: appColour,
-    margin: 0.015625 * DEVICE_W,
-    width: 0.15625 * DEVICE_W,
-    height: 0.15625 * DEVICE_W,
-    borderRadius: 0.15625 * DEVICE_W / 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  setButtonTextActive: {
-    color: appColour,
-  },
-  setButtonTextInactive: {
-    color: '#777'
-  },
-  setButtonTextClicked: {
-    color: '#fff',
-  },
-  timerContainer: {
-    backgroundColor: '#777',
-  },
-  timerText: {
-    marginHorizontal: (0.03125+0.015625) * DEVICE_W,
-    marginVertical: 2,
-    color: '#fff',
-    fontSize: 16,
-    fontFamily: 'Courier',
-  }
-});
