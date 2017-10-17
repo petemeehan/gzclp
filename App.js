@@ -149,7 +149,7 @@ var programState = getCopyOfObject(INITIAL_PROGRAM_STATE);
 class HomeScreen extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { isFirstSession: true };
+    //this.state = { isFirstSession: true };
   }
 
   static navigationOptions = {
@@ -166,11 +166,11 @@ class HomeScreen extends React.Component {
 
       if (storedSessionCounter !== null) {
         sessionCounter = JSON.parse(storedSessionCounter);
-        this.setState({isFirstSession: false});
       }
       if (storedProgramState !== null) {
         programState = JSON.parse(storedProgramState);
       }
+      refresh(this);
     } catch (error) {
       console.log("Error retrieving data");
     }
@@ -182,29 +182,63 @@ class HomeScreen extends React.Component {
     return (
       <View>
         <Button
-          title={this.state.isFirstSession ? 'Proceed to First Session': "Continue Last Session"}
+          title={'Begin ' + SESSIONS[sessionCounter].label + ' Session'}
           color={appColour}
+          // Navigate to session screen and pass as two parameters the required session
+          // and the callback function that will refresh the home screen when session is finished
           onPress={() => {
-            navigate('Session', SESSIONS[sessionCounter]);
+            navigate('Session', {
+              session: SESSIONS[sessionCounter],
+              onGoBack: () => refresh(this)
+            });
           }}
         />
+
         <Button
           title='Reset All Progress'
           color='#777'
           onPress={async () => {
-            // Remove stored data and rest program state to initial values
+            // Remove stored data and reset program state to initial values
             try {
               await AsyncStorage.multiRemove(['sessionCounter','programState'], () => console.log("Data removed"));
               sessionCounter = INITIAL_SESSION_COUNTER;
               programState = getCopyOfObject(INITIAL_PROGRAM_STATE);
-              this.setState({isFirstSession: true});
+              refresh(this);
             } catch (error) {
               console.log("Error removing data");
             }
           }}
         />
+
+        <View style={styles.progressDataContainer}>
+          <ProgressData />
+        </View>
       </View>
     );
+  }
+}
+
+
+
+class ProgressData extends React.Component {
+  render() {
+    var output = '';
+
+    for (var tier in programState) {
+      for (var exercise in programState[tier]) {
+        var lift = programState[tier][exercise];
+        output += (
+          tier + " " +
+          REP_SCHEMES[tier][lift.repScheme].length + '×' +
+          REP_SCHEMES[tier][lift.repScheme][0] + ' \t' +
+          lift.weight + 'kg  ' +
+          lift.label +
+          '\n'
+        );
+      }
+    }
+
+    return <Text style={styles.progressDataText}>{output}</Text>
   }
 }
 
@@ -218,18 +252,19 @@ class SessionScreen extends React.Component {
   }
 
   static navigationOptions = ({ navigation }) => ({
-    title: 'Session ' + navigation.state.params.label,
+    title: 'Session ' + navigation.state.params.session.label,
     headerTintColor: '#fff',
     headerStyle: { backgroundColor: appColour },
   });
 
   render() {
-    const { navigate } = this.props.navigation;
+    const { goBack } = this.props.navigation;
     const { params } = this.props.navigation.state;
 
-    // lifts prop is in the form of an array where each element is a 2-element array
+    console.log(params);
+    // lifts parameter is in the form of an array where each element is a 2-element array
     // that specifies each lifts Tier (first element) and Exercise (second element)
-    var lifts = params.lifts;
+    var lifts = params.session.lifts;
 
     // Populate an array of Lift components to display, with the props passed to
     // this Session component
@@ -254,7 +289,7 @@ class SessionScreen extends React.Component {
           title='Done'
           color={appColour}
           onPress={async () => {
-            this.setState({});  // Uncomment if testing without navigating as this forces rerender
+            //refresh(this);  // Uncomment if testing without navigating as this forces rerender
 
             // If all sets of a lift complete, clicking "Done" button increments that lift for next time
             // If not, the lift moves onto its next rep scheme for next time
@@ -285,7 +320,6 @@ class SessionScreen extends React.Component {
             // Increment the session counter so sessions are cycled from A1 to B2
             // and back to A1 and so on
             sessionCounter = (sessionCounter + 1) % SESSIONS.length;
-            navigate('Session', SESSIONS[sessionCounter]);
 
             // Store current state of the app
             try {
@@ -294,6 +328,10 @@ class SessionScreen extends React.Component {
             } catch (error) {
               console.log("Error saving data")
             }
+
+            // Run callback function to force rerender of home screen and navigate back to it
+            params.onGoBack()
+            goBack();
           }}
         />
     </View>
@@ -321,15 +359,11 @@ class Lift extends React.Component {
   renderTimer() {
     if (this.state.isTimerVisible) {
       return (<Timer />)
-    } else {
-      return null
     }
   }
 
   render() {
-    var tier = this.props.tier,
-        repScheme = this.props.repScheme,
-        exercise = this.props.exercise;
+    var { tier, repScheme, exercise } = this.props;
 
     var numberOfSets = REP_SCHEMES[tier][repScheme].length,
         repsArray = REP_SCHEMES[tier][repScheme];
@@ -499,7 +533,7 @@ class Timer extends React.Component {
 }
 
 
-
+// Main route of app
 const App = StackNavigator({
   Home: {screen: HomeScreen},
   Session: {screen: SessionScreen}
@@ -508,9 +542,34 @@ export default App;
 
 
 
+/*---------------HELPER FUNCTIONS---------------*/
+
+function refresh(component) {
+  component.setState({});
+}
+
+function getCopyOfObject( obj ) {
+  return JSON.parse(JSON.stringify(obj));
+}
+
+function roundDownToNearestIncrement( number, increment ) {
+  return Math.floor(number * (1/increment)) / (1/increment);
+}
+
+
+
+/*---------------STYLES---------------*/
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  progressDataContainer: {
+    backgroundColor: '#fff',
+    paddingHorizontal: (0.03125+0.015625) * DEVICE_W,
+  },
+  progressDataText: {
+    fontFamily: 'Courier New',
   },
   liftContainer: {
     backgroundColor: '#fff',
@@ -581,13 +640,3 @@ const styles = StyleSheet.create({
     fontFamily: 'Courier',
   }
 });
-
-
-
-function getCopyOfObject( obj ) {
-  return JSON.parse(JSON.stringify(obj));
-}
-
-function roundDownToNearestIncrement( number, increment ) {
-  return Math.floor(number * (1/increment)) / (1/increment);
-}
