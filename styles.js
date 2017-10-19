@@ -12,19 +12,32 @@ const DEVICE_H = Dimensions.get('window').height;
 StatusBar.setBarStyle('light-content');
 
 export default StyleSheet.create({
-  common: {
-    color: primaryColour
+  nextSessionContainer: {
+    backgroundColor: '#fff',
+    paddingLeft: (0.03125+0.015625) * DEVICE_W,
+    paddingRight: (0.03125+0.015625) * DEVICE_W / 2,
+    paddingVertical: 10,
+  },
+  nextSessionTitle: {
+    //color: primaryColour,
+    marginBottom: 5,
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   progressDataContainer: {
-    backgroundColor: '#fff',
+    ///backgroundColor: '#fff',
     paddingHorizontal: (0.03125+0.015625) * DEVICE_W,
+    marginVertical: 20,
   },
-  progressDataText: {
+  progressDataTitle: {
+    marginVertical: 10
+  },
+  progressDataContent: {
     fontFamily: 'Courier New',
   },
   liftContainer: {
     backgroundColor: '#fff',
-    marginBottom: 3,
+    marginBottom: 1,
   },
   liftInfoContainer: {
     marginHorizontal: (0.03125+0.015625) * DEVICE_W,
@@ -33,6 +46,7 @@ export default StyleSheet.create({
   },
   liftName: {
     fontSize: 16,
+    fontWeight: 'bold',
   },
   liftDetails: {
     marginVertical: 5,
@@ -42,6 +56,7 @@ export default StyleSheet.create({
     flexDirection: 'row',
     marginHorizontal: 0.03125 * DEVICE_W,
     flexWrap: 'wrap',
+    //borderWidth: 1
   },
   setButtonActive: {
     borderColor: primaryColour,

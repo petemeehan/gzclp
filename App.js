@@ -142,7 +142,6 @@ var programState = getCopyOfObject(INITIAL_PROGRAM_STATE);
 class HomeScreen extends React.Component {
   constructor(props) {
     super(props);
-    console.log(styles);
   }
 
   static navigationOptions = {
@@ -172,11 +171,27 @@ class HomeScreen extends React.Component {
   render() {
     const { navigate } = this.props.navigation;
 
+    // lifts is an array where each element is a 2-element array
+    // that specifies each lifts Tier (first element) and Exercise (second element)
+    var lifts = SESSIONS[sessionCounter].lifts;
+    // Populate arrays of data to display in the Next Session component
+    var tiers = [];
+    var labels = [];
+    var weights = [];
+    var repSchemes = [];
+    // TODO this is horrific, make more readable ASAP
+    lifts.forEach((lift, index) => {
+      tiers.push( <Text key={index}>{lift[0]}</Text> );
+      labels.push( <Text key={index}>{programState[ lift[0] ][ lift[1] ]['label']}</Text> );
+      weights.push( <Text key={index}>{programState[ lift[0] ][ lift[1] ]['weight']} kg</Text> );
+      repSchemes.push( <Text key={index}>{REP_SCHEMES[ lift[0] ][ programState[ lift[0] ][ lift[1] ]['repScheme'] ].length}×{REP_SCHEMES[ lift[0] ][ programState[ lift[0] ][ lift[1] ]['repScheme'] ][0]}</Text> );
+    })
+
     return (
       <View>
-        <Button
-          title={'Begin ' + SESSIONS[sessionCounter].label + ' Session'}
-          color={primaryColour}
+        <TouchableOpacity
+          style={styles.nextSessionContainer}
+          activeOpacity={0.8}
           // Navigate to session screen and pass as two parameters the required session
           // and the callback function that will refresh the home screen when session is finished
           onPress={() => {
@@ -185,7 +200,26 @@ class HomeScreen extends React.Component {
               onGoBack: () => refresh(this)
             });
           }}
-        />
+        >
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <View>
+              <Text style={styles.nextSessionTitle}>{'Next Session: ' + SESSIONS[sessionCounter].label}</Text>
+
+              <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                <View style={{width: 25}}>{tiers}</View>
+                <View style={{width: 120}}>{labels}</View>
+                <View style={{width: 50, alignItems: 'flex-end', marginRight: 20}}>{weights}</View>
+                <View>{repSchemes}</View>
+              </View>
+            </View>
+
+            <View style={{justifyContent: 'center'}}>
+              <Text style={{fontSize: 20, color: primaryColour}}>＞</Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+
+        <ProgramState />
 
         <Button
           title='Reset All Progress'
@@ -202,10 +236,6 @@ class HomeScreen extends React.Component {
             }
           }}
         />
-
-        <View style={styles.progressDataContainer}>
-          <ProgressData />
-        </View>
       </View>
     );
   }
@@ -213,7 +243,7 @@ class HomeScreen extends React.Component {
 
 
 
-class ProgressData extends React.Component {
+class ProgramState extends React.Component {
   render() {
     var output = '';
 
@@ -221,7 +251,7 @@ class ProgressData extends React.Component {
       for (var exercise in programState[tier]) {
         var lift = programState[tier][exercise];
         output += (
-          tier + " " +
+          tier + ' ' +
           REP_SCHEMES[tier][lift.repScheme].length + '×' +
           REP_SCHEMES[tier][lift.repScheme][0] + ' \t' +
           lift.weight + 'kg\t ' +
@@ -231,7 +261,12 @@ class ProgressData extends React.Component {
       }
     }
 
-    return <Text style={styles.progressDataText}>{output}</Text>
+    return (
+      <View style={styles.progressDataContainer}>
+        <Text style={styles.progressDataTitle}>Current Program State</Text>
+        <Text style={styles.progressDataContent}>{output}</Text>
+      </View>
+    )
   }
 }
 
@@ -254,13 +289,11 @@ class SessionScreen extends React.Component {
     const { goBack } = this.props.navigation;
     const { params } = this.props.navigation.state;
 
-    console.log(params);
     // lifts parameter is in the form of an array where each element is a 2-element array
     // that specifies each lifts Tier (first element) and Exercise (second element)
     var lifts = params.session.lifts;
 
-    // Populate an array of Lift components to display, with the props passed to
-    // this Session component
+    // Populate an array of Lift components to display in this SessionScreen component
     var liftComponents = [];
     lifts.forEach((lift, index) => {
       liftComponents.push(
@@ -273,7 +306,7 @@ class SessionScreen extends React.Component {
     });
 
     return (
-      <View style={styles.container}>
+      <View>
         <ScrollView>
           {liftComponents}
         </ScrollView>
@@ -358,8 +391,8 @@ class Lift extends React.Component {
   render() {
     var { tier, repScheme, exercise } = this.props;
 
-    var numberOfSets = REP_SCHEMES[tier][repScheme].length,
-        repsArray = REP_SCHEMES[tier][repScheme];
+    var numberOfSets = REP_SCHEMES[tier][repScheme].length;
+    var repsArray = REP_SCHEMES[tier][repScheme];
 
     var weight = programState[tier][exercise].weight;
 
@@ -429,7 +462,7 @@ class LiftInfo extends React.Component {
           {tier} {programState[tier][exercise].label}
         </Text>
         <Text style={styles.liftDetails}>
-          {weight}kg   {sets} × {reps}
+          {weight} kg   {sets}×{reps}
         </Text>
       </View>
     )
