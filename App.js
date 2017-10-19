@@ -356,9 +356,11 @@ class Lift extends React.Component {
     return (id == sets)
   }
 
-  renderTimer() {
+  // Display timer for this lift and pass it the corresponding tier as a prop,
+  // so it knows how long to tell user to rest
+  renderTimer(tier) {
     if (this.state.isTimerVisible) {
-      return (<Timer />)
+      return (<Timer tier={tier} />)
     }
   }
 
@@ -412,7 +414,7 @@ class Lift extends React.Component {
           {setButtons}
         </View>
 
-        {this.renderTimer()}
+        {this.renderTimer(tier)}
       </View>
     );
   }
@@ -524,9 +526,23 @@ class Timer extends React.Component {
   }
 
   render() {
+    var tier = this.props.tier;
+    var time = '';
+
+    if (tier == 'T1') {
+      time = '3-5';
+    }
+    if (tier == 'T2') {
+      time = '2-3';
+    }
+    if (tier == 'T3') {
+      time = '1-2';
+    }
+
     return (
       <View ref='myRef' style={styles.timerContainer}>
-        <Text style={styles.timerText}>{this.convertToMinutesAndSeconds(this.state.timeElapsed)}</Text>
+        <Text style={styles.timerNumbers}>{this.convertToMinutesAndSeconds(this.state.timeElapsed)}</Text>
+        <Text style={styles.timerText}>Rest for {time} minutes</Text>
       </View>
     )
   }
@@ -630,13 +646,18 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   timerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#777',
+    paddingHorizontal: (0.03125+0.015625) * DEVICE_W,
+    paddingVertical: 2,
+  },
+  timerNumbers: {
+    width: 50,
+    color: '#fff',
+    fontSize: 15,
   },
   timerText: {
-    marginHorizontal: (0.03125+0.015625) * DEVICE_W,
-    marginVertical: 2,
     color: '#fff',
-    fontSize: 16,
-    fontFamily: 'Courier',
   }
 });
