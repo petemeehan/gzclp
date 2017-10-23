@@ -64,7 +64,6 @@ const REP_SCHEMES = {
 
 const MINIMUM_INCREMENT = 2.5;
 
-// NOTE: THIS DATA STRUCSH WILL BE REFACTORED AS A CLASS LATER
 const INITIAL_SESSION_COUNTER = 0;
 const INITIAL_PROGRAM_STATE = {
   T1: {
@@ -243,8 +242,7 @@ class HomeScreen extends React.Component {
 
 
 
-class ProgramState extends React.Component {
-  render() {
+const ProgramState = () => {
     var output = '';
 
     for (var tier in programState) {
@@ -267,7 +265,6 @@ class ProgramState extends React.Component {
         <Text style={styles.progressDataContent}>{output}</Text>
       </View>
     )
-  }
 }
 
 
@@ -446,8 +443,7 @@ class Lift extends React.Component {
 
 
 
-class LiftInfo extends React.Component {
-  render() {
+const LiftInfo = () => {
     var {
       tier,
       exercise,
@@ -466,13 +462,11 @@ class LiftInfo extends React.Component {
         </Text>
       </View>
     )
-  }
 }
 
 
 
-class SetButton extends React.Component {
-  render() {
+const SetButton = () => {
     var {
       reps,
       isClicked,
@@ -521,7 +515,6 @@ class SetButton extends React.Component {
         </Text>
       </TouchableOpacity>
     )
-  }
 }
 
 
