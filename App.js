@@ -62,10 +62,9 @@ const REP_SCHEMES = {
   ]
 }
 
-const MINIMUM_INCREMENT = 2.5;
-
-const INITIAL_SESSION_COUNTER = 0;
+const MINIMUM_INCREMENT_STEP = 2.5;
 const INITIAL_PROGRAM_STATE = {
+  sessionCounter: 0,
   T1: {
     squat: {
       label: 'Squat',
@@ -133,7 +132,7 @@ const INITIAL_PROGRAM_STATE = {
     },
   },
 }
-var sessionCounter = INITIAL_SESSION_COUNTER;
+// Global variable to store current state of program
 var programState = getCopyOfObject(INITIAL_PROGRAM_STATE);
 
 
@@ -149,19 +148,20 @@ class HomeScreen extends React.Component {
     headerStyle: { backgroundColor: primaryColour },
   };
 
-  async componentDidMount() {
+  componentDidMount() {
     // Overwrite initial default program state values with stored ones, if they exist
-    try {
-      const storedSessionCounter = await AsyncStorage.getItem('sessionCounter', () => console.log("Session counter data retrieved"));
-      const storedProgramState = await AsyncStorage.getItem('programState', () => console.log("Program state data retrieved"));
+    this.loadSavedData();
+  }
 
-      if (storedSessionCounter !== null) {
-        sessionCounter = JSON.parse(storedSessionCounter);
-      }
+  async loadSavedData() {
+    var storedProgramState;
+
+    try {
+      storedProgramState = await AsyncStorage.getItem('programState', () => console.log("Program state data retrieved"));
       if (storedProgramState !== null) {
         programState = JSON.parse(storedProgramState);
+        refresh(this);
       }
-      refresh(this);
     } catch (error) {
       console.log("Error retrieving data");
     }
@@ -170,53 +170,9 @@ class HomeScreen extends React.Component {
   render() {
     const { navigate } = this.props.navigation;
 
-    // lifts is an array where each element is a 2-element array
-    // that specifies each lifts Tier (first element) and Exercise (second element)
-    var lifts = SESSIONS[sessionCounter].lifts;
-    // Populate arrays of data to display in the Next Session component
-    var tiers = [];
-    var labels = [];
-    var weights = [];
-    var repSchemes = [];
-    // TODO this is horrific, make more readable ASAP
-    lifts.forEach((lift, index) => {
-      tiers.push( <Text key={index}>{lift[0]}</Text> );
-      labels.push( <Text key={index}>{programState[ lift[0] ][ lift[1] ]['label']}</Text> );
-      weights.push( <Text key={index}>{programState[ lift[0] ][ lift[1] ]['weight']} kg</Text> );
-      repSchemes.push( <Text key={index}>{REP_SCHEMES[ lift[0] ][ programState[ lift[0] ][ lift[1] ]['repScheme'] ].length}×{REP_SCHEMES[ lift[0] ][ programState[ lift[0] ][ lift[1] ]['repScheme'] ][0]}</Text> );
-    })
-
     return (
       <View>
-        <TouchableOpacity
-          style={styles.nextSessionContainer}
-          activeOpacity={0.8}
-          // Navigate to session screen and pass as two parameters the required session
-          // and the callback function that will refresh the home screen when session is finished
-          onPress={() => {
-            navigate('Session', {
-              session: SESSIONS[sessionCounter],
-              onGoBack: () => refresh(this)
-            });
-          }}
-        >
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <View>
-              <Text style={styles.nextSessionTitle}>{'Next Session: ' + SESSIONS[sessionCounter].label}</Text>
-
-              <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                <View style={{width: 25}}>{tiers}</View>
-                <View style={{width: 120}}>{labels}</View>
-                <View style={{width: 50, alignItems: 'flex-end', marginRight: 20}}>{weights}</View>
-                <View>{repSchemes}</View>
-              </View>
-            </View>
-
-            <View style={{justifyContent: 'center'}}>
-              <Text style={{fontSize: 20, color: primaryColour}}>＞</Text>
-            </View>
-          </View>
-        </TouchableOpacity>
+        <NextSessionButton navigate={navigate} onGoBack={() => refresh(this)} />
 
         <ProgramState />
 
@@ -226,8 +182,7 @@ class HomeScreen extends React.Component {
           onPress={async () => {
             // Remove stored data and reset program state to initial values
             try {
-              await AsyncStorage.multiRemove(['sessionCounter','programState'], () => console.log("Data removed"));
-              sessionCounter = INITIAL_SESSION_COUNTER;
+              await AsyncStorage.removeItem('programState', () => console.log("Data removed"));
               programState = getCopyOfObject(INITIAL_PROGRAM_STATE);
               refresh(this);
             } catch (error) {
@@ -237,6 +192,86 @@ class HomeScreen extends React.Component {
         />
       </View>
     );
+  }
+}
+
+
+
+class NextSessionButton extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  handleButtonPress() {
+    const { navigate, onGoBack } = this.props;
+
+    navigate('Session', {
+      session: SESSIONS[programState.sessionCounter],
+      onGoBack: () => onGoBack()
+    });
+  }
+
+  render() {
+    // lifts is an array where each element is a 2-element array
+    // that specifies each lifts Tier (first element) and Exercise (second element)
+    var lifts = SESSIONS[programState.sessionCounter].lifts;
+    // Populate arrays of data to display in the Next Session component
+    var tiers = [];
+    var labels = [];
+    var weights = [];
+    var repSchemes = [];
+    lifts.forEach((lift, index) => {
+      let liftData = programState[ lift[0] ][ lift[1] ];
+
+      tiers.push(
+        <Text key={index}>
+          {lift[0]}
+        </Text>
+      );
+      labels.push(
+        <Text key={index}>
+          {liftData['label']}
+        </Text>
+      );
+      weights.push(
+        <Text key={index}>
+          {liftData['weight']} kg
+        </Text>
+      );
+      repSchemes.push(
+        <Text key={index}>
+          {REP_SCHEMES[ lift[0] ][ liftData['repScheme'] ].length}×
+          {REP_SCHEMES[ lift[0] ][ liftData['repScheme'] ][0]}
+        </Text>
+      );
+    });
+
+    return (
+      <TouchableOpacity
+        style={styles.nextSessionContainer}
+        activeOpacity={0.8}
+        // Navigate to session screen and pass as two parameters the required session
+        // and the callback function that will refresh the home screen when session is finished
+        onPress={() => this.handleButtonPress()}
+      >
+        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+          <View>
+            <Text style={styles.nextSessionTitle}>{'Next Session: ' + SESSIONS[programState.sessionCounter].label}</Text>
+
+            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              <View style={{width: 25}}>{tiers}</View>
+              <View style={{width: 120}}>{labels}</View>
+              <View style={{width: 50, alignItems: 'flex-end', marginRight: 20}}>{weights}</View>
+              <View>{repSchemes}</View>
+            </View>
+          </View>
+
+          <View style={{justifyContent: 'center'}}>
+            <Text style={{fontSize: 20, color: primaryColour}}>＞</Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    )
   }
 }
 
@@ -330,10 +365,10 @@ class SessionScreen extends React.Component {
                 // T3: no change
                 if (todaysLift.repScheme == REP_SCHEMES[lift[0]].length - 1) {
                   if (lift[0] == 'T1') {
-                    todaysLift.weight = roundDownToNearestIncrement(todaysLift.weight * 0.85, MINIMUM_INCREMENT);
+                    todaysLift.weight = roundDownToNearestIncrement(todaysLift.weight * 0.85, MINIMUM_INCREMENT_STEP);
                   }
                   if (lift[0] == 'T2') {
-                    todaysLift.weight = roundDownToNearestIncrement(todaysLift.weight * 0.85, MINIMUM_INCREMENT);
+                    todaysLift.weight = roundDownToNearestIncrement(todaysLift.weight * 0.85, MINIMUM_INCREMENT_STEP);
                   }
                 }
                 todaysLift.repScheme = (todaysLift.repScheme + 1) % REP_SCHEMES[lift[0]].length;
@@ -342,17 +377,16 @@ class SessionScreen extends React.Component {
 
             // Increment the session counter so sessions are cycled from A1 to B2
             // and back to A1 and so on
-            sessionCounter = (sessionCounter + 1) % SESSIONS.length;
+            programState.sessionCounter = (programState.sessionCounter + 1) % SESSIONS.length;
 
             // Store current state of the app
             try {
-              await AsyncStorage.setItem('sessionCounter', JSON.stringify(sessionCounter), () => console.log("Session counter data saved"));
               await AsyncStorage.setItem('programState', JSON.stringify(programState), () => console.log("Program state data saved"));
             } catch (error) {
               console.log("Error saving data")
             }
 
-            // Run callback function to force rerender of home screen and navigate back to it
+            // Run onGoBack function to force rerender of home screen when it's navigated back to
             params.onGoBack()
             goBack();
           }}
@@ -443,14 +477,14 @@ class Lift extends React.Component {
 
 
 
-const LiftInfo = () => {
+const LiftInfo = props => {
     var {
       tier,
       exercise,
       weight,
       sets,
       reps
-    } = this.props;
+    } = props;
 
     return (
       <View>
@@ -466,7 +500,7 @@ const LiftInfo = () => {
 
 
 
-const SetButton = () => {
+const SetButton = props => {
     var {
       reps,
       isClicked,
@@ -475,7 +509,7 @@ const SetButton = () => {
       setLiftComplete,
       activateTimer,
       id
-    } = this.props;
+    } = props;
 
     // If button is clicked, display a tick. Otherwise display number of reps.
     // And if set is an AMRAP set, display a '+' sign next the rep number
