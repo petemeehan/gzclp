@@ -202,7 +202,7 @@ class NextSessionButton extends React.Component {
     super(props);
   }
 
-  handleButtonPress() {
+  handlePress() {
     const { navigate, onGoBack } = this.props;
 
     navigate('Session', {
@@ -252,7 +252,7 @@ class NextSessionButton extends React.Component {
         activeOpacity={0.8}
         // Navigate to session screen and pass as two parameters the required session
         // and the callback function that will refresh the home screen when session is finished
-        onPress={() => this.handleButtonPress()}
+        onPress={() => this.handlePress()}
       >
         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
           <View>
@@ -317,13 +317,63 @@ class SessionScreen extends React.Component {
     headerStyle: { backgroundColor: primaryColour },
   });
 
+  async handleDoneButtonPress() {
+    const { goBack } = this.props.navigation;
+    const { params } = this.props.navigation.state;
+
+    // lifts parameter is in the form of an array where each element is a 2-element array
+    // that specifies each lifts Tier (first element) and Exercise (second element)
+    const lifts = params.session.lifts;
+
+    // If all sets of a lift complete, clicking "Done" button increments that lift for next time
+    // If not, the lift moves onto its next rep scheme for next time
+    lifts.forEach((lift) => {
+      let todaysLift = programState[ lift[0] ][ lift[1] ];
+
+      if (this.state[ lift[1] ]) {
+        todaysLift.weight += todaysLift.increment;
+      } else {
+        // On failure, cycle through rep schemes based on whether lift is T1/T2/T3
+        // (There are three for T1, three for T2, one for T3)
+        // On failing last rep scheme, strategy varies depending on tier:
+        // T1: restart new cycle on first repscheme with 85% of last weight attempted
+        // T2: restart new cycle on first repscheme with weight 5kg heavier than what was last lifted on first repscheme
+        // T3: no change
+        if (todaysLift.repScheme == REP_SCHEMES[lift[0]].length - 1) {
+          if (lift[0] == 'T1') {
+            todaysLift.weight = roundDownToNearestIncrement(todaysLift.weight * 0.85, MINIMUM_INCREMENT_STEP);
+          }
+          if (lift[0] == 'T2') {
+            todaysLift.weight = roundDownToNearestIncrement(todaysLift.weight * 0.85, MINIMUM_INCREMENT_STEP);
+          }
+        }
+        todaysLift.repScheme = (todaysLift.repScheme + 1) % REP_SCHEMES[lift[0]].length;
+      }
+    });
+
+    // Increment the session counter so sessions are cycled from A1 to B2
+    // and back to A1 and so on
+    programState.sessionCounter = (programState.sessionCounter + 1) % SESSIONS.length;
+
+    // Store current state of the app
+    try {
+      await AsyncStorage.setItem('programState', JSON.stringify(programState), () => console.log("Program state data saved"));
+    } catch (error) {
+      console.log("Error saving data")
+    }
+
+    // Run onGoBack function to force rerender of home screen when it's navigated back to
+    params.onGoBack()
+    goBack();
+  }
+
   render() {
     const { goBack } = this.props.navigation;
     const { params } = this.props.navigation.state;
 
     // lifts parameter is in the form of an array where each element is a 2-element array
     // that specifies each lifts Tier (first element) and Exercise (second element)
-    var lifts = params.session.lifts;
+    const lifts = params.session.lifts;
 
     // Populate an array of Lift components to display in this SessionScreen component
     var liftComponents = [];
@@ -346,50 +396,7 @@ class SessionScreen extends React.Component {
         <Button
           title='Done'
           color={primaryColour}
-          onPress={async () => {
-            //refresh(this);  // Uncomment if testing without navigating as this forces rerender
-
-            // If all sets of a lift complete, clicking "Done" button increments that lift for next time
-            // If not, the lift moves onto its next rep scheme for next time
-            lifts.forEach((lift) => {
-              let todaysLift = programState[ lift[0] ][ lift[1] ];
-
-              if (this.state[ lift[1] ]) {
-                todaysLift.weight += todaysLift.increment;
-              } else {
-                // On failure, cycle through rep schemes based on whether lift is T1/T2/T3
-                // (There are three for T1, three for T2, one for T3)
-                // On failing last rep scheme, strategy varies depending on tier:
-                // T1: restart new cycle on first repscheme with 85% of last weight attempted
-                // T2: restart new cycle on first repscheme with weight 5kg heavier than what was last lifted on first repscheme
-                // T3: no change
-                if (todaysLift.repScheme == REP_SCHEMES[lift[0]].length - 1) {
-                  if (lift[0] == 'T1') {
-                    todaysLift.weight = roundDownToNearestIncrement(todaysLift.weight * 0.85, MINIMUM_INCREMENT_STEP);
-                  }
-                  if (lift[0] == 'T2') {
-                    todaysLift.weight = roundDownToNearestIncrement(todaysLift.weight * 0.85, MINIMUM_INCREMENT_STEP);
-                  }
-                }
-                todaysLift.repScheme = (todaysLift.repScheme + 1) % REP_SCHEMES[lift[0]].length;
-              }
-            });
-
-            // Increment the session counter so sessions are cycled from A1 to B2
-            // and back to A1 and so on
-            programState.sessionCounter = (programState.sessionCounter + 1) % SESSIONS.length;
-
-            // Store current state of the app
-            try {
-              await AsyncStorage.setItem('programState', JSON.stringify(programState), () => console.log("Program state data saved"));
-            } catch (error) {
-              console.log("Error saving data")
-            }
-
-            // Run onGoBack function to force rerender of home screen when it's navigated back to
-            params.onGoBack()
-            goBack();
-          }}
+          onPress={() => this.handleDoneButtonPress()}
         />
     </View>
     );
@@ -528,21 +535,23 @@ const SetButton = props => {
       currentTextStyle = styles.setButtonTextInactive;
     }
 
+    function handlePress() {
+      // If button is clicked, and hasn't already been clicked,
+      // set to "clicked" state. If it has been, undo its "clicked" state
+      // and make the button to the immediate left of it the last "clicked" button
+      if (isActive) {
+        let lastClickedButton = isClicked ? id - 1 : id;
+        setLastClickedButton(lastClickedButton);
+        setLiftComplete(lastClickedButton);
+        activateTimer(isClicked ? false : true, lastClickedButton);
+      }
+    }
+
     return (
       <TouchableOpacity
         activeOpacity={0.8}
         style={currentStyle}
-        onPress={() => {
-          // If button is clicked, and hasn't already been clicked,
-          // set to "clicked" state. If it has been, undo its "clicked" state
-          // and make the button to the immediate left of it the last "clicked" button
-          if (isActive) {
-            let lastClickedButton = isClicked ? id - 1 : id;
-            setLastClickedButton(lastClickedButton);
-            setLiftComplete(lastClickedButton);
-            activateTimer(isClicked ? false : true, lastClickedButton);
-          }
-        }}
+        onPress={() => handlePress()}
       >
         <Text style={currentTextStyle}>
           {buttonText}
