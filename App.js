@@ -132,10 +132,55 @@ const INITIAL_PROGRAM_STATE = {
     },
   },
 }
-// Global variable to store current state of program
-var programState = getCopyOfObject(INITIAL_PROGRAM_STATE);
+// Global variable to store program data, including current state of program
+// and methods to edit the program
+var program = {};
 
+program.state = getCopyOfObject(INITIAL_PROGRAM_STATE);
 
+program.setSessionCounter = function(num) {
+  program.state.sessionCounter = num;
+}
+program.getSessionCounter = function() {
+  return program.state.sessionCounter;
+}
+program.incrementSessionCounter = function() {
+  program.setSessionCounter((program.getSessionCounter() + 1) % SESSIONS.length);
+}
+
+program.getLabel = function(tier, exercise) {
+  return program.state.tier.exercise.label;
+}
+program.setLabel = function(tier, exercise, label) {
+  program.state.tier.exercise.label = label;
+}
+
+program.getWeight = function(tier, exercise) {
+  return program.state.tier.exercise.weight;
+}
+program.setWeight = function(tier, exercise, weight) {
+  program.state.tier.exercise.weight = weight;
+}
+
+program.getRepScheme = function(tier, exercise) {
+  return program.state.tier.exercise.repScheme;
+}
+program.setRepScheme = function(tier, exercise, repScheme) {
+  program.state.tier.exercise.repScheme = repScheme;
+}
+
+program.getIncrement = function(tier, exercise) {
+  return program.state.tier.exercise.increment;
+}
+program.setIncrement = function(tier, exercise, increment) {
+  program.state.tier.exercise.increment = increment;
+}
+
+program.addLift = function(tier, exercise, label, weight, repScheme, increment) {
+  program.state = {};
+  program.state[tier] = {};
+  program.state[tier][exercise] = {label, weight, repScheme, increment};
+}
 
 class HomeScreen extends React.Component {
   constructor(props) {
@@ -159,7 +204,7 @@ class HomeScreen extends React.Component {
     try {
       storedProgramState = await AsyncStorage.getItem('programState', () => console.log("Program state data retrieved"));
       if (storedProgramState !== null) {
-        programState = JSON.parse(storedProgramState);
+        program.state = JSON.parse(storedProgramState);
         refresh(this);
       }
     } catch (error) {
@@ -183,7 +228,7 @@ class HomeScreen extends React.Component {
             // Remove stored data and reset program state to initial values
             try {
               await AsyncStorage.removeItem('programState', () => console.log("Data removed"));
-              programState = getCopyOfObject(INITIAL_PROGRAM_STATE);
+              program.state = getCopyOfObject(INITIAL_PROGRAM_STATE);
               refresh(this);
             } catch (error) {
               console.log("Error removing data");
@@ -206,7 +251,7 @@ class NextSessionButton extends React.Component {
     const { navigate, onGoBack } = this.props;
 
     navigate('Session', {
-      session: SESSIONS[programState.sessionCounter],
+      session: SESSIONS[program.state.sessionCounter],
       onGoBack: () => onGoBack()
     });
   }
@@ -214,14 +259,14 @@ class NextSessionButton extends React.Component {
   render() {
     // lifts is an array where each element is a 2-element array
     // that specifies each lifts Tier (first element) and Exercise (second element)
-    var lifts = SESSIONS[programState.sessionCounter].lifts;
+    var lifts = SESSIONS[program.state.sessionCounter].lifts;
     // Populate arrays of data to display in the Next Session component
     var tiers = [];
     var labels = [];
     var weights = [];
     var repSchemes = [];
     lifts.forEach((lift, index) => {
-      let liftData = programState[ lift[0] ][ lift[1] ];
+      let liftData = program.state[ lift[0] ][ lift[1] ];
 
       tiers.push(
         <Text key={index}>
@@ -256,7 +301,7 @@ class NextSessionButton extends React.Component {
       >
         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
           <View>
-            <Text style={styles.nextSessionTitle}>{'Next Session: ' + SESSIONS[programState.sessionCounter].label}</Text>
+            <Text style={styles.nextSessionTitle}>{'Next Session: ' + SESSIONS[program.state.sessionCounter].label}</Text>
 
             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
               <View style={{width: 25}}>{tiers}</View>
@@ -280,9 +325,9 @@ class NextSessionButton extends React.Component {
 const ProgramState = () => {
     var output = '';
 
-    for (var tier in programState) {
-      for (var exercise in programState[tier]) {
-        var lift = programState[tier][exercise];
+    for (var tier in program.state) {
+      for (var exercise in program.state[tier]) {
+        var lift = program.state[tier][exercise];
         output += (
           tier + ' ' +
           REP_SCHEMES[tier][lift.repScheme].length + '×' +
@@ -328,7 +373,7 @@ class SessionScreen extends React.Component {
     // If all sets of a lift complete, clicking "Done" button increments that lift for next time
     // If not, the lift moves onto its next rep scheme for next time
     lifts.forEach((lift) => {
-      let todaysLift = programState[ lift[0] ][ lift[1] ];
+      let todaysLift = program.state[ lift[0] ][ lift[1] ];
 
       if (this.state[ lift[1] ]) {
         todaysLift.weight += todaysLift.increment;
@@ -353,11 +398,11 @@ class SessionScreen extends React.Component {
 
     // Increment the session counter so sessions are cycled from A1 to B2
     // and back to A1 and so on
-    programState.sessionCounter = (programState.sessionCounter + 1) % SESSIONS.length;
+    program.state.sessionCounter = (program.state.sessionCounter + 1) % SESSIONS.length;
 
     // Store current state of the app
     try {
-      await AsyncStorage.setItem('programState', JSON.stringify(programState), () => console.log("Program state data saved"));
+      await AsyncStorage.setItem('programState', JSON.stringify(program.state), () => console.log("Program state data saved"));
     } catch (error) {
       console.log("Error saving data")
     }
@@ -380,7 +425,7 @@ class SessionScreen extends React.Component {
     lifts.forEach((lift, index) => {
       liftComponents.push(
         <Lift key={index} tier={lift[0]} exercise={lift[1]}
-          repScheme={programState[ lift[0] ][ lift[1] ].repScheme}
+          repScheme={program.state[ lift[0] ][ lift[1] ].repScheme}
           // Test for whether all sets are complete
           setLiftComplete={(isComplete) => {this.setState({[ lift[1] ]:isComplete})}}
         />
@@ -432,7 +477,7 @@ class Lift extends React.Component {
     var numberOfSets = REP_SCHEMES[tier][repScheme].length;
     var repsArray = REP_SCHEMES[tier][repScheme];
 
-    var weight = programState[tier][exercise].weight;
+    var weight = program.state[tier][exercise].weight;
 
     // Populate an array of SetButtons to display
     var setButtons = [];
@@ -496,7 +541,7 @@ const LiftInfo = props => {
     return (
       <View>
         <Text style={styles.liftName}>
-          {tier} {programState[tier][exercise].label}
+          {tier} {program.state[tier][exercise].label}
         </Text>
         <Text style={styles.liftDetails}>
           {weight} kg   {sets}×{reps}
@@ -588,7 +633,9 @@ class Timer extends React.Component {
   render() {
     return (
       <View ref='myRef' style={styles.timerContainer}>
-        <Text style={styles.timerText}>{this.convertToMinutesAndSeconds(this.state.timeElapsed)}</Text>
+        <Text style={styles.timerText}>
+          {this.convertToMinutesAndSeconds(this.state.timeElapsed)}
+        </Text>
       </View>
     )
   }
