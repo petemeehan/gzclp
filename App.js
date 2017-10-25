@@ -1,27 +1,26 @@
-"use strict";
+
 
 import React from 'react';
 import {
-  StyleSheet,
   Text,
   View,
   ScrollView,
   Button,
   TouchableOpacity,
-  Alert,
-  Dimensions,
-  StatusBar,
   AsyncStorage
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
+import styles from './styles';
 
-const appColour = '#fa375a';
-const DEVICE_W = Dimensions.get('window').width;
-const DEVICE_H = Dimensions.get('window').height;
+const primaryColour = '#fa375a';
 
-StatusBar.setBarStyle('light-content');
 
-const SESSIONS = [
+
+// Global variable to store program data, including current state of program
+// and methods to edit the program
+var program = {state: {}};
+
+program.SESSIONS = [
   {
     label: 'A1',
     lifts: [
@@ -53,7 +52,7 @@ const SESSIONS = [
   }
 ]
 
-const REP_SCHEMES = {
+program.REP_SCHEMES = {
   T1: [
     ['3','3','3','3','3+'],
     ['2','2','2','2','2','2+'],
@@ -69,11 +68,10 @@ const REP_SCHEMES = {
   ]
 }
 
-const MINIMUM_INCREMENT = 2.5;
+program.MINIMUM_INCREMENT_STEP = 2.5;
 
-// NOTE: THIS DATA STRUCSH WILL BE REFACTORED AS A CLASS LATER
-const INITIAL_SESSION_COUNTER = 0;
-const INITIAL_PROGRAM_STATE = {
+program.INITIAL_PROGRAM_STATE = {
+  sessionCounter: 0,
   T1: {
     squat: {
       label: 'Squat',
@@ -141,39 +139,104 @@ const INITIAL_PROGRAM_STATE = {
     },
   },
 }
-var sessionCounter = INITIAL_SESSION_COUNTER;
-var programState = getCopyOfObject(INITIAL_PROGRAM_STATE);
+
+program.setSessionCounter = function(num) { program.state.sessionCounter = num; }
+program.getSessionCounter = function() { return program.state.sessionCounter; }
+program.incrementSessionCounter = function() {
+  program.setSessionCounter((program.getSessionCounter() + 1) % program.SESSIONS.length);
+}
+
+program.getLabel = function(tier, exercise) { return program.state[tier][exercise].label; }
+program.getWeight = function(tier, exercise) { return program.state[tier][exercise].weight; }
+program.getRepScheme = function(tier, exercise) { return program.state[tier][exercise].repScheme; }
+program.getIncrement = function(tier, exercise) { return program.state[tier][exercise].increment; }
+
+program.setLabel = function(tier, exercise, label) { program.state[tier][exercise].label = label; }
+program.setWeight = function(tier, exercise, weight) { program.state[tier][exercise].weight = weight; }
+program.setRepScheme = function(tier, exercise, repScheme) { program.state[tier][exercise].repScheme = repScheme; }
+program.setIncrement = function(tier, exercise, increment) { program.state[tier][exercise].increment = increment; }
+
+program.addLift = function(tier, exercise, label, weight, repScheme, increment) {
+  program.state[tier] = {};
+  program.state[tier][exercise] = {label, weight, repScheme, increment};
+}
+program.removeLift = function(tier, exercise) {
+  delete program.state[tier][exercise];
+}
+
+program.setProgramState = function(programState) {
+  program.state = getCopyOfObject(programState);
+}
+program.getProgramState = function() {
+  return program.state;
+}
+program.resetProgramState = function() {
+  program.setProgramState(program.INITIAL_PROGRAM_STATE);
+}
+
+
+program.getProgramStateAsString = function() {
+  var output = '';
+
+  for (var tier in program.state) {
+    for (var exercise in program.state[tier]) {
+      var lift = program.state[tier][exercise];
+      output += (
+        tier + ' ' +
+        program.REP_SCHEMES[tier][lift.repScheme].length + '×' +
+        program.REP_SCHEMES[tier][lift.repScheme][0] + ' \t' +
+        lift.weight + 'kg\t ' +
+        lift.label +
+        '\n'
+      );
+    }
+  }
+  return output;
+}
 
 
 
 class HomeScreen extends React.Component {
   constructor(props) {
     super(props);
-    //this.state = { isFirstSession: true };
+    // Initialise program state with default values
+    program.resetProgramState();
   }
 
   static navigationOptions = {
     title: 'GZCLP',
     headerTintColor: '#fff',
-    headerStyle: { backgroundColor: appColour },
+    headerStyle: { backgroundColor: primaryColour },
   };
 
-  async componentDidMount() {
+  componentDidMount() {
     // Overwrite initial default program state values with stored ones, if they exist
-    try {
-      const storedSessionCounter = await AsyncStorage.getItem('sessionCounter', () => console.log("Session counter data retrieved"));
-      const storedProgramState = await AsyncStorage.getItem('programState', () => console.log("Program state data retrieved"));
+    this.loadSavedData();
+  }
 
-      if (storedSessionCounter !== null) {
-        sessionCounter = JSON.parse(storedSessionCounter);
-      }
+  async loadSavedData() {
+    var storedProgramState;
+
+    try {
+      storedProgramState = await AsyncStorage.getItem('programState', () => console.log("Program state data retrieved"));
       if (storedProgramState !== null) {
-        programState = JSON.parse(storedProgramState);
+        program.setProgramState(JSON.parse(storedProgramState));
+        refresh(this);
       }
-      refresh(this);
     } catch (error) {
       console.log("Error retrieving data");
     }
+  }
+
+  // Remove stored data and reset program state to initial values
+  async handleResetButtonPress() {
+      try {
+        await AsyncStorage.removeItem('programState', () => console.log("Data removed"));
+        program.resetProgramState();
+        refresh(this);
+      } catch (error) {
+        console.log("Error removing data");
+      }
   }
 
   render() {
@@ -181,38 +244,15 @@ class HomeScreen extends React.Component {
 
     return (
       <View>
-        <Button
-          title={'Begin ' + SESSIONS[sessionCounter].label + ' Session'}
-          color={appColour}
-          // Navigate to session screen and pass as two parameters the required session
-          // and the callback function that will refresh the home screen when session is finished
-          onPress={() => {
-            navigate('Session', {
-              session: SESSIONS[sessionCounter],
-              onGoBack: () => refresh(this)
-            });
-          }}
-        />
+        <NextSessionButton navigate={navigate} onGoBack={() => refresh(this)} />
+
+        <ProgramState />
 
         <Button
           title='Reset All Progress'
           color='#777'
-          onPress={async () => {
-            // Remove stored data and reset program state to initial values
-            try {
-              await AsyncStorage.multiRemove(['sessionCounter','programState'], () => console.log("Data removed"));
-              sessionCounter = INITIAL_SESSION_COUNTER;
-              programState = getCopyOfObject(INITIAL_PROGRAM_STATE);
-              refresh(this);
-            } catch (error) {
-              console.log("Error removing data");
-            }
-          }}
+          onPress={() => this.handleResetButtonPress()}
         />
-
-        <View style={styles.progressDataContainer}>
-          <ProgressData />
-        </View>
       </View>
     );
   }
@@ -220,26 +260,99 @@ class HomeScreen extends React.Component {
 
 
 
-class ProgressData extends React.Component {
-  render() {
-    var output = '';
-
-    for (var tier in programState) {
-      for (var exercise in programState[tier]) {
-        var lift = programState[tier][exercise];
-        output += (
-          tier + " " +
-          REP_SCHEMES[tier][lift.repScheme].length + '×' +
-          REP_SCHEMES[tier][lift.repScheme][0] + ' \t' +
-          lift.weight + 'kg  ' +
-          lift.label +
-          '\n'
-        );
-      }
-    }
-
-    return <Text style={styles.progressDataText}>{output}</Text>
+class NextSessionButton extends React.Component {
+  constructor(props) {
+    super(props);
   }
+
+  handlePress() {
+    const { navigate, onGoBack } = this.props;
+
+    navigate('Session', {
+      session: program.SESSIONS[program.getSessionCounter()],
+      onGoBack: () => onGoBack()
+    });
+  }
+
+  render() {
+    console.log(program.getLabel('T1', 'squat'));
+
+    // lifts is an array where each element is a 2-element array
+    // that specifies each lifts Tier (first element) and Exercise (second element)
+    var lifts = program.SESSIONS[program.getSessionCounter()].lifts;
+    // Populate arrays of data to display in the Next Session component
+    var tiers = [];
+    var labels = [];
+    var weights = [];
+    var repSchemes = [];
+
+    lifts.forEach((lift, index) => {
+      let tier = lift[0];
+      let exercise = lift[1];
+
+      tiers.push(
+        <Text key={index}>
+          {tier}
+        </Text>
+      );
+      labels.push(
+        <Text key={index}>
+          {program.getLabel(tier, exercise)}
+        </Text>
+      );
+      weights.push(
+        <Text key={index}>
+          {program.getWeight(tier, exercise)} kg
+        </Text>
+      );
+      repSchemes.push(
+        <Text key={index}>
+          {program.REP_SCHEMES[ tier ][ program.getRepScheme(tier, exercise) ].length}×
+          {program.REP_SCHEMES[ tier ][ program.getRepScheme(tier, exercise) ][0]}
+        </Text>
+      );
+    });
+
+    return (
+      <TouchableOpacity
+        style={styles.nextSessionContainer}
+        activeOpacity={0.8}
+        // Navigate to session screen and pass as two parameters the required session
+        // and the callback function that will refresh the home screen when session is finished
+        onPress={() => this.handlePress()}
+      >
+        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+          <View>
+            <Text style={styles.nextSessionTitle}>{'Next Session: ' + program.SESSIONS[program.getSessionCounter()].label}</Text>
+
+            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              <View style={{width: 25}}>{tiers}</View>
+              <View style={{width: 120}}>{labels}</View>
+              <View style={{width: 50, alignItems: 'flex-end', marginRight: 20}}>{weights}</View>
+              <View>{repSchemes}</View>
+            </View>
+          </View>
+
+          <View style={{justifyContent: 'center'}}>
+            <Text style={{fontSize: 20, color: primaryColour}}>＞</Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    )
+  }
+}
+
+
+
+const ProgramState = () => {
+    var output = program.getProgramStateAsString();
+
+    return (
+      <View style={styles.progressDataContainer}>
+        <Text style={styles.progressDataTitle}>Current Program State</Text>
+        <Text style={styles.progressDataContent}>{output}</Text>
+      </View>
+    )
 }
 
 
@@ -254,25 +367,84 @@ class SessionScreen extends React.Component {
   static navigationOptions = ({ navigation }) => ({
     title: 'Session ' + navigation.state.params.session.label,
     headerTintColor: '#fff',
-    headerStyle: { backgroundColor: appColour },
+    headerStyle: { backgroundColor: primaryColour },
   });
+
+  async handleDoneButtonPress() {
+    const { goBack } = this.props.navigation;
+    const { params } = this.props.navigation.state;
+
+    // lifts parameter is in the form of an array where each element is a 2-element array
+    // that specifies each lifts Tier (first element) and Exercise (second element)
+    const lifts = params.session.lifts;
+
+    // If all sets of a lift complete, clicking "Done" button increments that lift for next time
+    // If not, the lift moves onto its next rep scheme for next time
+    lifts.forEach((lift) => {
+      let tier = lift[0];
+      let exercise = lift[1];
+
+      if (this.state[ exercise ]) {
+        //todaysLift.weight += todaysLift.increment;
+        let newWeight = program.getWeight(tier, exercise) + program.getIncrement(tier, exercise);
+        program.setWeight(tier, exercise, newWeight);
+      } else {
+        // On failure, cycle through rep schemes based on whether lift is T1/T2/T3
+        // (There are three for T1, three for T2, one for T3)
+        // On failing last rep scheme, strategy varies depending on tier:
+        // T1: restart new cycle on first repscheme with 85% of last weight attempted
+        // T2: restart new cycle on first repscheme with weight 5kg heavier than what was last lifted on first repscheme
+        // (TODO: this is currently implemented same as for T1, as previous sessions are not yet recorded)
+        // T3: no change
+        if (program.getRepScheme(tier, exercise) == program.REP_SCHEMES[lift[0]].length - 1) {
+          if (lift[0] == 'T1') {
+            let newWeight = roundDownToNearestIncrement(
+              program.getWeight(tier, exercise) * 0.85, program.MINIMUM_INCREMENT_STEP
+            );
+            program.setWeight(tier, exercise, newWeight);
+          }
+          if (lift[0] == 'T2') {
+            let newWeight = roundDownToNearestIncrement(
+              program.getWeight(tier, exercise) * 0.85, program.MINIMUM_INCREMENT_STEP
+            );
+            program.setWeight(tier, exercise, newWeight);
+          }
+        }
+        let newRepScheme = (program.getRepScheme(tier, exercise) + 1) % program.REP_SCHEMES[lift[0]].length;
+        program.setRepScheme(tier, exercise, newRepScheme);
+      }
+    });
+
+    // Increment the session counter so sessions are cycled from A1 to B2
+    // and back to A1 and so on
+    program.state.sessionCounter = (program.state.sessionCounter + 1) % program.SESSIONS.length;
+
+    // Store current state of the app
+    try {
+      await AsyncStorage.setItem('programState', JSON.stringify(program.state), () => console.log("Program state data saved"));
+    } catch (error) {
+      console.log("Error saving data")
+    }
+
+    // Run onGoBack function to force rerender of home screen when it's navigated back to
+    params.onGoBack()
+    goBack();
+  }
 
   render() {
     const { goBack } = this.props.navigation;
     const { params } = this.props.navigation.state;
 
-    console.log(params);
     // lifts parameter is in the form of an array where each element is a 2-element array
     // that specifies each lifts Tier (first element) and Exercise (second element)
-    var lifts = params.session.lifts;
+    const lifts = params.session.lifts;
 
-    // Populate an array of Lift components to display, with the props passed to
-    // this Session component
+    // Populate an array of Lift components to display in this SessionScreen component
     var liftComponents = [];
     lifts.forEach((lift, index) => {
       liftComponents.push(
         <Lift key={index} tier={lift[0]} exercise={lift[1]}
-          repScheme={programState[ lift[0] ][ lift[1] ].repScheme}
+          repScheme={program.state[ lift[0] ][ lift[1] ].repScheme}
           // Test for whether all sets are complete
           setLiftComplete={(isComplete) => {this.setState({[ lift[1] ]:isComplete})}}
         />
@@ -280,59 +452,15 @@ class SessionScreen extends React.Component {
     });
 
     return (
-      <View style={styles.container}>
+      <View>
         <ScrollView>
           {liftComponents}
         </ScrollView>
 
         <Button
           title='Done'
-          color={appColour}
-          onPress={async () => {
-            //refresh(this);  // Uncomment if testing without navigating as this forces rerender
-
-            // If all sets of a lift complete, clicking "Done" button increments that lift for next time
-            // If not, the lift moves onto its next rep scheme for next time
-            lifts.forEach((lift) => {
-              let todaysLift = programState[ lift[0] ][ lift[1] ];
-
-              if (this.state[ lift[1] ]) {
-                todaysLift.weight += todaysLift.increment;
-              } else {
-                // On failure, cycle through rep schemes based on whether lift is T1/T2/T3
-                // (There are three for T1, three for T2, one for T3)
-                // On failing last rep scheme, strategy varies depending on tier:
-                // T1: restart new cycle on first repscheme with 85% of last weight attempted
-                // T2: restart new cycle on first repscheme with weight 5kg heavier than what was last lifted on first repscheme
-                // T3: no change
-                if (todaysLift.repScheme == REP_SCHEMES[lift[0]].length - 1) {
-                  if (lift[0] == 'T1') {
-                    todaysLift.weight = roundDownToNearestIncrement(todaysLift.weight * 0.85, MINIMUM_INCREMENT);
-                  }
-                  if (lift[0] == 'T2') {
-                    todaysLift.weight = roundDownToNearestIncrement(todaysLift.weight * 0.85, MINIMUM_INCREMENT);
-                  }
-                }
-                todaysLift.repScheme = (todaysLift.repScheme + 1) % REP_SCHEMES[lift[0]].length;
-              }
-            });
-
-            // Increment the session counter so sessions are cycled from A1 to B2
-            // and back to A1 and so on
-            sessionCounter = (sessionCounter + 1) % SESSIONS.length;
-
-            // Store current state of the app
-            try {
-              await AsyncStorage.setItem('sessionCounter', JSON.stringify(sessionCounter), () => console.log("Session counter data saved"));
-              await AsyncStorage.setItem('programState', JSON.stringify(programState), () => console.log("Program state data saved"));
-            } catch (error) {
-              console.log("Error saving data")
-            }
-
-            // Run callback function to force rerender of home screen and navigate back to it
-            params.onGoBack()
-            goBack();
-          }}
+          color={primaryColour}
+          onPress={() => this.handleDoneButtonPress()}
         />
     </View>
     );
@@ -367,10 +495,10 @@ class Lift extends React.Component {
   render() {
     var { tier, repScheme, exercise } = this.props;
 
-    var numberOfSets = REP_SCHEMES[tier][repScheme].length,
-        repsArray = REP_SCHEMES[tier][repScheme];
+    var numberOfSets = program.REP_SCHEMES[tier][repScheme].length;
+    var repsArray = program.REP_SCHEMES[tier][repScheme];
 
-    var weight = programState[tier][exercise].weight;
+    var weight = program.state[tier][exercise].weight;
 
     // Populate an array of SetButtons to display
     var setButtons = [];
@@ -394,7 +522,7 @@ class Lift extends React.Component {
           // Also check if set is last one, as no need for timer after that
           activateTimer={(isTimerVisible, id) => {
             this.setState({isTimerVisible: false}, () => {
-              //if (!this.areAllSetButtonsClicked(id, numberOfSets)) {  //NOTE need to check again why this doesnt work
+              //if (!this.areAllSetButtonsClicked(i, numberOfSets)) {  //NOTE need to check again why this doesnt work
               if (!this.areAllSetButtonsClicked(id, numberOfSets)) {
                 this.setState({isTimerVisible})
               }
@@ -422,33 +550,30 @@ class Lift extends React.Component {
 
 
 
-class LiftInfo extends React.Component {
-  render() {
+const LiftInfo = props => {
     var {
       tier,
       exercise,
       weight,
       sets,
       reps
-    } = this.props;
+    } = props;
 
     return (
       <View>
         <Text style={styles.liftName}>
-          {tier} {programState[tier][exercise].label}
+          {tier} {program.state[tier][exercise].label}
         </Text>
         <Text style={styles.liftDetails}>
-          {weight}kg   {sets} × {reps}
+          {weight} kg   {sets}×{reps}
         </Text>
-    </View>
+      </View>
     )
-  }
 }
 
 
 
-class SetButton extends React.Component {
-  render() {
+const SetButton = props => {
     var {
       reps,
       isClicked,
@@ -457,7 +582,7 @@ class SetButton extends React.Component {
       setLiftComplete,
       activateTimer,
       id
-    } = this.props;
+    } = props;
 
     // If button is clicked, display a tick. Otherwise display number of reps.
     // And if set is an AMRAP set, display a '+' sign next the rep number
@@ -476,28 +601,29 @@ class SetButton extends React.Component {
       currentTextStyle = styles.setButtonTextInactive;
     }
 
+    function handlePress() {
+      // If button is clicked, and hasn't already been clicked,
+      // set to "clicked" state. If it has been, undo its "clicked" state
+      // and make the button to the immediate left of it the last "clicked" button
+      if (isActive) {
+        let lastClickedButton = isClicked ? id - 1 : id;
+        setLastClickedButton(lastClickedButton);
+        setLiftComplete(lastClickedButton);
+        activateTimer(isClicked ? false : true, lastClickedButton);
+      }
+    }
+
     return (
       <TouchableOpacity
         activeOpacity={0.8}
         style={currentStyle}
-        onPress={() => {
-          // If button is clicked, and hasn't already been clicked,
-          // set to "clicked" state. If it has been, undo its "clicked" state
-          // and make the button to the immediate left of it the last "clicked" button
-          if (isActive) {
-            let lastClickedButton = isClicked ? id - 1 : id;
-            setLastClickedButton(lastClickedButton);
-            setLiftComplete(lastClickedButton);
-            activateTimer(isClicked ? false : true, lastClickedButton);
-          }
-        }}
+        onPress={() => handlePress()}
       >
         <Text style={currentTextStyle}>
           {buttonText}
         </Text>
       </TouchableOpacity>
     )
-  }
 }
 
 
@@ -550,11 +676,10 @@ class Timer extends React.Component {
 
 
 // Main route of app
-const App = StackNavigator({
+export default StackNavigator({
   Home: {screen: HomeScreen},
   Session: {screen: SessionScreen}
 });
-export default App;
 
 
 
@@ -571,93 +696,3 @@ function getCopyOfObject( obj ) {
 function roundDownToNearestIncrement( number, increment ) {
   return Math.floor(number * (1/increment)) / (1/increment);
 }
-
-
-
-/*---------------STYLES---------------*/
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  progressDataContainer: {
-    backgroundColor: '#fff',
-    paddingHorizontal: (0.03125+0.015625) * DEVICE_W,
-  },
-  progressDataText: {
-    fontFamily: 'Courier New',
-  },
-  liftContainer: {
-    backgroundColor: '#fff',
-    marginBottom: 3,
-  },
-  liftInfoContainer: {
-    marginHorizontal: (0.03125+0.015625) * DEVICE_W,
-    marginTop: 5 + 0.015625 * DEVICE_W,
-    marginBottom: 5,
-  },
-  liftName: {
-    fontSize: 16,
-  },
-  liftDetails: {
-    marginVertical: 5,
-  },
-  setButtonContainer: {
-    marginBottom: 10,
-    flexDirection: 'row',
-    marginHorizontal: 0.03125 * DEVICE_W,
-    flexWrap: 'wrap',
-  },
-  setButtonActive: {
-    borderColor: appColour,
-    borderWidth: 1.5,
-    margin: 0.015625 * DEVICE_W,
-    width: 0.15625 * DEVICE_W,
-    height: 0.15625 * DEVICE_W,
-    borderRadius: 0.15625 * DEVICE_W / 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  setButtonInactive: {
-    backgroundColor: '#eee',
-    margin: 0.015625 * DEVICE_W,
-    width: 0.15625 * DEVICE_W,
-    height: 0.15625 * DEVICE_W,
-    borderRadius: 0.15625 * DEVICE_W / 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  setButtonClicked: {
-    backgroundColor: appColour,
-    margin: 0.015625 * DEVICE_W,
-    width: 0.15625 * DEVICE_W,
-    height: 0.15625 * DEVICE_W,
-    borderRadius: 0.15625 * DEVICE_W / 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  setButtonTextActive: {
-    color: appColour,
-  },
-  setButtonTextInactive: {
-    color: '#777'
-  },
-  setButtonTextClicked: {
-    color: '#fff',
-  },
-  timerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#777',
-    paddingHorizontal: (0.03125+0.015625) * DEVICE_W,
-    paddingVertical: 2,
-  },
-  timerNumbers: {
-    width: 50,
-    color: '#fff',
-    fontSize: 15,
-  },
-  timerText: {
-    color: '#fff',
-  }
-});
