@@ -96,13 +96,18 @@ export default StyleSheet.create({
     color: '#fff',
   },
   timerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#777',
+    paddingHorizontal: (0.03125+0.015625) * DEVICE_W,
+    paddingVertical: 2,
+  },
+  timerNumbers: {
+    width: 50,
+    color: '#fff',
+    fontSize: 15,
   },
   timerText: {
-    marginHorizontal: (0.03125+0.015625) * DEVICE_W,
-    marginVertical: 2,
     color: '#fff',
-    fontSize: 16,
-    fontFamily: 'Courier',
   }
 });
