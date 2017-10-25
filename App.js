@@ -484,9 +484,11 @@ class Lift extends React.Component {
     return (id == sets)
   }
 
-  renderTimer() {
+  // Display timer for this lift and pass it the corresponding tier as a prop,
+  // so it knows how long to tell user to rest
+  renderTimer(tier) {
     if (this.state.isTimerVisible) {
-      return (<Timer />)
+      return (<Timer tier={tier} />)
     }
   }
 
@@ -540,7 +542,7 @@ class Lift extends React.Component {
           {setButtons}
         </View>
 
-        {this.renderTimer()}
+        {this.renderTimer(tier)}
       </View>
     );
   }
@@ -650,11 +652,23 @@ class Timer extends React.Component {
   }
 
   render() {
+    var tier = this.props.tier;
+    var time = '';
+
+    if (tier == 'T1') {
+      time = '3-5';
+    }
+    if (tier == 'T2') {
+      time = '2-3';
+    }
+    if (tier == 'T3') {
+      time = '1-2';
+    }
+
     return (
       <View ref='myRef' style={styles.timerContainer}>
-        <Text style={styles.timerText}>
-          {this.convertToMinutesAndSeconds(this.state.timeElapsed)}
-        </Text>
+        <Text style={styles.timerNumbers}>{this.convertToMinutesAndSeconds(this.state.timeElapsed)}</Text>
+        <Text style={styles.timerText}>Rest for {time} minutes</Text>
       </View>
     )
   }
