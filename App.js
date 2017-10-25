@@ -174,7 +174,6 @@ program.resetProgramState = function() {
   program.setProgramState(program.INITIAL_PROGRAM_STATE);
 }
 
-
 program.getProgramStateAsString = function() {
   var output = '';
 
@@ -192,6 +191,53 @@ program.getProgramStateAsString = function() {
     }
   }
   return output;
+}
+
+program.saveProgramState = function() {
+  AsyncStorage.setItem(
+    'programState',
+    JSON.stringify(program.state),
+    () => console.log("Program state data saved")
+  )
+}
+program.loadProgramState = function() {
+  return JSON.parse(AsyncStorage.getItem(
+    'programState',
+    () => console.log("Program state data retrieved")
+  ))
+}
+program.deleteSavedProgramState = function() {
+  AsyncStorage.removeItem('programState', () => console.log("Data removed"))
+}
+
+program.handleSuccessfulLift = function(tier, exercise) {
+  let newWeight = program.getWeight(tier, exercise) + program.getIncrement(tier, exercise);
+  program.setWeight(tier, exercise, newWeight);
+}
+program.handleFailedLift = function(tier, exercise) {
+  // On failure, cycle through rep schemes based on whether lift is T1/T2/T3
+  // (There are three for T1, three for T2, one for T3)
+  // On failing last rep scheme, strategy varies depending on tier:
+  // T1: restart new cycle on first repscheme with 85% of last weight attempted
+  // T2: restart new cycle on first repscheme with weight 5kg heavier than what was last lifted on first repscheme
+  // (TODO: this is currently implemented same as for T1, as previous sessions are not yet recorded)
+  // T3: no change
+  if (program.getRepScheme(tier, exercise) == program.REP_SCHEMES[tier].length - 1) {  // Check if we're on last rep scheme in cycle
+    if (tier == 'T1') {
+      let newWeight = roundDownToNearestIncrement(
+        program.getWeight(tier, exercise) * 0.85, program.MINIMUM_INCREMENT_STEP
+      );
+      program.setWeight(tier, exercise, newWeight);
+    }
+    if (tier == 'T2') {
+      let newWeight = roundDownToNearestIncrement(
+        program.getWeight(tier, exercise) * 0.85, program.MINIMUM_INCREMENT_STEP
+      );
+      program.setWeight(tier, exercise, newWeight);
+    }
+  }
+  let newRepScheme = (program.getRepScheme(tier, exercise) + 1) % program.REP_SCHEMES[tier].length;
+  program.setRepScheme(tier, exercise, newRepScheme);
 }
 
 
@@ -218,9 +264,9 @@ class HomeScreen extends React.Component {
     var storedProgramState;
 
     try {
-      storedProgramState = await AsyncStorage.getItem('programState', () => console.log("Program state data retrieved"));
+      storedProgramState = await program.loadProgramState();
       if (storedProgramState !== null) {
-        program.setProgramState(JSON.parse(storedProgramState));
+        program.setProgramState(storedProgramState);
         refresh(this);
       }
     } catch (error) {
@@ -231,7 +277,7 @@ class HomeScreen extends React.Component {
   // Remove stored data and reset program state to initial values
   async handleResetButtonPress() {
       try {
-        await AsyncStorage.removeItem('programState', () => console.log("Data removed"));
+        await program.deleteSavedProgramState();
         program.resetProgramState();
         refresh(this);
       } catch (error) {
@@ -385,43 +431,19 @@ class SessionScreen extends React.Component {
       let exercise = lift[1];
 
       if (this.state[ exercise ]) {
-        //todaysLift.weight += todaysLift.increment;
-        let newWeight = program.getWeight(tier, exercise) + program.getIncrement(tier, exercise);
-        program.setWeight(tier, exercise, newWeight);
+        program.handleSuccessfulLift(tier, exercise);
       } else {
-        // On failure, cycle through rep schemes based on whether lift is T1/T2/T3
-        // (There are three for T1, three for T2, one for T3)
-        // On failing last rep scheme, strategy varies depending on tier:
-        // T1: restart new cycle on first repscheme with 85% of last weight attempted
-        // T2: restart new cycle on first repscheme with weight 5kg heavier than what was last lifted on first repscheme
-        // (TODO: this is currently implemented same as for T1, as previous sessions are not yet recorded)
-        // T3: no change
-        if (program.getRepScheme(tier, exercise) == program.REP_SCHEMES[lift[0]].length - 1) {
-          if (lift[0] == 'T1') {
-            let newWeight = roundDownToNearestIncrement(
-              program.getWeight(tier, exercise) * 0.85, program.MINIMUM_INCREMENT_STEP
-            );
-            program.setWeight(tier, exercise, newWeight);
-          }
-          if (lift[0] == 'T2') {
-            let newWeight = roundDownToNearestIncrement(
-              program.getWeight(tier, exercise) * 0.85, program.MINIMUM_INCREMENT_STEP
-            );
-            program.setWeight(tier, exercise, newWeight);
-          }
-        }
-        let newRepScheme = (program.getRepScheme(tier, exercise) + 1) % program.REP_SCHEMES[lift[0]].length;
-        program.setRepScheme(tier, exercise, newRepScheme);
+        program.handleFailedLift(tier, exercise);
       }
     });
 
     // Increment the session counter so sessions are cycled from A1 to B2
     // and back to A1 and so on
-    program.state.sessionCounter = (program.state.sessionCounter + 1) % program.SESSIONS.length;
+    program.incrementSessionCounter();
 
     // Store current state of the app
     try {
-      await AsyncStorage.setItem('programState', JSON.stringify(program.state), () => console.log("Program state data saved"));
+      await program.saveProgramState();
     } catch (error) {
       console.log("Error saving data")
     }
@@ -442,11 +464,14 @@ class SessionScreen extends React.Component {
     // Populate an array of Lift components to display in this SessionScreen component
     var liftComponents = [];
     lifts.forEach((lift, index) => {
+      let tier = lift[0];
+      let exercise = lift[1];
+
       liftComponents.push(
-        <Lift key={index} tier={lift[0]} exercise={lift[1]}
-          repScheme={program.state[ lift[0] ][ lift[1] ].repScheme}
+        <Lift key={index} tier={tier} exercise={exercise}
+          repScheme={program.getRepScheme(tier, exercise)}
           // Test for whether all sets are complete
-          setLiftComplete={(isComplete) => {this.setState({[ lift[1] ]:isComplete})}}
+          setLiftComplete={(isComplete) => {this.setState({[ exercise ]:isComplete})}}
         />
       )
     });
