@@ -14,7 +14,13 @@ import styles from './styles';
 
 const primaryColour = '#fa375a';
 
-const SESSIONS = [
+
+
+// Global variable to store program data, including current state of program
+// and methods to edit the program
+var program = {state: {}};
+
+program.SESSIONS = [
   {
     label: 'A1',
     lifts: [
@@ -46,7 +52,7 @@ const SESSIONS = [
   }
 ]
 
-const REP_SCHEMES = {
+program.REP_SCHEMES = {
   T1: [
     ['3','3','3','3','3+'],
     ['2','2','2','2','2','2+'],
@@ -62,8 +68,9 @@ const REP_SCHEMES = {
   ]
 }
 
-const MINIMUM_INCREMENT_STEP = 2.5;
-const INITIAL_PROGRAM_STATE = {
+program.MINIMUM_INCREMENT_STEP = 2.5;
+
+program.INITIAL_PROGRAM_STATE = {
   sessionCounter: 0,
   T1: {
     squat: {
@@ -132,59 +139,68 @@ const INITIAL_PROGRAM_STATE = {
     },
   },
 }
-// Global variable to store program data, including current state of program
-// and methods to edit the program
-var program = {};
 
-program.state = getCopyOfObject(INITIAL_PROGRAM_STATE);
-
-program.setSessionCounter = function(num) {
-  program.state.sessionCounter = num;
-}
-program.getSessionCounter = function() {
-  return program.state.sessionCounter;
-}
+program.setSessionCounter = function(num) { program.state.sessionCounter = num; }
+program.getSessionCounter = function() { return program.state.sessionCounter; }
 program.incrementSessionCounter = function() {
-  program.setSessionCounter((program.getSessionCounter() + 1) % SESSIONS.length);
+  program.setSessionCounter((program.getSessionCounter() + 1) % program.SESSIONS.length);
 }
 
-program.getLabel = function(tier, exercise) {
-  return program.state.tier.exercise.label;
-}
-program.setLabel = function(tier, exercise, label) {
-  program.state.tier.exercise.label = label;
-}
+program.getLabel = function(tier, exercise) { return program.state[tier][exercise].label; }
+program.getWeight = function(tier, exercise) { return program.state[tier][exercise].weight; }
+program.getRepScheme = function(tier, exercise) { return program.state[tier][exercise].repScheme; }
+program.getIncrement = function(tier, exercise) { return program.state[tier][exercise].increment; }
 
-program.getWeight = function(tier, exercise) {
-  return program.state.tier.exercise.weight;
-}
-program.setWeight = function(tier, exercise, weight) {
-  program.state.tier.exercise.weight = weight;
-}
-
-program.getRepScheme = function(tier, exercise) {
-  return program.state.tier.exercise.repScheme;
-}
-program.setRepScheme = function(tier, exercise, repScheme) {
-  program.state.tier.exercise.repScheme = repScheme;
-}
-
-program.getIncrement = function(tier, exercise) {
-  return program.state.tier.exercise.increment;
-}
-program.setIncrement = function(tier, exercise, increment) {
-  program.state.tier.exercise.increment = increment;
-}
+program.setLabel = function(tier, exercise, label) { program.state[tier][exercise].label = label; }
+program.setWeight = function(tier, exercise, weight) { program.state[tier][exercise].weight = weight; }
+program.setRepScheme = function(tier, exercise, repScheme) { program.state[tier][exercise].repScheme = repScheme; }
+program.setIncrement = function(tier, exercise, increment) { program.state[tier][exercise].increment = increment; }
 
 program.addLift = function(tier, exercise, label, weight, repScheme, increment) {
-  program.state = {};
   program.state[tier] = {};
   program.state[tier][exercise] = {label, weight, repScheme, increment};
 }
+program.removeLift = function(tier, exercise) {
+  delete program.state[tier][exercise];
+}
+
+program.setProgramState = function(programState) {
+  program.state = getCopyOfObject(programState);
+}
+program.getProgramState = function() {
+  return program.state;
+}
+program.resetProgramState = function() {
+  program.setProgramState(program.INITIAL_PROGRAM_STATE);
+}
+
+
+program.getProgramStateAsString = function() {
+  var output = '';
+
+  for (var tier in program.state) {
+    for (var exercise in program.state[tier]) {
+      var lift = program.state[tier][exercise];
+      output += (
+        tier + ' ' +
+        program.REP_SCHEMES[tier][lift.repScheme].length + '×' +
+        program.REP_SCHEMES[tier][lift.repScheme][0] + ' \t' +
+        lift.weight + 'kg\t ' +
+        lift.label +
+        '\n'
+      );
+    }
+  }
+  return output;
+}
+
+
 
 class HomeScreen extends React.Component {
   constructor(props) {
     super(props);
+    // Initialise program state with default values
+    program.resetProgramState();
   }
 
   static navigationOptions = {
@@ -204,12 +220,23 @@ class HomeScreen extends React.Component {
     try {
       storedProgramState = await AsyncStorage.getItem('programState', () => console.log("Program state data retrieved"));
       if (storedProgramState !== null) {
-        program.state = JSON.parse(storedProgramState);
+        program.setProgramState(JSON.parse(storedProgramState));
         refresh(this);
       }
     } catch (error) {
       console.log("Error retrieving data");
     }
+  }
+
+  // Remove stored data and reset program state to initial values
+  async handleResetButtonPress() {
+      try {
+        await AsyncStorage.removeItem('programState', () => console.log("Data removed"));
+        program.resetProgramState();
+        refresh(this);
+      } catch (error) {
+        console.log("Error removing data");
+      }
   }
 
   render() {
@@ -224,16 +251,7 @@ class HomeScreen extends React.Component {
         <Button
           title='Reset All Progress'
           color='#777'
-          onPress={async () => {
-            // Remove stored data and reset program state to initial values
-            try {
-              await AsyncStorage.removeItem('programState', () => console.log("Data removed"));
-              program.state = getCopyOfObject(INITIAL_PROGRAM_STATE);
-              refresh(this);
-            } catch (error) {
-              console.log("Error removing data");
-            }
-          }}
+          onPress={() => this.handleResetButtonPress()}
         />
       </View>
     );
@@ -251,42 +269,46 @@ class NextSessionButton extends React.Component {
     const { navigate, onGoBack } = this.props;
 
     navigate('Session', {
-      session: SESSIONS[program.state.sessionCounter],
+      session: program.SESSIONS[program.getSessionCounter()],
       onGoBack: () => onGoBack()
     });
   }
 
   render() {
+    console.log(program.getLabel('T1', 'squat'));
+
     // lifts is an array where each element is a 2-element array
     // that specifies each lifts Tier (first element) and Exercise (second element)
-    var lifts = SESSIONS[program.state.sessionCounter].lifts;
+    var lifts = program.SESSIONS[program.getSessionCounter()].lifts;
     // Populate arrays of data to display in the Next Session component
     var tiers = [];
     var labels = [];
     var weights = [];
     var repSchemes = [];
+
     lifts.forEach((lift, index) => {
-      let liftData = program.state[ lift[0] ][ lift[1] ];
+      let tier = lift[0];
+      let exercise = lift[1];
 
       tiers.push(
         <Text key={index}>
-          {lift[0]}
+          {tier}
         </Text>
       );
       labels.push(
         <Text key={index}>
-          {liftData['label']}
+          {program.getLabel(tier, exercise)}
         </Text>
       );
       weights.push(
         <Text key={index}>
-          {liftData['weight']} kg
+          {program.getWeight(tier, exercise)} kg
         </Text>
       );
       repSchemes.push(
         <Text key={index}>
-          {REP_SCHEMES[ lift[0] ][ liftData['repScheme'] ].length}×
-          {REP_SCHEMES[ lift[0] ][ liftData['repScheme'] ][0]}
+          {program.REP_SCHEMES[ tier ][ program.getRepScheme(tier, exercise) ].length}×
+          {program.REP_SCHEMES[ tier ][ program.getRepScheme(tier, exercise) ][0]}
         </Text>
       );
     });
@@ -301,7 +323,7 @@ class NextSessionButton extends React.Component {
       >
         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
           <View>
-            <Text style={styles.nextSessionTitle}>{'Next Session: ' + SESSIONS[program.state.sessionCounter].label}</Text>
+            <Text style={styles.nextSessionTitle}>{'Next Session: ' + program.SESSIONS[program.getSessionCounter()].label}</Text>
 
             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
               <View style={{width: 25}}>{tiers}</View>
@@ -323,21 +345,7 @@ class NextSessionButton extends React.Component {
 
 
 const ProgramState = () => {
-    var output = '';
-
-    for (var tier in program.state) {
-      for (var exercise in program.state[tier]) {
-        var lift = program.state[tier][exercise];
-        output += (
-          tier + ' ' +
-          REP_SCHEMES[tier][lift.repScheme].length + '×' +
-          REP_SCHEMES[tier][lift.repScheme][0] + ' \t' +
-          lift.weight + 'kg\t ' +
-          lift.label +
-          '\n'
-        );
-      }
-    }
+    var output = program.getProgramStateAsString();
 
     return (
       <View style={styles.progressDataContainer}>
@@ -373,32 +381,43 @@ class SessionScreen extends React.Component {
     // If all sets of a lift complete, clicking "Done" button increments that lift for next time
     // If not, the lift moves onto its next rep scheme for next time
     lifts.forEach((lift) => {
-      let todaysLift = program.state[ lift[0] ][ lift[1] ];
+      let tier = lift[0];
+      let exercise = lift[1];
 
-      if (this.state[ lift[1] ]) {
-        todaysLift.weight += todaysLift.increment;
+      if (this.state[ exercise ]) {
+        //todaysLift.weight += todaysLift.increment;
+        let newWeight = program.getWeight(tier, exercise) + program.getIncrement(tier, exercise);
+        program.setWeight(tier, exercise, newWeight);
       } else {
         // On failure, cycle through rep schemes based on whether lift is T1/T2/T3
         // (There are three for T1, three for T2, one for T3)
         // On failing last rep scheme, strategy varies depending on tier:
         // T1: restart new cycle on first repscheme with 85% of last weight attempted
         // T2: restart new cycle on first repscheme with weight 5kg heavier than what was last lifted on first repscheme
+        // (TODO: this is currently implemented same as for T1, as previous sessions are not yet recorded)
         // T3: no change
-        if (todaysLift.repScheme == REP_SCHEMES[lift[0]].length - 1) {
+        if (program.getRepScheme(tier, exercise) == program.REP_SCHEMES[lift[0]].length - 1) {
           if (lift[0] == 'T1') {
-            todaysLift.weight = roundDownToNearestIncrement(todaysLift.weight * 0.85, MINIMUM_INCREMENT_STEP);
+            let newWeight = roundDownToNearestIncrement(
+              program.getWeight(tier, exercise) * 0.85, program.MINIMUM_INCREMENT_STEP
+            );
+            program.setWeight(tier, exercise, newWeight);
           }
           if (lift[0] == 'T2') {
-            todaysLift.weight = roundDownToNearestIncrement(todaysLift.weight * 0.85, MINIMUM_INCREMENT_STEP);
+            let newWeight = roundDownToNearestIncrement(
+              program.getWeight(tier, exercise) * 0.85, program.MINIMUM_INCREMENT_STEP
+            );
+            program.setWeight(tier, exercise, newWeight);
           }
         }
-        todaysLift.repScheme = (todaysLift.repScheme + 1) % REP_SCHEMES[lift[0]].length;
+        let newRepScheme = (program.getRepScheme(tier, exercise) + 1) % program.REP_SCHEMES[lift[0]].length;
+        program.setRepScheme(tier, exercise, newRepScheme);
       }
     });
 
     // Increment the session counter so sessions are cycled from A1 to B2
     // and back to A1 and so on
-    program.state.sessionCounter = (program.state.sessionCounter + 1) % SESSIONS.length;
+    program.state.sessionCounter = (program.state.sessionCounter + 1) % program.SESSIONS.length;
 
     // Store current state of the app
     try {
@@ -474,8 +493,8 @@ class Lift extends React.Component {
   render() {
     var { tier, repScheme, exercise } = this.props;
 
-    var numberOfSets = REP_SCHEMES[tier][repScheme].length;
-    var repsArray = REP_SCHEMES[tier][repScheme];
+    var numberOfSets = program.REP_SCHEMES[tier][repScheme].length;
+    var repsArray = program.REP_SCHEMES[tier][repScheme];
 
     var weight = program.state[tier][exercise].weight;
 
