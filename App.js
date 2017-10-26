@@ -7,7 +7,7 @@ import {
   ScrollView,
   Button,
   TouchableOpacity,
-  AsyncStorage
+  AsyncStorage,
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import styles from './styles';
@@ -16,9 +16,32 @@ const primaryColour = '#fa375a';
 
 
 
-// Global variable to store program data, including current state of program
-// and methods to edit the program
-var program = {state: {}};
+// Global variable to store program data and methods to edit the program
+var program = {};
+
+/*-------------------- PROGRAM PROPERTIES --------------------*/
+
+// To store current state of all the lifts in the program
+program.state = {};
+
+// Depends on the equipment user has access to. 2.5kg is usually smallest possible increment
+program.MINIMUM_INCREMENT = 2.5;
+
+program.REP_SCHEMES = {
+  T1: [
+    ['3','3','3','3','3+'],
+    ['2','2','2','2','2','2+'],
+    ['1','1','1','1','1','1','1','1','1','1+'],
+  ],
+  T2: [
+    ['10','10','10'],
+    ['8','8','8'],
+    ['6','6','6'],
+  ],
+  T3: [
+    ['15','15','25'],
+  ]
+}
 
 program.SESSIONS = [
   {
@@ -51,24 +74,6 @@ program.SESSIONS = [
     ],
   }
 ]
-
-program.REP_SCHEMES = {
-  T1: [
-    ['3','3','3','3','3+'],
-    ['2','2','2','2','2','2+'],
-    ['1','1','1','1','1','1','1','1','1','1+'],
-  ],
-  T2: [
-    ['10','10','10'],
-    ['8','8','8'],
-    ['6','6','6'],
-  ],
-  T3: [
-    ['15','15','25'],
-  ]
-}
-
-program.MINIMUM_INCREMENT_STEP = 2.5;
 
 program.INITIAL_PROGRAM_STATE = {
   sessionCounter: 0,
@@ -140,11 +145,13 @@ program.INITIAL_PROGRAM_STATE = {
   },
 }
 
-program.setSessionCounter = function(num) { program.state.sessionCounter = num; }
+/*-------------------- GETTERS AND SETTERS --------------------*/
+
+program.getProgramState = function() { return program.state; }
+program.setProgramState = function(programState) { program.state = getCopyOfObject(programState); }
+
 program.getSessionCounter = function() { return program.state.sessionCounter; }
-program.incrementSessionCounter = function() {
-  program.setSessionCounter((program.getSessionCounter() + 1) % program.SESSIONS.length);
-}
+program.setSessionCounter = function(num) { program.state.sessionCounter = num; }
 
 program.getLabel = function(tier, exercise) { return program.state[tier][exercise].label; }
 program.getWeight = function(tier, exercise) { return program.state[tier][exercise].weight; }
@@ -155,24 +162,6 @@ program.setLabel = function(tier, exercise, label) { program.state[tier][exercis
 program.setWeight = function(tier, exercise, weight) { program.state[tier][exercise].weight = weight; }
 program.setRepScheme = function(tier, exercise, repScheme) { program.state[tier][exercise].repScheme = repScheme; }
 program.setIncrement = function(tier, exercise, increment) { program.state[tier][exercise].increment = increment; }
-
-program.addLift = function(tier, exercise, label, weight, repScheme, increment) {
-  program.state[tier] = {};
-  program.state[tier][exercise] = {label, weight, repScheme, increment};
-}
-program.removeLift = function(tier, exercise) {
-  delete program.state[tier][exercise];
-}
-
-program.setProgramState = function(programState) {
-  program.state = getCopyOfObject(programState);
-}
-program.getProgramState = function() {
-  return program.state;
-}
-program.resetProgramState = function() {
-  program.setProgramState(program.INITIAL_PROGRAM_STATE);
-}
 
 program.getProgramStateAsString = function() {
   var output = '';
@@ -193,21 +182,49 @@ program.getProgramStateAsString = function() {
   return output;
 }
 
-program.saveProgramState = function() {
-  AsyncStorage.setItem(
+
+
+/*-------------------- PROGRAM METHODS --------------------*/
+
+program.addLift = function(tier, exercise, label, weight, repScheme, increment) {
+  program.state[tier] = {};
+  program.state[tier][exercise] = {label, weight, repScheme, increment};
+}
+
+program.removeLift = function(tier, exercise) {
+  delete program.state[tier][exercise];
+}
+
+program.resetProgramState = function() {
+  program.setProgramState(program.INITIAL_PROGRAM_STATE);
+}
+
+program.saveProgramState = async function() {
+  await AsyncStorage.setItem(
     'programState',
     JSON.stringify(program.state),
     () => console.log("Program state data saved")
   )
 }
-program.loadProgramState = function() {
-  return JSON.parse(AsyncStorage.getItem(
+
+program.loadProgramState = async function() {
+  var programStateString = await AsyncStorage.getItem(
     'programState',
-    () => console.log("Program state data retrieved")
-  ))
+    () => console.log("Program state data loaded")
+  );
+  return JSON.parse(programStateString)
 }
-program.deleteSavedProgramState = function() {
-  AsyncStorage.removeItem('programState', () => console.log("Data removed"))
+
+program.deleteSavedProgramState = async function() {
+  await AsyncStorage.removeItem('programState', () => console.log("Program state data deleted"))
+}
+
+
+
+/*-------------------- PROGRAM PROGRESSION METHODS --------------------*/
+
+program.incrementSessionCounter = function() {
+  program.setSessionCounter((program.getSessionCounter() + 1) % program.SESSIONS.length);
 }
 
 program.handleSuccessfulLift = function(tier, exercise) {
@@ -225,13 +242,13 @@ program.handleFailedLift = function(tier, exercise) {
   if (program.getRepScheme(tier, exercise) == program.REP_SCHEMES[tier].length - 1) {  // Check if we're on last rep scheme in cycle
     if (tier == 'T1') {
       let newWeight = roundDownToNearestIncrement(
-        program.getWeight(tier, exercise) * 0.85, program.MINIMUM_INCREMENT_STEP
+        program.getWeight(tier, exercise) * 0.85, program.MINIMUM_INCREMENT
       );
       program.setWeight(tier, exercise, newWeight);
     }
     if (tier == 'T2') {
       let newWeight = roundDownToNearestIncrement(
-        program.getWeight(tier, exercise) * 0.85, program.MINIMUM_INCREMENT_STEP
+        program.getWeight(tier, exercise) * 0.85, program.MINIMUM_INCREMENT
       );
       program.setWeight(tier, exercise, newWeight);
     }
@@ -241,6 +258,8 @@ program.handleFailedLift = function(tier, exercise) {
 }
 
 
+
+/*-------------------- APP COMPONENTS --------------------*/
 
 class HomeScreen extends React.Component {
   constructor(props) {
@@ -276,13 +295,13 @@ class HomeScreen extends React.Component {
 
   // Remove stored data and reset program state to initial values
   async handleResetButtonPress() {
-      try {
-        await program.deleteSavedProgramState();
-        program.resetProgramState();
-        refresh(this);
-      } catch (error) {
-        console.log("Error removing data");
-      }
+    try {
+      await program.deleteSavedProgramState();
+      program.resetProgramState();
+      refresh(this);
+    } catch (error) {
+      console.log("Error removing data");
+    }
   }
 
   render() {
@@ -321,8 +340,6 @@ class NextSessionButton extends React.Component {
   }
 
   render() {
-    console.log(program.getLabel('T1', 'squat'));
-
     // lifts is an array where each element is a 2-element array
     // that specifies each lifts Tier (first element) and Exercise (second element)
     var lifts = program.SESSIONS[program.getSessionCounter()].lifts;
@@ -443,7 +460,7 @@ class SessionScreen extends React.Component {
 
     // Store current state of the app
     try {
-      await program.saveProgramState();
+      program.saveProgramState();
     } catch (error) {
       console.log("Error saving data")
     }
@@ -700,15 +717,18 @@ class Timer extends React.Component {
 }
 
 
-// Main route of app
-export default StackNavigator({
+
+/*-------------------- REACT NAVIGATION NAVIGATOR --------------------*/
+
+const App = StackNavigator({
   Home: {screen: HomeScreen},
   Session: {screen: SessionScreen}
 });
+export default App;
 
 
 
-/*---------------HELPER FUNCTIONS---------------*/
+/*-------------------- HELPER FUNCTIONS --------------------*/
 
 function refresh(component) {
   component.setState({});
