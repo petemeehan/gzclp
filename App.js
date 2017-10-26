@@ -520,10 +520,10 @@ class Lift extends React.Component {
   render() {
     var { tier, repScheme, exercise } = this.props;
 
-    var numberOfSets = program.REP_SCHEMES[tier][repScheme].length;
-    var repsArray = program.REP_SCHEMES[tier][repScheme];
+    var weight = program.getWeight(tier, exercise);
 
-    var weight = program.state[tier][exercise].weight;
+    let repsArray = program.REP_SCHEMES[tier][repScheme];
+    let numberOfSets = repsArray.length;
 
     // Populate an array of SetButtons to display
     var setButtons = [];
@@ -587,7 +587,7 @@ const LiftInfo = props => {
     return (
       <View>
         <Text style={styles.liftName}>
-          {tier} {program.state[tier][exercise].label}
+          {tier} {program.getLabel(tier, exercise)}
         </Text>
         <Text style={styles.liftDetails}>
           {weight} kg   {sets}×{reps}
@@ -599,56 +599,56 @@ const LiftInfo = props => {
 
 
 const SetButton = props => {
-    var {
-      reps,
-      isClicked,
-      isActive,
-      setLastClickedButton,
-      setLiftComplete,
-      activateTimer,
-      id
-    } = props;
+  var {
+    reps,
+    isClicked,
+    isActive,
+    setLastClickedButton,
+    setLiftComplete,
+    activateTimer,
+    id
+  } = props;
 
-    // If button is clicked, display a tick. Otherwise display number of reps.
-    // And if set is an AMRAP set, display a '+' sign next the rep number
-    var buttonText = isClicked ? '✓' : reps;
+  // If button is clicked, display a tick. Otherwise display number of reps.
+  // And if set is an AMRAP set, display a '+' sign next the rep number
+  var buttonText = isClicked ? '✓' : reps;
 
-    // Apply style depending on whether button is inactive, active or clicked
-    var currentStyle, currentTextStyle;
-    if (isClicked) {
-      currentStyle = styles.setButtonClicked;
-      currentTextStyle = styles.setButtonTextClicked;
-    } else if (isActive) {
-      currentStyle = styles.setButtonActive;
-      currentTextStyle = styles.setButtonTextActive;
-    } else {
-      currentStyle = styles.setButtonInactive;
-      currentTextStyle = styles.setButtonTextInactive;
+  // Apply style depending on whether button is inactive, active or clicked
+  var currentStyle, currentTextStyle;
+  if (isClicked) {
+    currentStyle = styles.setButtonClicked;
+    currentTextStyle = styles.setButtonTextClicked;
+  } else if (isActive) {
+    currentStyle = styles.setButtonActive;
+    currentTextStyle = styles.setButtonTextActive;
+  } else {
+    currentStyle = styles.setButtonInactive;
+    currentTextStyle = styles.setButtonTextInactive;
+  }
+
+  function handlePress() {
+    // If button is clicked, and hasn't already been clicked,
+    // set to "clicked" state. If it has been, undo its "clicked" state
+    // and make the button to the immediate left of it the last "clicked" button
+    if (isActive) {
+      let lastClickedButton = isClicked ? id - 1 : id;
+      setLastClickedButton(lastClickedButton);
+      setLiftComplete(lastClickedButton);
+      activateTimer(isClicked ? false : true, lastClickedButton);
     }
+  }
 
-    function handlePress() {
-      // If button is clicked, and hasn't already been clicked,
-      // set to "clicked" state. If it has been, undo its "clicked" state
-      // and make the button to the immediate left of it the last "clicked" button
-      if (isActive) {
-        let lastClickedButton = isClicked ? id - 1 : id;
-        setLastClickedButton(lastClickedButton);
-        setLiftComplete(lastClickedButton);
-        activateTimer(isClicked ? false : true, lastClickedButton);
-      }
-    }
-
-    return (
-      <TouchableOpacity
-        activeOpacity={0.8}
-        style={currentStyle}
-        onPress={() => handlePress()}
-      >
-        <Text style={currentTextStyle}>
-          {buttonText}
-        </Text>
-      </TouchableOpacity>
-    )
+  return (
+    <TouchableOpacity
+      activeOpacity={0.8}
+      style={currentStyle}
+      onPress={() => handlePress()}
+    >
+      <Text style={currentTextStyle}>
+        {buttonText}
+      </Text>
+    </TouchableOpacity>
+  )
 }
 
 
