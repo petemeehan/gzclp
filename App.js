@@ -67,7 +67,7 @@ gzclp.DEFAULT_LIFTS = [
  *      tier: 'T1',
  *      exercise: 'Squat',
  *      increment: 5,
- *      liftSessions: [
+ *      workouts: [
  *        {
  *          weight: 20,
  *          repScheme: 0
@@ -97,115 +97,105 @@ gzclp.state.sessions = [
 gzclp.state.sessionCounter = 0;
 
 
-/*-------------------- GETTERS AND SETTERS --------------------*/
 
-gzclp.getProgramState = function() { return gzclp.state; }
-gzclp.setProgramState = function(programState) { gzclp.state = getCopyOfObject(programState); }
+/*-------------------- PROGRAM HELPER METHODS --------------------*/
 
-gzclp.getLifts = function() { return gzclp.state.lifts; }
-gzclp.addLift = function(id, tier, exercise, increment, startingWeight) {
-  gzclp.state.lifts[id] = {
+/*
+ * Given defining variables, creates and returns a 'lift' object
+ */
+gzclp.createNewLift = function(tier, exercise, increment, startingWeight) {
+  return {
     tier,
     exercise,
     increment,
-    liftSessions: [
+    workouts: [
       {
         weight: startingWeight,
         repScheme: 0,
       }
     ]
-  };
+  }
 }
 
-gzclp.addToSession = function(id, session) { gzclp.state.sessions[session].lifts.push(id)}
-
-gzclp.getSessionCounter = function() { return gzclp.state.sessionCounter; }
-gzclp.setSessionCounter = function(num) { gzclp.state.sessionCounter = num; }
-
-gzclp.getNextLiftId = function() { return gzclp.state.nextLiftId; }
-gzclp.setNextLiftId = function(num) { gzclp.state.nextLiftId = num; }
-
-gzclp.getTier = function(id) { return gzclp.state.lifts[id].tier; }
-gzclp.getExercise = function(id) { return gzclp.state.lifts[id].exercise; }
-gzclp.getIncrement = function(id) { return gzclp.state.lifts[id].increment; }
-gzclp.getCurrentWeight = function(id) {
-  let liftSessions = gzclp.state.lifts[id].liftSessions;
-  return liftSessions[liftSessions.length - 1].weight;
-}
-gzclp.getCurrentRepScheme = function(id) {
-  let liftSessions = gzclp.state.lifts[id].liftSessions;
-  return liftSessions[liftSessions.length - 1].repScheme;
-}
-
-gzclp.setTier = function(id, tier) { gzclp.state.lifts[id].tier = tier; }
-gzclp.setExercise = function(id, exercise) { gzclp.state.lifts[id].tier = exercise; }
-gzclp.setIncrement = function(id, increment) { gzclp.state.lifts[id].tier = increment; }
-
-
-
-/*-------------------- PROGRAM HELPER METHODS --------------------*/
-
+/*
+ * To add new lift to program, gives it a unique ID as a key along with
+ * its other descriptors, adds it to the list of lifts so that its progress
+ * may be tracked, and also adds its ID to the 'sessions' array which dictates
+ * which lift is performed in which session
+ */
 gzclp.addLiftToProgram = function(tier, exercise, increment, startingWeight, sessions) {
+  var newLift = gzclp.createNewLift(tier, exercise, increment, startingWeight);
   var nextLiftId = gzclp.getNextLiftId();
 
-  gzclp.addLift(nextLiftId, tier, exercise, increment, startingWeight);
+  gzclp.addLift(nextLiftId, newLift);
   gzclp.addLiftToSessions(nextLiftId, sessions);
   gzclp.setNextLiftId(gzclp.getNextLiftId() + 1);
 }
 
+/*
+ * Given a lift's ID, removes lift from list of lifts and also all
+ * references to it in the sessions
+ */
+gzclp.removeLiftFromProgram = function(id) {
+  delete gzclp.state.lifts[id];
 
-gzclp.removeLiftFromProgram = function(liftId) {
-  // Remove lift from set of lifts
-  delete gzclp.state.lifts[liftId];
-
-  // Remove lift from all sessions
-  var arr = []
-  for (var i = 0; i < gzclp.state.sessions.length; i++) {
-    gzclp.removeLiftFromSessions(liftId, i)
+  for (var session = 0; session < gzclp.state.sessions.length; session++) {
+    gzclp.removeLiftIdFromSessions(id, session)
   }
 }
 
-
-gzclp.addLiftToSessions = function(liftId, sessions) {
+/*
+ * Given a lift's ID, and either a session number (0-3) or array of session numbers,
+ * adds that ID to the corresponding session(s)
+ */
+gzclp.addLiftToSessions = function(id, sessions) {
   if (sessions instanceof Array) {
     for (var i = 0; i < sessions.length; i++) {
-      gzclp.addToSession(liftId, sessions[i]);
+      gzclp.addToSession(id, sessions[i]);
     }
   } else {
-    gzclp.addToSession(liftId, sessions);
+    gzclp.addToSession(id, sessions);
   }
 }
 
-
-gzclp.removeLiftFromSessions = function(liftID, sessions) {
+/*
+ * Given a lift's ID, and either a session number (0-3) or array of session numbers,
+ * removes that ID from the corresponding session(s)
+ */
+gzclp.removeLiftIdFromSessions = function(id, sessions) {
   if (sessions instanceof Array) {
     for (var i = 0; i < sessions.length; i++) {
       let liftsArray = gzclp.state.sessions[ sessions[i] ].lifts;
-      let index = liftsArray.indexOf(liftID);
+      let index = liftsArray.indexOf(id);
       if (index != -1) {
         liftsArray.splice(index, 1);
       }
     }
   } else {
     let liftsArray = gzclp.state.sessions[sessions].lifts;
-    let index = liftsArray.indexOf(liftID);
+    let index = liftsArray.indexOf(id);
     if (index != -1) {
       liftsArray.splice(index, 1);
     }
   }
 }
 
-
-gzclp.addLiftSession = function(id, weight, repScheme) {
-  let liftSessions = gzclp.state.lifts[id].liftSessions;
-  liftSessions.push({weight, repScheme});
+/*
+ * Given a lift's ID, weight and rep scheme, creates a workout object associated
+ * with that lift and adds it to the array of that lift's previous workouts
+ */
+gzclp.addWorkout = function(id, weight, repScheme) {
+  let workouts = gzclp.state.lifts[id].workouts;
+  workouts.push({weight, repScheme});
 }
 
-
+/*
+ * Resets all state data to its original default values
+ */
 gzclp.resetProgramState = function() {
-  gzclp.state.sessionCounter = 0;
-  gzclp.state.nextLiftId = 0;
-  gzclp.state.lifts = {};
+  gzclp.setSessionCounter(0);
+  gzclp.setNextLiftId(0);
+  gzclp.setLifts({});
 
   for (var i = 0; i < gzclp.state.sessions.length; i++) {
     gzclp.state.sessions[i].lifts = [];
@@ -216,7 +206,10 @@ gzclp.resetProgramState = function() {
   }
 }
 
-
+/*
+ * Save entire program state object in stringified form, so that app data
+ * persists when it is closed and reopened
+ */
 gzclp.saveProgramState = async function() {
   await AsyncStorage.setItem(
     'programState',
@@ -224,8 +217,9 @@ gzclp.saveProgramState = async function() {
     () => console.log("Program state data saved")
   )
 }
-
-
+/*
+ * Load stringified program state object and reparse it as an object
+ */
 gzclp.loadProgramState = async function() {
   var programStateString = await AsyncStorage.getItem(
     'programState',
@@ -233,13 +227,16 @@ gzclp.loadProgramState = async function() {
   );
   return JSON.parse(programStateString)
 }
-
-
+/*
+ * Clear all saved data
+ */
 gzclp.deleteSavedProgramState = async function() {
   await AsyncStorage.removeItem('programState', () => console.log("Program state data deleted"))
 }
 
-
+/*
+ * Returns current progress in the program as formatted string
+ */
 gzclp.outputProgramStateAsString = function() {
   var output = '';
 
@@ -264,27 +261,34 @@ gzclp.outputProgramStateAsString = function() {
 
 /*-------------------- PROGRAM PROGRESSION METHODS --------------------*/
 
+/*
+ * After every session, increment the session counter so that the next session
+ * is loaded next time
+ */
 gzclp.incrementSessionCounter = function() {
   gzclp.setSessionCounter((gzclp.getSessionCounter() + 1) % gzclp.state.sessions.length);
 }
 
-
+/*
+ * On successful completion of a lift (a workout), continue with same rep scheme
+ * but increment the weight
+ */
 gzclp.handleSuccessfulLift = function(id) {
   let repScheme = gzclp.getCurrentRepScheme(id);
   let newWeight = gzclp.getCurrentWeight(id) + gzclp.getIncrement(id);
-  gzclp.addLiftSession(id, newWeight, repScheme);
+  gzclp.addWorkout(id, newWeight, repScheme);
 }
 
-
+/*
+ * On failure, cycle through rep schemes based on whether lift is T1/T2/T3
+ * (There are three for T1, three for T2, one for T3)
+ * On failing last rep scheme, strategy varies depending on tier:
+ * T1: restart new cycle on first repscheme with 85% of last weight attempted
+ * T2: restart new cycle on first repscheme with weight 5kg heavier than what was last lifted on first repscheme
+ * (TODO: this is currently implemented same as for T1, as previous sessions are not yet recorded)
+ * T3: no change
+ */
 gzclp.handleFailedLift = function(id) {
-  // On failure, cycle through rep schemes based on whether lift is T1/T2/T3
-  // (There are three for T1, three for T2, one for T3)
-  // On failing last rep scheme, strategy varies depending on tier:
-  // T1: restart new cycle on first repscheme with 85% of last weight attempted
-  // T2: restart new cycle on first repscheme with weight 5kg heavier than what was last lifted on first repscheme
-  // (TODO: this is currently implemented same as for T1, as previous sessions are not yet recorded)
-  // T3: no change
-
   const tier = gzclp.getTier(id);
 
   // If failed on last rep scheme of cycle, weight is deloaded. Otherwise, it stays the same
@@ -303,7 +307,60 @@ gzclp.handleFailedLift = function(id) {
   }
 
   let newRepScheme = (gzclp.getCurrentRepScheme(id) + 1) % gzclp.REP_SCHEMES[tier].length;
-  gzclp.addLiftSession(id, newWeight, newRepScheme);
+  gzclp.addWorkout(id, newWeight, newRepScheme);
+}
+
+
+
+/*-------------------- GETTERS AND SETTERS --------------------*/
+
+gzclp.getProgramState = function() { return gzclp.state; }
+gzclp.setProgramState = function(programState) { gzclp.state = getCopyOfObject(programState); }
+
+gzclp.getLifts = function() { return gzclp.state.lifts; }
+gzclp.setLifts = function(o) { gzclp.state.lifts = o; }
+gzclp.addLift = function(id, lift) { gzclp.state.lifts[id] = lift; }
+
+gzclp.getSessions = function() { return gzclp.state.sessions; }
+gzclp.addToSession = function(e, session) { gzclp.state.sessions[session].lifts.push(e); }
+
+gzclp.getSessionCounter = function() { return gzclp.state.sessionCounter; }
+gzclp.setSessionCounter = function(num) { gzclp.state.sessionCounter = num; }
+
+gzclp.getNextLiftId = function() { return gzclp.state.nextLiftId; }
+gzclp.setNextLiftId = function(num) { gzclp.state.nextLiftId = num; }
+
+gzclp.getTier = function(id) { return gzclp.state.lifts[id].tier; }
+gzclp.getExercise = function(id) { return gzclp.state.lifts[id].exercise; }
+gzclp.getIncrement = function(id) { return gzclp.state.lifts[id].increment; }
+gzclp.getWorkouts = function(id) { return gzclp.state.lifts[id].workouts; }
+
+gzclp.getCurrentWeight = function(id) {
+  let workouts = gzclp.getWorkouts(id);
+  return workouts[workouts.length - 1].weight;
+}
+gzclp.getCurrentRepScheme = function(id) {
+  let workouts = gzclp.getWorkouts(id);
+  return workouts[workouts.length - 1].repScheme;
+}
+
+gzclp.setTier = function(id, tier) { gzclp.state.lifts[id].tier = tier; }
+gzclp.setExercise = function(id, exercise) { gzclp.state.lifts[id].tier = exercise; }
+gzclp.setIncrement = function(id, increment) { gzclp.state.lifts[id].tier = increment; }
+
+
+/*-------------------- SMALL HELPER FUNCTIONS --------------------*/
+
+function refresh(component) {
+  component.setState({});
+}
+
+function getCopyOfObject( obj ) {
+  return JSON.parse(JSON.stringify(obj));
+}
+
+function roundDownToNearestIncrement( number, increment ) {
+  return Math.floor(number * (1/increment)) / (1/increment);
 }
 
 
@@ -774,19 +831,3 @@ const App = StackNavigator({
   Session: {screen: SessionScreen}
 });
 export default App;
-
-
-
-/*-------------------- HELPER FUNCTIONS --------------------*/
-
-function refresh(component) {
-  component.setState({});
-}
-
-function getCopyOfObject( obj ) {
-  return JSON.parse(JSON.stringify(obj));
-}
-
-function roundDownToNearestIncrement( number, increment ) {
-  return Math.floor(number * (1/increment)) / (1/increment);
-}
