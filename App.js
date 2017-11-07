@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import {
   Text,
@@ -128,7 +126,7 @@ gzclp.addLiftToProgram = function(tier, exercise, increment, startingWeight, ses
   var nextLiftId = gzclp.getNextLiftId();
 
   gzclp.addLift(nextLiftId, newLift);
-  gzclp.addLiftToSessions(nextLiftId, sessions);
+  gzclp.addLiftToSessions(sessions, nextLiftId);
   gzclp.setNextLiftId(gzclp.getNextLiftId() + 1);
 }
 
@@ -137,7 +135,7 @@ gzclp.addLiftToProgram = function(tier, exercise, increment, startingWeight, ses
  * references to it in the sessions
  */
 gzclp.removeLiftFromProgram = function(id) {
-  delete gzclp.state.lifts[id];
+  delete gzclp.getLifts()[id];
 
   for (var session = 0; session < gzclp.state.sessions.length; session++) {
     gzclp.removeLiftIdFromSessions(id, session)
@@ -148,13 +146,13 @@ gzclp.removeLiftFromProgram = function(id) {
  * Given a lift's ID, and either a session number (0-3) or array of session numbers,
  * adds that ID to the corresponding session(s)
  */
-gzclp.addLiftToSessions = function(id, sessions) {
+gzclp.addLiftToSessions = function(sessions, id) {
   if (sessions instanceof Array) {
     for (var i = 0; i < sessions.length; i++) {
-      gzclp.addToSession(id, sessions[i]);
+      gzclp.addLiftToSession(sessions[i], id);
     }
   } else {
-    gzclp.addToSession(id, sessions);
+    gzclp.addLiftToSession(sessions, id);
   }
 }
 
@@ -165,17 +163,17 @@ gzclp.addLiftToSessions = function(id, sessions) {
 gzclp.removeLiftIdFromSessions = function(id, sessions) {
   if (sessions instanceof Array) {
     for (var i = 0; i < sessions.length; i++) {
-      let liftsArray = gzclp.state.sessions[ sessions[i] ].lifts;
-      let index = liftsArray.indexOf(id);
+      let sessionLifts = gzclp.getSessionLifts(sessions[i]);
+      let index = sessionLifts.indexOf(id);
       if (index != -1) {
-        liftsArray.splice(index, 1);
+        sessionLifts.splice(index, 1);
       }
     }
   } else {
-    let liftsArray = gzclp.state.sessions[sessions].lifts;
-    let index = liftsArray.indexOf(id);
+    let sessionLifts = gzclp.getSessionLifts(sessions);
+    let index = sessionLifts.indexOf(id);
     if (index != -1) {
-      liftsArray.splice(index, 1);
+      sessionLifts.splice(index, 1);
     }
   }
 }
@@ -198,7 +196,7 @@ gzclp.resetProgramState = function() {
   gzclp.setLifts({});
 
   for (var i = 0; i < gzclp.state.sessions.length; i++) {
-    gzclp.state.sessions[i].lifts = [];
+    gzclp.setSessionLifts(i, []);
   }
 
   for (var i = 0; i < gzclp.DEFAULT_LIFTS.length; i++) {
@@ -244,11 +242,12 @@ gzclp.outputProgramStateAsString = function() {
     let tier = gzclp.getTier(id);
     let exercise = gzclp.getExercise(id);
     let repScheme = gzclp.getCurrentRepScheme(id);
+    let repSchemeArray = gzclp.getRepScheme(tier, repScheme);
     let weight = gzclp.getCurrentWeight(id);
     output += (
       tier + ' ' +
-      gzclp.REP_SCHEMES[tier][repScheme].length + '×' +
-      gzclp.REP_SCHEMES[tier][repScheme][0] + ' \t' +
+      gzclp.getRepScheme(tier, repScheme).length + '×' +
+      gzclp.getRepScheme(tier, repScheme)[0] + ' \t' +
       weight + 'kg\t ' +
       exercise +
       '\n'
@@ -293,7 +292,7 @@ gzclp.handleFailedLift = function(id) {
 
   // If failed on last rep scheme of cycle, weight is deloaded. Otherwise, it stays the same
   var newWeight = gzclp.getCurrentWeight(id);
-  if (gzclp.getCurrentRepScheme(id) == gzclp.REP_SCHEMES[tier].length - 1) {
+  if (gzclp.getCurrentRepScheme(id) == gzclp.getNumberOfRepSchemes(tier) - 1) {
     if (tier == 'T1') {
       newWeight = roundDownToNearestIncrement(
         gzclp.getCurrentWeight(id) * 0.85, gzclp.MINIMUM_INCREMENT  // TODO: change to constant
@@ -306,7 +305,7 @@ gzclp.handleFailedLift = function(id) {
     }
   }
 
-  let newRepScheme = (gzclp.getCurrentRepScheme(id) + 1) % gzclp.REP_SCHEMES[tier].length;
+  let newRepScheme = (gzclp.getCurrentRepScheme(id) + 1) % gzclp.getNumberOfRepSchemes(tier);
   gzclp.addWorkout(id, newWeight, newRepScheme);
 }
 
@@ -314,15 +313,21 @@ gzclp.handleFailedLift = function(id) {
 
 /*-------------------- GETTERS AND SETTERS --------------------*/
 
+gzclp.getNumberOfRepSchemes = function(tier) { return gzclp.REP_SCHEMES[tier].length; }
+gzclp.getRepScheme = function(tier, i) { return gzclp.REP_SCHEMES[tier][i]; }
+
 gzclp.getProgramState = function() { return gzclp.state; }
 gzclp.setProgramState = function(programState) { gzclp.state = getCopyOfObject(programState); }
 
 gzclp.getLifts = function() { return gzclp.state.lifts; }
-gzclp.setLifts = function(o) { gzclp.state.lifts = o; }
+gzclp.setLifts = function(obj) { gzclp.state.lifts = obj; }
 gzclp.addLift = function(id, lift) { gzclp.state.lifts[id] = lift; }
 
-gzclp.getSessions = function() { return gzclp.state.sessions; }
-gzclp.addToSession = function(e, session) { gzclp.state.sessions[session].lifts.push(e); }
+gzclp.getSession = function(i) { return gzclp.state.sessions[i]; }
+gzclp.getSessionName = function(i) { return gzclp.getSession(i).name; }
+gzclp.getSessionLifts = function(i) { return gzclp.getSession(i).lifts; }
+gzclp.setSessionLifts = function(i, arr) { gzclp.getSession(i).lifts = arr; }
+gzclp.addLiftToSession = function(i, id) { gzclp.getSessionLifts(i).push(id); }
 
 gzclp.getSessionCounter = function() { return gzclp.state.sessionCounter; }
 gzclp.setSessionCounter = function(num) { gzclp.state.sessionCounter = num; }
@@ -440,21 +445,21 @@ class NextSessionButton extends React.Component {
     const { navigate, onGoBack } = this.props;
 
     navigate('Session', {
-      session: gzclp.state.sessions[gzclp.getSessionCounter()],
+      session: gzclp.getSession( gzclp.getSessionCounter() ),
       onGoBack: () => onGoBack()
     });
   }
 
   render() {
     // lifts is an array where each element is a lift's ID
-    var lifts = gzclp.state.sessions[gzclp.getSessionCounter()].lifts;
+    var sessionLifts = gzclp.getSessionLifts( gzclp.getSessionCounter() );
     // Populate arrays of data to display in the Next Session component
     var tiers = [];
     var labels = [];
     var weights = [];
     var repSchemes = [];
 
-    lifts.forEach( (id, index) => {
+    sessionLifts.forEach( (id, index) => {
       let tier = gzclp.getTier(id);
       let exercise = gzclp.getExercise(id);
 
@@ -492,7 +497,7 @@ class NextSessionButton extends React.Component {
         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
           <View>
             <Text style={styles.nextSessionTitle}>
-              {'Next Session: ' + gzclp.state.sessions[gzclp.getSessionCounter()].name}
+              {'Next Session: ' + gzclp.getSessionName( gzclp.getSessionCounter() )}
             </Text>
 
             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
@@ -645,14 +650,14 @@ class Lift extends React.Component {
   render() {
     var { tier, repScheme, exercise, weight } = this.props;   // TODO: are these needed, surely only id is
 
-    let repsArray = gzclp.REP_SCHEMES[tier][repScheme];
-    let numberOfSets = repsArray.length;
+    let repSchemeArray = gzclp.getRepScheme(tier, repScheme);
+    let numberOfSets = repSchemeArray.length;
 
     // Populate an array of SetButtons to display
     var setButtons = [];
     for (var i = 1; i <= numberOfSets; i++) {
       setButtons.push(
-        <SetButton key={i} id={i} reps={repsArray[i - 1]}
+        <SetButton key={i} id={i} reps={repSchemeArray[i - 1]}
           // Keep track of whether each button is in inactive/active/clicked state
           isActive={i <= this.state.lastClickedButton + 1}
           isClicked={i <= this.state.lastClickedButton}
@@ -683,7 +688,7 @@ class Lift extends React.Component {
     return (
       <View style={styles.liftContainer}>
         <View style={styles.liftInfoContainer}>
-          <LiftInfo tier={tier} exercise={exercise} weight={weight} sets={numberOfSets} reps={repsArray[0]} />
+          <LiftInfo tier={tier} exercise={exercise} weight={weight} sets={numberOfSets} reps={repSchemeArray[0]} />
         </View>
 
         <View style={styles.setButtonContainer}>
