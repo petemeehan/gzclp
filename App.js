@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import {
   Text,
@@ -7,7 +5,7 @@ import {
   ScrollView,
   Button,
   TouchableOpacity,
-  AsyncStorage
+  AsyncStorage,
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 import styles from './styles';
@@ -16,43 +14,22 @@ const primaryColour = '#fa375a';
 
 
 
-// Global variable to store program data, including current state of program
-// and methods to edit the program
-var program = {state: {}};
+// Global variable to store program data and methods to edit the program
+var gzclp = {};
 
-program.SESSIONS = [
-  {
-    label: 'A1',
-    lifts: [
-      ['T1', 'squat'],
-      ['T2', 'bench'],
-      ['T3', 'latPulldown'],
-    ],
-  }, {
-    label: 'B1',
-    lifts: [
-      ['T1', 'ohp'],
-      ['T2', 'deadlift'],
-      ['T3', 'dbRow'],
-    ],
-  }, {
-    label: 'A2',
-    lifts: [
-      ['T1', 'bench'],
-      ['T2', 'squat'],
-      ['T3', 'latPulldown'],
-    ],
-  }, {
-    label: 'B2',
-    lifts: [
-      ['T1', 'deadlift'],
-      ['T2', 'ohp'],
-      ['T3', 'dbRow'],
-    ],
-  }
-]
+/*-------------------- PROGRAM PROPERTIES --------------------*/
 
-program.REP_SCHEMES = {
+// To store all data that is subject to change
+gzclp.state = {};
+
+// Depends on equipment user has access to - 2.5kg is often smallest possible increment
+gzclp.SMALLEST_INCREMENT = 2.5;
+
+// The factors by which the working weights are reduced after finishing a cycle
+gzclp.T1_DELOAD_FACTOR = 0.85
+gzclp.T2_DELOAD_FACTOR = 0.85
+
+gzclp.REP_SCHEMES = {
   T1: [
     ['3','3','3','3','3+'],
     ['2','2','2','2','2','2+'],
@@ -68,139 +45,352 @@ program.REP_SCHEMES = {
   ]
 }
 
-program.MINIMUM_INCREMENT_STEP = 2.5;
+/*
+ * Used for initialising program data
+ * Each element is in the format [tier, exercise, increment, starting weight, session(s)]
+ */
+gzclp.DEFAULT_LIFTS = [
+  ['T1', 'Squat',           5,    20,   0],
+  ['T1', 'Deadlift',        5,    20,   3],
+  ['T1', 'Bench Press',     2.5,  20,   2],
+  ['T1', 'Overhead Press',  2.5,  20,   1],
+  ['T2', 'Squat',           2.5,  20,   2],
+  ['T2', 'Deadlift',        2.5,  20,   1],
+  ['T2', 'Bench Press',     2.5,  20,   0],
+  ['T2', 'Overhead Press',  2.5,  20,   3],
+  ['T3', 'Lat Pulldown',    5,    20,   [0,2]],
+  ['T3', 'Dumbbell Row',    5,    20,   [1,3]],
+];
 
-program.INITIAL_PROGRAM_STATE = {
-  sessionCounter: 0,
-  T1: {
-    squat: {
-      label: 'Squat',
-      weight: 50,
-      repScheme: 0,
-      increment: 5,
-    },
-    deadlift: {
-      label: 'Deadlift',
-      weight: 60,
-      repScheme: 0,
-      increment: 5,
-    },
-    bench: {
-      label: 'Bench Press',
-      weight: 40,
-      repScheme: 0,
-      increment: 2.5,
-    },
-    ohp: {
-      label: 'Overhead Press',
-      weight: 30,
-      repScheme: 0,
-      increment: 2.5,
-    },
-  },
-  T2: {
-    squat: {
-      label: 'Squat',
-      weight: 40,
-      repScheme: 0,
-      increment: 2.5,
-    },
-    deadlift: {
-      label: 'Deadlift',
-      weight: 50,
-      repScheme: 0,
-      increment: 2.5,
-    },
-    bench: {
-      label: 'Bench Press',
-      weight: 30,
-      repScheme: 0,
-      increment: 2.5,
-    },
-    ohp: {
-      label: 'Overhead Press',
-      weight: 20,
-      repScheme: 0,
-      increment: 2.5,
-    },
-  },
-  T3: {
-    latPulldown: {
-      label: 'Lat Pulldown',
-      weight: 20,
-      repScheme: 0,
-      increment: 10,
-    },
-    dbRow: {
-      label: 'Dumbbell Row',
-      weight: 10,
-      repScheme: 0,
-      increment: 4,
-    },
-  },
+/*
+ * Lifts are stored in following format:
+ *  gzclp.state.lifts = {
+ *    0: {
+ *      tier: 'T1',
+ *      exercise: 'Squat',
+ *      increment: 5,
+ *      workouts: [
+ *        {
+ *          weight: 20,
+ *          repSchemeIndex: 0
+ *        }, {
+ *          weight: 25,
+ *          repSchemeIndex: 0
+ *        }, ...
+ *      ]
+ *    },
+ *    1: { ...
+ *  }
+ */
+gzclp.state.lifts = {};
+
+// For assigning unique IDs to new lifts
+gzclp.state.nextLiftId = 0;
+
+// For keeping track of which lifts are in each session
+gzclp.state.sessions = [
+  { name: 'A1', lifts: [] },
+  { name: 'B1', lifts: [] },
+  { name: 'A2', lifts: [] },
+  { name: 'B2', lifts: [] },
+]
+
+// To keep track of which session is next
+gzclp.state.sessionCounter = 0;
+
+
+
+/*-------------------- PROGRAM HELPER METHODS --------------------*/
+
+/*
+ * Given defining variables, creates and returns a 'lift' object
+ */
+gzclp.createNewLift = function(tier, exercise, increment, startingWeight) {
+  return {
+    tier,
+    exercise,
+    increment,
+    workouts: [
+      {
+        weight: startingWeight,
+        repSchemeIndex: 0,
+      }
+    ]
+  }
 }
 
-program.setSessionCounter = function(num) { program.state.sessionCounter = num; }
-program.getSessionCounter = function() { return program.state.sessionCounter; }
-program.incrementSessionCounter = function() {
-  program.setSessionCounter((program.getSessionCounter() + 1) % program.SESSIONS.length);
+/*
+ * To add new lift to program, gives it a unique ID as a key along with
+ * its other descriptors, adds it to the list of lifts so that its progress
+ * may be tracked, and also adds its ID to the 'sessions' array which dictates
+ * which lift is performed in which session
+ */
+gzclp.addLiftToProgram = function(tier, exercise, increment, startingWeight, sessions) {
+  var newLift = gzclp.createNewLift(tier, exercise, increment, startingWeight);
+  var nextLiftId = gzclp.getNextLiftId();
+
+  gzclp.addLift(nextLiftId, newLift);
+  gzclp.addLiftToSessions(sessions, nextLiftId);
+  gzclp.setNextLiftId(gzclp.getNextLiftId() + 1);
 }
 
-program.getLabel = function(tier, exercise) { return program.state[tier][exercise].label; }
-program.getWeight = function(tier, exercise) { return program.state[tier][exercise].weight; }
-program.getRepScheme = function(tier, exercise) { return program.state[tier][exercise].repScheme; }
-program.getIncrement = function(tier, exercise) { return program.state[tier][exercise].increment; }
+/*
+ * Given a lift's ID, removes lift from list of lifts and also all
+ * references to it in the sessions
+ */
+gzclp.removeLiftFromProgram = function(id) {
+  delete gzclp.getLifts()[id];
 
-program.setLabel = function(tier, exercise, label) { program.state[tier][exercise].label = label; }
-program.setWeight = function(tier, exercise, weight) { program.state[tier][exercise].weight = weight; }
-program.setRepScheme = function(tier, exercise, repScheme) { program.state[tier][exercise].repScheme = repScheme; }
-program.setIncrement = function(tier, exercise, increment) { program.state[tier][exercise].increment = increment; }
-
-program.addLift = function(tier, exercise, label, weight, repScheme, increment) {
-  program.state[tier] = {};
-  program.state[tier][exercise] = {label, weight, repScheme, increment};
-}
-program.removeLift = function(tier, exercise) {
-  delete program.state[tier][exercise];
+  for (var session = 0; session < gzclp.state.sessions.length; session++) {
+    gzclp.removeLiftIdFromSessions(id, session)
+  }
 }
 
-program.setProgramState = function(programState) {
-  program.state = getCopyOfObject(programState);
-}
-program.getProgramState = function() {
-  return program.state;
-}
-program.resetProgramState = function() {
-  program.setProgramState(program.INITIAL_PROGRAM_STATE);
+/*
+ * Given a lift's ID, and either a session number (0-3) or array of session numbers,
+ * adds that ID to the corresponding session(s)
+ */
+gzclp.addLiftToSessions = function(sessions, id) {
+  if (sessions instanceof Array) {
+    for (var i = 0; i < sessions.length; i++) {
+      gzclp.addLiftToSession(sessions[i], id);
+    }
+  } else {
+    gzclp.addLiftToSession(sessions, id);
+  }
 }
 
+/*
+ * Given a lift's ID, and either a session number (0-3) or array of session numbers,
+ * removes that ID from the corresponding session(s)
+ */
+gzclp.removeLiftIdFromSessions = function(id, sessions) {
+  if (sessions instanceof Array) {
+    for (var i = 0; i < sessions.length; i++) {
+      let sessionLifts = gzclp.getSessionLifts(sessions[i]);
+      let index = sessionLifts.indexOf(id);
+      if (index != -1) {
+        sessionLifts.splice(index, 1);
+      }
+    }
+  } else {
+    let sessionLifts = gzclp.getSessionLifts(sessions);
+    let index = sessionLifts.indexOf(id);
+    if (index != -1) {
+      sessionLifts.splice(index, 1);
+    }
+  }
+}
 
-program.getProgramStateAsString = function() {
+/*
+ * Given a lift's ID, weight and rep scheme, creates a workout object associated
+ * with that lift and adds it to the array of that lift's previous workouts
+ */
+gzclp.addWorkout = function(id, weight, repSchemeIndex) {
+  let workouts = gzclp.state.lifts[id].workouts;
+  workouts.push({weight, repSchemeIndex});
+}
+
+/*
+ * Resets all state data to its original default values
+ */
+gzclp.resetProgramState = function() {
+  gzclp.setSessionCounter(0);
+  gzclp.setNextLiftId(0);
+  gzclp.setLifts({});
+
+  for (var i = 0; i < gzclp.state.sessions.length; i++) {
+    gzclp.setSessionLifts(i, []);
+  }
+
+  for (var i = 0; i < gzclp.DEFAULT_LIFTS.length; i++) {
+    gzclp.addLiftToProgram(...gzclp.DEFAULT_LIFTS[i]);
+  }
+}
+
+/*
+ * Save entire program state object in stringified form, so that app data
+ * persists when it is closed and reopened
+ */
+gzclp.saveProgramState = async function() {
+  await AsyncStorage.setItem(
+    'programState',
+    JSON.stringify(gzclp.state),
+    () => console.log("Program state data saved")
+  )
+}
+/*
+ * Load stringified program state object and reparse it as an object
+ */
+gzclp.loadProgramState = async function() {
+  var programStateString = await AsyncStorage.getItem(
+    'programState',
+    () => console.log("Program state data loaded")
+  );
+  return JSON.parse(programStateString)
+}
+/*
+ * Clear all saved data
+ */
+gzclp.deleteSavedProgramState = async function() {
+  await AsyncStorage.removeItem('programState', () => console.log("Program state data deleted"))
+}
+
+/*
+ * Returns current progress in the program as formatted string
+ */
+gzclp.outputProgramStateAsString = function() {
   var output = '';
 
-  for (var tier in program.state) {
-    for (var exercise in program.state[tier]) {
-      var lift = program.state[tier][exercise];
-      output += (
-        tier + ' ' +
-        program.REP_SCHEMES[tier][lift.repScheme].length + '×' +
-        program.REP_SCHEMES[tier][lift.repScheme][0] + ' \t' +
-        lift.weight + 'kg\t ' +
-        lift.label +
-        '\n'
-      );
-    }
+  for (var liftID in gzclp.state.lifts) {
+    let tier = gzclp.getTier(liftID);
+    let exercise = gzclp.getExercise(liftID);
+    let repSchemeIndex = gzclp.getCurrentRepSchemeIndex(liftID);
+    let numberOfSets = gzclp.getNumberOfSets(tier, repSchemeIndex);
+    let numberOfRepsPerSet = gzclp.getNumberOfRepsPerSet(tier, repSchemeIndex);
+    let weight = gzclp.getCurrentWeight(liftID);
+    output += (
+      tier + ' ' +
+      numberOfSets + '×' +
+      numberOfRepsPerSet + ' \t' +
+      weight + 'kg\t ' +
+      exercise +
+      '\n'
+    );
   }
   return output;
 }
 
 
 
+/*-------------------- PROGRAM PROGRESSION METHODS --------------------*/
+
+/*
+ * After every session, increment the session counter so that the next session
+ * is loaded next time
+ */
+gzclp.incrementSessionCounter = function() {
+  gzclp.setSessionCounter((gzclp.getSessionCounter() + 1) % gzclp.state.sessions.length);
+}
+
+/*
+ * On successful completion of a lift (a workout), continue with same rep scheme
+ * but increment the weight
+ */
+gzclp.handleSuccessfulLift = function(id) {
+  let repSchemeIndex = gzclp.getCurrentRepSchemeIndex(id);
+  let newWeight = gzclp.getCurrentWeight(id) + gzclp.getIncrement(id);
+  gzclp.addWorkout(id, newWeight, repSchemeIndex);
+}
+
+/*
+ * On failure, cycle through rep schemes based on whether lift is T1/T2/T3
+ * (There are three for T1, three for T2, one for T3)
+ * On failing last rep scheme, strategy varies depending on tier:
+ * T1: restart new cycle on first repscheme with 85% of last weight attempted
+ * T2: restart new cycle on first repscheme with weight 5kg heavier than what was last lifted on first repscheme
+ * (TODO: this is currently implemented same as for T1, as previous sessions are not yet recorded)
+ * T3: no change
+ */
+gzclp.handleFailedLift = function(id) {
+  const tier = gzclp.getTier(id);
+
+  // If failed on last rep scheme of cycle, weight is deloaded. Otherwise, it stays the same
+  var newWeight = gzclp.getCurrentWeight(id);
+  if (gzclp.getCurrentRepSchemeIndex(id) == gzclp.getNumberOfRepSchemes(tier) - 1) {
+    if (tier == 'T1') {
+      newWeight = roundDownToNearestIncrement(
+        gzclp.getCurrentWeight(id) * gzclp.T1_DELOAD_FACTOR, gzclp.SMALLEST_INCREMENT
+      );
+    }
+    if (tier == 'T2') {
+      newWeight = roundDownToNearestIncrement(
+        gzclp.getCurrentWeight(id) * gzclp.T2_DELOAD_FACTOR, gzclp.SMALLEST_INCREMENT
+      );
+    }
+  }
+
+  let newRepScheme = (gzclp.getCurrentRepSchemeIndex(id) + 1) % gzclp.getNumberOfRepSchemes(tier);
+  gzclp.addWorkout(id, newWeight, newRepScheme);
+}
+
+
+
+/*-------------------- GETTERS & SETTERS --------------------*/
+
+gzclp.getNumberOfRepSchemes = function(tier) { return gzclp.REP_SCHEMES[tier].length; }
+gzclp.getRepScheme = function(tier, repSchemeIndex) { return gzclp.REP_SCHEMES[tier][repSchemeIndex]; }
+gzclp.getNumberOfSets = function(tier, repSchemeIndex) { return gzclp.getRepScheme(tier, repSchemeIndex).length; }
+gzclp.getNumberOfRepsInASet = function(tier, repSchemeIndex, setIndex) { return gzclp.getRepScheme(tier, repSchemeIndex)[setIndex] }
+
+// For displaying typical reps per set (eg. "5 x 3+")
+gzclp.getNumberOfRepsPerSet = function(tier, repSchemeIndex) {
+  let repScheme = gzclp.getRepScheme(tier, repSchemeIndex);
+  return repScheme[repScheme.length - 1];
+}
+
+gzclp.getProgramState = function() { return gzclp.state; }
+gzclp.setProgramState = function(programState) { gzclp.state = getCopyOfObject(programState); }
+
+gzclp.getLifts = function() { return gzclp.state.lifts; }
+gzclp.setLifts = function(obj) { gzclp.state.lifts = obj; }
+gzclp.addLift = function(id, lift) { gzclp.state.lifts[id] = lift; }
+
+gzclp.getSession = function(i) { return gzclp.state.sessions[i]; }
+gzclp.getSessionName = function(i) { return gzclp.getSession(i).name; }
+gzclp.getSessionLifts = function(i) { return gzclp.getSession(i).lifts; }
+gzclp.setSessionLifts = function(i, arr) { gzclp.getSession(i).lifts = arr; }
+gzclp.addLiftToSession = function(i, id) { gzclp.getSessionLifts(i).push(id); }
+
+gzclp.getSessionCounter = function() { return gzclp.state.sessionCounter; }
+gzclp.setSessionCounter = function(num) { gzclp.state.sessionCounter = num; }
+
+gzclp.getNextLiftId = function() { return gzclp.state.nextLiftId; }
+gzclp.setNextLiftId = function(num) { gzclp.state.nextLiftId = num; }
+
+gzclp.getTier = function(id) { return gzclp.state.lifts[id].tier; }
+gzclp.getExercise = function(id) { return gzclp.state.lifts[id].exercise; }
+gzclp.getIncrement = function(id) { return gzclp.state.lifts[id].increment; }
+gzclp.getWorkouts = function(id) { return gzclp.state.lifts[id].workouts; }
+
+gzclp.getCurrentWeight = function(id) {
+  let workouts = gzclp.getWorkouts(id);
+  return workouts[workouts.length - 1].weight;
+}
+gzclp.getCurrentRepSchemeIndex = function(id) {
+  let workouts = gzclp.getWorkouts(id);
+  return workouts[workouts.length - 1].repSchemeIndex;
+}
+
+gzclp.setTier = function(id, tier) { gzclp.state.lifts[id].tier = tier; }
+gzclp.setExercise = function(id, exercise) { gzclp.state.lifts[id].tier = exercise; }
+gzclp.setIncrement = function(id, increment) { gzclp.state.lifts[id].tier = increment; }
+
+
+
+/*-------------------- SMALL HELPER FUNCTIONS --------------------*/
+
+function refresh(component) {
+  component.setState({});
+}
+
+function getCopyOfObject( obj ) {
+  return JSON.parse(JSON.stringify(obj));
+}
+
+function roundDownToNearestIncrement( number, increment ) {
+  return Math.floor(number * (1/increment)) / (1/increment);
+}
+
+
+
+/*-------------------- APP COMPONENTS --------------------*/
+
 class HomeScreen extends React.Component {
   constructor(props) {
     super(props);
     // Initialise program state with default values
-    program.resetProgramState();
+    gzclp.resetProgramState();
   }
 
   static navigationOptions = {
@@ -218,9 +408,9 @@ class HomeScreen extends React.Component {
     var storedProgramState;
 
     try {
-      storedProgramState = await AsyncStorage.getItem('programState', () => console.log("Program state data retrieved"));
+      storedProgramState = await gzclp.loadProgramState();
       if (storedProgramState !== null) {
-        program.setProgramState(JSON.parse(storedProgramState));
+        gzclp.setProgramState(storedProgramState);
         refresh(this);
       }
     } catch (error) {
@@ -230,13 +420,13 @@ class HomeScreen extends React.Component {
 
   // Remove stored data and reset program state to initial values
   async handleResetButtonPress() {
-      try {
-        await AsyncStorage.removeItem('programState', () => console.log("Data removed"));
-        program.resetProgramState();
-        refresh(this);
-      } catch (error) {
-        console.log("Error removing data");
-      }
+    try {
+      await gzclp.deleteSavedProgramState();
+      gzclp.resetProgramState();
+      refresh(this);
+    } catch (error) {
+      console.log("Error removing data");
+    }
   }
 
   render() {
@@ -269,46 +459,44 @@ class NextSessionButton extends React.Component {
     const { navigate, onGoBack } = this.props;
 
     navigate('Session', {
-      session: program.SESSIONS[program.getSessionCounter()],
+      session: gzclp.getSession( gzclp.getSessionCounter() ),
       onGoBack: () => onGoBack()
     });
   }
 
   render() {
-    console.log(program.getLabel('T1', 'squat'));
-
-    // lifts is an array where each element is a 2-element array
-    // that specifies each lifts Tier (first element) and Exercise (second element)
-    var lifts = program.SESSIONS[program.getSessionCounter()].lifts;
+    // lifts is an array where each element is a lift's ID
+    var sessionLifts = gzclp.getSessionLifts( gzclp.getSessionCounter() );
     // Populate arrays of data to display in the Next Session component
     var tiers = [];
     var labels = [];
     var weights = [];
     var repSchemes = [];
 
-    lifts.forEach((lift, index) => {
-      let tier = lift[0];
-      let exercise = lift[1];
+    sessionLifts.forEach( (liftID, i) => {
+      let tier = gzclp.getTier(liftID);
+      let exercise = gzclp.getExercise(liftID);
 
       tiers.push(
-        <Text key={index}>
+        <Text key={i}>
           {tier}
         </Text>
       );
       labels.push(
-        <Text key={index}>
-          {program.getLabel(tier, exercise)}
+        <Text key={i}>
+          {gzclp.getExercise(liftID)}
         </Text>
       );
       weights.push(
-        <Text key={index}>
-          {program.getWeight(tier, exercise)} kg
+        <Text key={i}>
+          {gzclp.getCurrentWeight(liftID)} kg
         </Text>
       );
       repSchemes.push(
-        <Text key={index}>
-          {program.REP_SCHEMES[ tier ][ program.getRepScheme(tier, exercise) ].length}×
-          {program.REP_SCHEMES[ tier ][ program.getRepScheme(tier, exercise) ][0]}
+        <Text key={i}>
+          {gzclp.getNumberOfSets( tier, gzclp.getCurrentRepSchemeIndex(liftID) )}
+          ×
+          {gzclp.getNumberOfRepsPerSet( tier, gzclp.getCurrentRepSchemeIndex(liftID) )}
         </Text>
       );
     });
@@ -323,7 +511,9 @@ class NextSessionButton extends React.Component {
       >
         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
           <View>
-            <Text style={styles.nextSessionTitle}>{'Next Session: ' + program.SESSIONS[program.getSessionCounter()].label}</Text>
+            <Text style={styles.nextSessionTitle}>
+              {'Next Session: ' + gzclp.getSessionName( gzclp.getSessionCounter() )}
+            </Text>
 
             <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
               <View style={{width: 25}}>{tiers}</View>
@@ -345,7 +535,7 @@ class NextSessionButton extends React.Component {
 
 
 const ProgramState = () => {
-    var output = program.getProgramStateAsString();
+    var output = gzclp.outputProgramStateAsString();
 
     return (
       <View style={styles.progressDataContainer}>
@@ -374,54 +564,29 @@ class SessionScreen extends React.Component {
     const { goBack } = this.props.navigation;
     const { params } = this.props.navigation.state;
 
-    // lifts parameter is in the form of an array where each element is a 2-element array
-    // that specifies each lifts Tier (first element) and Exercise (second element)
+    // lifts parameter is an array where each element is a lift's ID
     const lifts = params.session.lifts;
 
     // If all sets of a lift complete, clicking "Done" button increments that lift for next time
     // If not, the lift moves onto its next rep scheme for next time
-    lifts.forEach((lift) => {
-      let tier = lift[0];
-      let exercise = lift[1];
+    lifts.forEach(liftID => {
+      let tier = gzclp.getTier(liftID);
+      let exercise = gzclp.getExercise(liftID);
 
       if (this.state[ exercise ]) {
-        //todaysLift.weight += todaysLift.increment;
-        let newWeight = program.getWeight(tier, exercise) + program.getIncrement(tier, exercise);
-        program.setWeight(tier, exercise, newWeight);
+        gzclp.handleSuccessfulLift(liftID);
       } else {
-        // On failure, cycle through rep schemes based on whether lift is T1/T2/T3
-        // (There are three for T1, three for T2, one for T3)
-        // On failing last rep scheme, strategy varies depending on tier:
-        // T1: restart new cycle on first repscheme with 85% of last weight attempted
-        // T2: restart new cycle on first repscheme with weight 5kg heavier than what was last lifted on first repscheme
-        // (TODO: this is currently implemented same as for T1, as previous sessions are not yet recorded)
-        // T3: no change
-        if (program.getRepScheme(tier, exercise) == program.REP_SCHEMES[lift[0]].length - 1) {
-          if (lift[0] == 'T1') {
-            let newWeight = roundDownToNearestIncrement(
-              program.getWeight(tier, exercise) * 0.85, program.MINIMUM_INCREMENT_STEP
-            );
-            program.setWeight(tier, exercise, newWeight);
-          }
-          if (lift[0] == 'T2') {
-            let newWeight = roundDownToNearestIncrement(
-              program.getWeight(tier, exercise) * 0.85, program.MINIMUM_INCREMENT_STEP
-            );
-            program.setWeight(tier, exercise, newWeight);
-          }
-        }
-        let newRepScheme = (program.getRepScheme(tier, exercise) + 1) % program.REP_SCHEMES[lift[0]].length;
-        program.setRepScheme(tier, exercise, newRepScheme);
+        gzclp.handleFailedLift(liftID);
       }
     });
 
     // Increment the session counter so sessions are cycled from A1 to B2
     // and back to A1 and so on
-    program.state.sessionCounter = (program.state.sessionCounter + 1) % program.SESSIONS.length;
+    gzclp.incrementSessionCounter();
 
     // Store current state of the app
     try {
-      await AsyncStorage.setItem('programState', JSON.stringify(program.state), () => console.log("Program state data saved"));
+      gzclp.saveProgramState();
     } catch (error) {
       console.log("Error saving data")
     }
@@ -441,12 +606,17 @@ class SessionScreen extends React.Component {
 
     // Populate an array of Lift components to display in this SessionScreen component
     var liftComponents = [];
-    lifts.forEach((lift, index) => {
+    lifts.forEach( (id, index) => {
+      let tier = gzclp.getTier(id);
+      let exercise = gzclp.getExercise(id);
+      let repSchemeIndex = gzclp.getCurrentRepSchemeIndex(id);
+      let weight = gzclp.getCurrentWeight(id);
+
       liftComponents.push(
-        <Lift key={index} tier={lift[0]} exercise={lift[1]}
-          repScheme={program.state[ lift[0] ][ lift[1] ].repScheme}
+        <Lift key={index} tier={tier} exercise={exercise}
+          repSchemeIndex={repSchemeIndex} weight={weight}
           // Test for whether all sets are complete
-          setLiftComplete={(isComplete) => {this.setState({[ lift[1] ]:isComplete})}}
+          setLiftComplete={(isComplete) => {this.setState({[ exercise ]:isComplete})}}
         />
       )
     });
@@ -493,18 +663,19 @@ class Lift extends React.Component {
   }
 
   render() {
-    var { tier, repScheme, exercise } = this.props;
+    var { tier, repSchemeIndex, exercise, weight } = this.props;   // TODO: are these needed, surely only id is
 
-    var numberOfSets = program.REP_SCHEMES[tier][repScheme].length;
-    var repsArray = program.REP_SCHEMES[tier][repScheme];
-
-    var weight = program.state[tier][exercise].weight;
+    let numberOfSets = gzclp.getNumberOfSets(tier, repSchemeIndex);
+    let numberOfRepsPerSet = gzclp.getNumberOfRepsPerSet(tier, repSchemeIndex);
 
     // Populate an array of SetButtons to display
     var setButtons = [];
     for (var i = 1; i <= numberOfSets; i++) {
       setButtons.push(
-        <SetButton key={i} id={i} reps={repsArray[i - 1]}
+        <SetButton
+          key={i}
+          id={i}
+          reps={gzclp.getNumberOfRepsInASet(tier, repSchemeIndex, i - 1)}
           // Keep track of whether each button is in inactive/active/clicked state
           isActive={i <= this.state.lastClickedButton + 1}
           isClicked={i <= this.state.lastClickedButton}
@@ -535,7 +706,10 @@ class Lift extends React.Component {
     return (
       <View style={styles.liftContainer}>
         <View style={styles.liftInfoContainer}>
-          <LiftInfo tier={tier} exercise={exercise} weight={weight} sets={numberOfSets} reps={repsArray[0]} />
+          <LiftInfo
+            tier={tier} exercise={exercise} weight={weight}
+            sets={numberOfSets} reps={numberOfRepsPerSet}
+          />
         </View>
 
         <View style={styles.setButtonContainer}>
@@ -562,7 +736,7 @@ const LiftInfo = props => {
     return (
       <View>
         <Text style={styles.liftName}>
-          {tier} {program.state[tier][exercise].label}
+          {tier} {exercise}
         </Text>
         <Text style={styles.liftDetails}>
           {weight} kg   {sets}×{reps}
@@ -574,56 +748,56 @@ const LiftInfo = props => {
 
 
 const SetButton = props => {
-    var {
-      reps,
-      isClicked,
-      isActive,
-      setLastClickedButton,
-      setLiftComplete,
-      activateTimer,
-      id
-    } = props;
+  var {
+    reps,
+    isClicked,
+    isActive,
+    setLastClickedButton,
+    setLiftComplete,
+    activateTimer,
+    id
+  } = props;
 
-    // If button is clicked, display a tick. Otherwise display number of reps.
-    // And if set is an AMRAP set, display a '+' sign next the rep number
-    var buttonText = isClicked ? '✓' : reps;
+  // If button is clicked, display a tick. Otherwise display number of reps.
+  // And if set is an AMRAP set, display a '+' sign next the rep number
+  var buttonText = isClicked ? '✓' : reps;
 
-    // Apply style depending on whether button is inactive, active or clicked
-    var currentStyle, currentTextStyle;
-    if (isClicked) {
-      currentStyle = styles.setButtonClicked;
-      currentTextStyle = styles.setButtonTextClicked;
-    } else if (isActive) {
-      currentStyle = styles.setButtonActive;
-      currentTextStyle = styles.setButtonTextActive;
-    } else {
-      currentStyle = styles.setButtonInactive;
-      currentTextStyle = styles.setButtonTextInactive;
+  // Apply style depending on whether button is inactive, active or clicked
+  var currentStyle, currentTextStyle;
+  if (isClicked) {
+    currentStyle = styles.setButtonClicked;
+    currentTextStyle = styles.setButtonTextClicked;
+  } else if (isActive) {
+    currentStyle = styles.setButtonActive;
+    currentTextStyle = styles.setButtonTextActive;
+  } else {
+    currentStyle = styles.setButtonInactive;
+    currentTextStyle = styles.setButtonTextInactive;
+  }
+
+  function handlePress() {
+    // If button is clicked, and hasn't already been clicked,
+    // set to "clicked" state. If it has been, undo its "clicked" state
+    // and make the button to the immediate left of it the last "clicked" button
+    if (isActive) {
+      let lastClickedButton = isClicked ? id - 1 : id;
+      setLastClickedButton(lastClickedButton);
+      setLiftComplete(lastClickedButton);
+      activateTimer(isClicked ? false : true, lastClickedButton);
     }
+  }
 
-    function handlePress() {
-      // If button is clicked, and hasn't already been clicked,
-      // set to "clicked" state. If it has been, undo its "clicked" state
-      // and make the button to the immediate left of it the last "clicked" button
-      if (isActive) {
-        let lastClickedButton = isClicked ? id - 1 : id;
-        setLastClickedButton(lastClickedButton);
-        setLiftComplete(lastClickedButton);
-        activateTimer(isClicked ? false : true, lastClickedButton);
-      }
-    }
-
-    return (
-      <TouchableOpacity
-        activeOpacity={0.8}
-        style={currentStyle}
-        onPress={() => handlePress()}
-      >
-        <Text style={currentTextStyle}>
-          {buttonText}
-        </Text>
-      </TouchableOpacity>
-    )
+  return (
+    <TouchableOpacity
+      activeOpacity={0.8}
+      style={currentStyle}
+      onPress={() => handlePress()}
+    >
+      <Text style={currentTextStyle}>
+        {buttonText}
+      </Text>
+    </TouchableOpacity>
+  )
 }
 
 
@@ -675,24 +849,11 @@ class Timer extends React.Component {
 }
 
 
-// Main route of app
-export default StackNavigator({
+
+/*-------------------- REACT NAVIGATION NAVIGATOR --------------------*/
+
+const App = StackNavigator({
   Home: {screen: HomeScreen},
   Session: {screen: SessionScreen}
 });
-
-
-
-/*---------------HELPER FUNCTIONS---------------*/
-
-function refresh(component) {
-  component.setState({});
-}
-
-function getCopyOfObject( obj ) {
-  return JSON.parse(JSON.stringify(obj));
-}
-
-function roundDownToNearestIncrement( number, increment ) {
-  return Math.floor(number * (1/increment)) / (1/increment);
-}
+export default App;
