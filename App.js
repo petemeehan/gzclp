@@ -652,8 +652,29 @@ class SessionScreen extends React.Component {
 class Lift extends React.Component {
   constructor(props) {
     super(props);
+
+    // Initiate an array to be used to keep track of state of lift buttons
+    // ie. whether they have been clicked, and if they have been set to
+    // successful/failed/incomplete
+    // Each element is an integer 0, 1 or 2:
+    // 0 - incomplete
+    // 1 - successful
+    // 2 - failed
+    let numberOfSets = gzclp.getNumberOfSets(props.tier, props.repSchemeIndex);
+    var buttonStates = [];
+    for (var i = 0; i < numberOfSets; i++) {
+      buttonStates[i] = 0;
+    }
+
     this.state = {
-      lastClickedButton: 0,
+      buttonStates,
+
+      // 'lastClickableButton' refers to the ID (starting at 0) of the last button
+      // that is to be "active", or clickable.
+      // This allows so that clicking one button makes the next button clickable
+      // ie. user can mark sets as complete only in order from left to right
+      lastClickableButton: 0,
+
       isTimerVisible: false,
     };
   }
@@ -684,21 +705,22 @@ class Lift extends React.Component {
 
     // Populate an array of LiftButtons to display
     var liftButtons = [];
-    for (var i = 1; i <= numberOfSets; i++) {
+    for (var i = 0; i < numberOfSets; i++) {
       liftButtons.push(
         <LiftButton
-          key={i}
+          key={i} // Required by React as every element requires a unique key
           id={i}
-          reps={gzclp.getNumberOfRepsInASet(tier, repSchemeIndex, i - 1)}
-          // Keep track of whether each button is in inactive/active/clicked state
-          isClickable={i <= this.state.lastClickedButton + 1}
-          isClicked={i <= this.state.lastClickedButton}
-          // Keep track of which button was last clicked, so buttons can only be clicked in order
-          setLastClickedButton={(lastClickedButton) => {
-            this.setState({lastClickedButton})
+          reps={gzclp.getNumberOfRepsInASet(tier, repSchemeIndex, i)}
+          isClickable={i <= this.state.lastClickableButton}
+          isClicked={i <= this.state.lastClickableButton - 1}
+          // This prop declares a function that is passed to and called by the child component LiftButton
+          handleButtonClick={(buttonID) => {
+            // Keep track of which button was last clicked, so buttons can only be clicked in order
+            this.setState({lastClickableButton: buttonID + 1});
+            console.log('lastClickableButton: ' + buttonID);
           }}
-          // When all sets are complete (ie. all buttons are clicked), set whole
-          // lift to be complete in parent 'Session' component
+          // When all sets are complete (ie. all buttons are clicked), sets whole
+          // lift as complete in parent component Session
           setLiftComplete={(id) => {
             this.props.setLiftComplete( this.areAllLiftButtonsClicked(id, numberOfSets) );
           }}
@@ -744,7 +766,7 @@ const LiftButton = props => {
     isClickable,
     isClicked,
     isSuccessful,
-    setLastClickedButton,
+    handleButtonClick,
     setLiftComplete,
     activateTimer,
     id
@@ -779,10 +801,10 @@ const LiftButton = props => {
     // and make the button to the immediate left of it the last "clicked" button
     if (isClickable) {
       //if (isSuccessful) {
-        let lastClickedButton = isClicked ? id - 1 : id;
-        setLastClickedButton(lastClickedButton);
-        setLiftComplete(lastClickedButton);
-        activateTimer(isClicked ? false : true, lastClickedButton);
+        let lastClickableButton = isClicked ? id - 1 : id;
+        handleButtonClick(lastClickableButton);
+        setLiftComplete(lastClickableButton);
+        activateTimer(isClicked ? false : true, lastClickableButton);
       //}
     }
   }
