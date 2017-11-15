@@ -682,26 +682,33 @@ class Lift extends React.Component {
   // 1. The set immediately preceeding it is completed
   // 2. The current set has already been completed
   // 3. Any of the following sets are completed
-  testIfButtonIsClickable(id, numberOfSets) {
-    var isClickable = false;
+  isButtonClickable(id, numberOfSets) {
+    var test = false;
     for (var i = -1; i < numberOfSets - id; i++) {
-      isClickable = isClickable || this.state.buttonStates[id + i] != 0;
+      test = test || this.state.buttonStates[id + i] != 0;
     }
-    return isClickable;
+    return test;
   }
 
-  // If last set button is clicked, pass this to parent so it knows
-  // all sets are complete and lift was successful
-  areAllLiftButtonsClicked(id, sets) {
-    return (id == sets)
+  setWhetherTimerVisible(buttonID, numberOfSets) {
+    // Timer isn't affected by selecting set as failed
+    if (this.state.buttonStates[buttonID] != 2) {   // TODO: generalise
+      // Before activating timer, disable it first to force it to restart after each set
+      this.setState({isTimerVisible: false}, () => {
+        // Check that set isn't final one, as no need for timer after that
+        if (buttonID != numberOfSets - 1) {
+          this.setState({isTimerVisible: this.state.buttonStates[buttonID] == 1});
+        }
+      });
+    }
   }
 
-  // Display timer for this lift and pass it the corresponding tier as a prop,
-  // so it knows how long to tell user to rest
-  renderTimer(tier) {
-    if (this.state.isTimerVisible) {
-      return (<Timer tier={tier} />)
+  areAllSetsSuccessful(numberOfSets) {
+    var test = true;
+    for (var i = 0; i < numberOfSets; i++) {
+      test = test && this.state.buttonStates[i] == 1;
     }
+    return test;
   }
 
   render() {
@@ -718,34 +725,24 @@ class Lift extends React.Component {
           key={id} // Required by React as every element requires a unique key
           id={id}
           reps={gzclp.getNumberOfRepsInASet(tier, repSchemeIndex, id)}
-          isClickable={this.testIfButtonIsClickable(id, numberOfSets)}
-          isClicked={this.state.buttonStates[id] != 0}
-          isSuccessful={this.state.buttonStates[id] == 1}
+          isClickable={this.isButtonClickable(id, numberOfSets)}
+          buttonState={this.state.buttonStates[id]}
+
           // This prop declares a function that is passed to and called by the child component LiftButton
-          handleButtonClick={(buttonID) => {
+          handleButtonClick={(clickedButtonID) => {
             // Keep track of which button was last clicked, so buttons can only be clicked in order
             this.setState(prevState => {
               let buttonStates = prevState.buttonStates;
-              buttonStates[buttonID] = (buttonStates[buttonID] + 1) % 3;
+              buttonStates[clickedButtonID] = (buttonStates[clickedButtonID] + 1) % 3;
               return { buttonStates };
-            })
-          }}
-          // When all sets are complete (ie. all buttons are clicked), set whole
-          // lift as complete in parent component Session
-          setLiftComplete={(id) => {
-            this.props.setLiftComplete( this.areAllLiftButtonsClicked(id, numberOfSets) );
-          }}
+            }, () => {
+              this.setWhetherTimerVisible(clickedButtonID, numberOfSets);
+              // When all sets are complete (ie. all buttons are clicked), set
+              // lift as complete (by updating state) in parent component, Session
+              this.props.setLiftComplete( this.areAllSetsSuccessful(numberOfSets) );
+            });
 
-          // If activating timer, disable it first to force it to restart after each set
-          // Also check if set is last one, as no need for timer after that
-          activateTimer={(isTimerVisible, id) => {
-            this.setState({isTimerVisible: false}, () => {
-              //if (!this.areAllLiftButtonsClicked(i, numberOfSets)) {  //NOTE need to check again why this doesnt work
-              if (!this.areAllLiftButtonsClicked(id, numberOfSets)) {
-                this.setState({isTimerVisible})
-              }
-            }
-          )}}
+          }}
         />
       );
     }
@@ -763,7 +760,7 @@ class Lift extends React.Component {
           {liftButtons}
         </View>
 
-        {this.renderTimer(tier)}
+        {this.state.isTimerVisible ? <Timer tier={tier} /> : null}
       </View>
     );
   }
@@ -773,15 +770,15 @@ class Lift extends React.Component {
 
 const LiftButton = props => {
   var {
+    id,
     reps,
     isClickable,
-    isClicked,
-    isSuccessful,
+    buttonState,
     handleButtonClick,
-    setLiftComplete,
-    activateTimer,
-    id
   } = props;
+
+  var isClicked = buttonState != 0;
+  var isSuccessful = buttonState == 1;
 
   // If button is clicked, display a tick either a tick or cross depending on
   // whether lift is successful or failed. Otherwise display number of reps
@@ -806,27 +803,15 @@ const LiftButton = props => {
     currentTextStyle = styles.liftButtonTextUnclickable;
   }
 
-  function handlePress() {
-    // If button is clicked, and hasn't already been clicked,
-    // set to "clicked" state. If it has been, undo its "clicked" state
-    // and make the button to the immediate left of it the last "clicked" button
-    if (isClickable) {
-      //if (isSuccessful) {
-        //let lastClickableButtonID = isClicked ? id - 1 : id;
-        //handleButtonClick(lastClickableButtonID);
-        //setLiftComplete(lastClickableButtonID);
-        //activateTimer(isClicked ? false : true, lastClickableButtonID);
-
-        handleButtonClick(id);
-      //}
-    }
-  }
-
   return (
     <TouchableOpacity
       activeOpacity={0.8}
       style={currentStyle}
-      onPress={() => handlePress()}
+      onPress={() => {
+        if (isClickable) {
+          handleButtonClick(id);
+        }
+      }}
     >
       <Text style={currentTextStyle}>
         {buttonText}
