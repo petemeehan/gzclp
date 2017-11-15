@@ -62,7 +62,7 @@ export default StyleSheet.create({
   },
   liftButtonClickable: {
     borderColor: primaryColour,
-    borderWidth: 1.5,
+    borderWidth: 1.25,
     margin: 0.015625 * DEVICE_W,
     width: 0.15625 * DEVICE_W,
     height: 0.15625 * DEVICE_W,
@@ -91,7 +91,7 @@ export default StyleSheet.create({
   liftButtonFailed: {
     backgroundColor: mediumGrey,
     //borderColor: primaryColour,
-    //borderWidth: 1.5,
+    //borderWidth: 1.25,
     margin: 0.015625 * DEVICE_W,
     width: 0.15625 * DEVICE_W,
     height: 0.15625 * DEVICE_W,
@@ -103,7 +103,7 @@ export default StyleSheet.create({
     color: primaryColour,
   },
   liftButtonTextUnclickable: {
-    color: darkGrey,
+    color: mediumGrey,
   },
   liftButtonTextSuccessful: {
     color: '#fff',

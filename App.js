@@ -654,6 +654,7 @@ class Lift extends React.Component {
     super(props);
 
     // Initiate an array to be used to keep track of state of lift buttons
+    // (which represent each set)
     // ie. whether they have been clicked, and if they have been set to
     // successful/failed/incomplete
     // Each element is an integer 0, 1 or 2:
@@ -668,19 +669,25 @@ class Lift extends React.Component {
 
     this.state = {
       buttonStates,
-
-      // 'lastClickableButton' refers to the ID (starting at 0) of the last button
-      // that is to be "active", or clickable.
-      // This allows so that clicking one button makes the next button clickable
-      // ie. user can mark sets as complete only in order from left to right
-      lastClickableButton: 0,
-
       isTimerVisible: false,
     };
   }
 
   componentDidUpdate() {
     console.log(this.state);
+  }
+
+  // Each button, which represents a set, should be clickable
+  // if ANY of these conditions are true:
+  // 1. The set immediately preceeding it is completed
+  // 2. The current set has already been completed
+  // 3. Any of the following sets are completed
+  testIfButtonIsClickable(id, numberOfSets) {
+    var isClickable = false;
+    for (var i = -1; i < numberOfSets - id; i++) {
+      isClickable = isClickable || this.state.buttonStates[id + i] != 0;
+    }
+    return isClickable;
   }
 
   // If last set button is clicked, pass this to parent so it knows
@@ -705,21 +712,25 @@ class Lift extends React.Component {
 
     // Populate an array of LiftButtons to display
     var liftButtons = [];
-    for (var i = 0; i < numberOfSets; i++) {
+    for (var id = 0; id < numberOfSets; id++) {
       liftButtons.push(
         <LiftButton
-          key={i} // Required by React as every element requires a unique key
-          id={i}
-          reps={gzclp.getNumberOfRepsInASet(tier, repSchemeIndex, i)}
-          isClickable={i <= this.state.lastClickableButton}
-          isClicked={i <= this.state.lastClickableButton - 1}
+          key={id} // Required by React as every element requires a unique key
+          id={id}
+          reps={gzclp.getNumberOfRepsInASet(tier, repSchemeIndex, id)}
+          isClickable={this.testIfButtonIsClickable(id, numberOfSets)}
+          isClicked={this.state.buttonStates[id] != 0}
+          isSuccessful={this.state.buttonStates[id] == 1}
           // This prop declares a function that is passed to and called by the child component LiftButton
           handleButtonClick={(buttonID) => {
             // Keep track of which button was last clicked, so buttons can only be clicked in order
-            this.setState({lastClickableButton: buttonID + 1});
-            console.log('lastClickableButton: ' + buttonID);
+            this.setState(prevState => {
+              let buttonStates = prevState.buttonStates;
+              buttonStates[buttonID] = (buttonStates[buttonID] + 1) % 3;
+              return { buttonStates };
+            })
           }}
-          // When all sets are complete (ie. all buttons are clicked), sets whole
+          // When all sets are complete (ie. all buttons are clicked), set whole
           // lift as complete in parent component Session
           setLiftComplete={(id) => {
             this.props.setLiftComplete( this.areAllLiftButtonsClicked(id, numberOfSets) );
@@ -801,10 +812,12 @@ const LiftButton = props => {
     // and make the button to the immediate left of it the last "clicked" button
     if (isClickable) {
       //if (isSuccessful) {
-        let lastClickableButton = isClicked ? id - 1 : id;
-        handleButtonClick(lastClickableButton);
-        setLiftComplete(lastClickableButton);
-        activateTimer(isClicked ? false : true, lastClickableButton);
+        //let lastClickableButtonID = isClicked ? id - 1 : id;
+        //handleButtonClick(lastClickableButtonID);
+        //setLiftComplete(lastClickableButtonID);
+        //activateTimer(isClicked ? false : true, lastClickableButtonID);
+
+        handleButtonClick(id);
       //}
     }
   }
