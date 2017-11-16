@@ -4,6 +4,7 @@ import {
   View,
   ScrollView,
   Button,
+  Image,
   TouchableOpacity,
   AsyncStorage,
 } from 'react-native';
@@ -96,7 +97,7 @@ gzclp.state.sessions = [
 ]
 
 // To keep track of which session is next
-gzclp.state.sessionCounter = 0;
+gzclp.state.currentSessionID = 0;
 
 
 
@@ -195,7 +196,7 @@ gzclp.addWorkout = function(id, weight, repSchemeIndex) {
  * Resets all state data to its original default values
  */
 gzclp.resetProgramState = function() {
-  gzclp.setSessionCounter(0);
+  gzclp.setCurrentSessionID(0);
   gzclp.setNextLiftId(0);
   gzclp.setLifts({});
 
@@ -270,7 +271,7 @@ gzclp.outputProgramStateAsString = function() {
  * is loaded next time
  */
 gzclp.incrementSessionCounter = function() {
-  gzclp.setSessionCounter((gzclp.getSessionCounter() + 1) % gzclp.state.sessions.length);
+  gzclp.setCurrentSessionID((gzclp.getCurrentSessionID() + 1) % gzclp.state.sessions.length);
 }
 
 /*
@@ -342,14 +343,14 @@ gzclp.getLifts = function() { return gzclp.state.lifts; }
 gzclp.setLifts = function(obj) { gzclp.state.lifts = obj; }
 gzclp.addLift = function(id, lift) { gzclp.state.lifts[id] = lift; }
 
-gzclp.getSession = function(i) { return gzclp.state.sessions[i]; }
-gzclp.getSessionName = function(i) { return gzclp.getSession(i).name; }
-gzclp.getSessionLifts = function(i) { return gzclp.getSession(i).lifts; }
-gzclp.setSessionLifts = function(i, arr) { gzclp.getSession(i).lifts = arr; }
-gzclp.addLiftToSession = function(i, id) { gzclp.getSessionLifts(i).push(id); }
+gzclp.getSession = function(id) { return gzclp.state.sessions[id]; }
+gzclp.getSessionName = function(id) { return gzclp.getSession(id).name; }
+gzclp.getSessionLifts = function(id) { return gzclp.getSession(id).lifts; }
+gzclp.setSessionLifts = function(id, arr) { gzclp.getSession(id).lifts = arr; }
+gzclp.addLiftToSession = function(id, liftID) { gzclp.getSessionLifts(id).push(liftID); }
 
-gzclp.getSessionCounter = function() { return gzclp.state.sessionCounter; }
-gzclp.setSessionCounter = function(num) { gzclp.state.sessionCounter = num; }
+gzclp.getCurrentSessionID = function() { return gzclp.state.currentSessionID; }
+gzclp.setCurrentSessionID = function(num) { gzclp.state.currentSessionID = num; }
 
 gzclp.getNextLiftId = function() { return gzclp.state.nextLiftId; }
 gzclp.setNextLiftId = function(num) { gzclp.state.nextLiftId = num; }
@@ -399,11 +400,19 @@ class HomeScreen extends React.Component {
     gzclp.resetProgramState();
   }
 
-  static navigationOptions = {
+  static navigationOptions = ({ navigation }) => ({
     title: 'GZCLP',
     headerTintColor: '#fff',
     headerStyle: { backgroundColor: primaryColour },
-  };
+    headerLeft: <TouchableOpacity
+      onPress={() => navigation.navigate('Settings')}
+    >
+      <Image
+        style={styles.settingsIcon}
+        source={require('./settings.png')}
+      />
+    </TouchableOpacity>,
+  });
 
   componentDidMount() {
     // Overwrite initial default program state values with stored ones, if they exist
@@ -456,86 +465,82 @@ class HomeScreen extends React.Component {
 
 
 
-class NextSessionButton extends React.Component {
-  constructor(props) {
-    super(props);
-  }
+const NextSessionButton = props => {
 
-  handlePress() {
-    const { navigate, onGoBack } = this.props;
+  function handlePress() {
+    const { navigate, onGoBack } = props;
 
+    // Navigate to Session screen, which will display according to provided parameters
     navigate('Session', {
-      session: gzclp.getSession( gzclp.getSessionCounter() ),
+      sessionID: gzclp.getCurrentSessionID(),
       onGoBack: () => onGoBack()
     });
   }
 
-  render() {
-    // lifts is an array where each element is a lift's ID
-    var sessionLifts = gzclp.getSessionLifts( gzclp.getSessionCounter() );
-    // Populate arrays of data to display in the Next Session component
-    var tiers = [];
-    var labels = [];
-    var weights = [];
-    var repSchemes = [];
+  // lifts is an array where each element is a lift's ID
+  var sessionLifts = gzclp.getSessionLifts( gzclp.getCurrentSessionID() );
+  // Populate arrays of data to display in the Next Session component
+  var tiers = [];
+  var labels = [];
+  var weights = [];
+  var repSchemes = [];
 
-    sessionLifts.forEach( (liftID, i) => {
-      let tier = gzclp.getTier(liftID);
-      let exercise = gzclp.getExercise(liftID);
+  sessionLifts.forEach( (liftID, i) => {
+    let tier = gzclp.getTier(liftID);
+    let exercise = gzclp.getExercise(liftID);
 
-      tiers.push(
-        <Text key={i}>
-          {tier}
-        </Text>
-      );
-      labels.push(
-        <Text key={i}>
-          {gzclp.getExercise(liftID)}
-        </Text>
-      );
-      weights.push(
-        <Text key={i}>
-          {gzclp.getCurrentWeight(liftID)} kg
-        </Text>
-      );
-      repSchemes.push(
-        <Text key={i}>
-          {gzclp.getNumberOfSets( tier, gzclp.getCurrentRepSchemeIndex(liftID) )}
-          ×
-          {gzclp.getNumberOfRepsPerSet( tier, gzclp.getCurrentRepSchemeIndex(liftID) )}
-        </Text>
-      );
-    });
+    tiers.push(
+      <Text key={i}>
+        {tier}
+      </Text>
+    );
+    labels.push(
+      <Text key={i}>
+        {gzclp.getExercise(liftID)}
+      </Text>
+    );
+    weights.push(
+      <Text key={i}>
+        {gzclp.getCurrentWeight(liftID)} kg
+      </Text>
+    );
+    repSchemes.push(
+      <Text key={i}>
+        {gzclp.getNumberOfSets( tier, gzclp.getCurrentRepSchemeIndex(liftID) )}
+        ×
+        {gzclp.getNumberOfRepsPerSet( tier, gzclp.getCurrentRepSchemeIndex(liftID) )}
+      </Text>
+    );
+  });
 
-    return (
-      <TouchableOpacity
-        style={styles.nextSessionContainer}
-        activeOpacity={0.8}
-        // Navigate to session screen and pass as two parameters the required session
-        // and the callback function that will refresh the home screen when session is finished
-        onPress={() => this.handlePress()}
-      >
-        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-          <View>
-            <Text style={styles.nextSessionTitle}>
-              {'Next Session: ' + gzclp.getSessionName( gzclp.getSessionCounter() )}
-            </Text>
+  return (
+    <TouchableOpacity
+      style={styles.nextSessionContainer}
+      activeOpacity={0.8}
+      // Navigate to session screen and pass as two parameters the required session
+      // and the callback function that will refresh the home screen when session is finished
+      onPress={() => handlePress()}
+    >
+      <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+        <View>
+          <Text style={styles.nextSessionTitle}>
+            {'Next Session: ' + gzclp.getSessionName( gzclp.getCurrentSessionID() )}
+          </Text>
 
-            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <View style={{width: 25}}>{tiers}</View>
-              <View style={{width: 120}}>{labels}</View>
-              <View style={{width: 50, alignItems: 'flex-end', marginRight: 20}}>{weights}</View>
-              <View>{repSchemes}</View>
-            </View>
-          </View>
-
-          <View style={{justifyContent: 'center'}}>
-            <Text style={{fontSize: 20, color: primaryColour}}>＞</Text>
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <View style={{width: 25}}>{tiers}</View>
+            <View style={{width: 120}}>{labels}</View>
+            <View style={{width: 50, alignItems: 'flex-end', marginRight: 20}}>{weights}</View>
+            <View>{repSchemes}</View>
           </View>
         </View>
-      </TouchableOpacity>
-    )
-  }
+
+        <View style={{justifyContent: 'center'}}>
+          <Text style={{fontSize: 20, color: primaryColour}}>＞</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  )
 }
 
 
@@ -564,7 +569,7 @@ class SessionScreen extends React.Component {
   }
 
   static navigationOptions = ({ navigation }) => ({
-    title: 'Session ' + navigation.state.params.session.label,
+    title: 'Session ' + gzclp.getSessionName(navigation.state.params.sessionID),
     headerTintColor: '#fff',
     headerStyle: { backgroundColor: primaryColour },
   });
@@ -574,7 +579,7 @@ class SessionScreen extends React.Component {
     const { params } = this.props.navigation.state;
 
     // lifts parameter is an array where each element is a lift's ID
-    const lifts = params.session.lifts;
+    const lifts = gzclp.getSessionLifts(params.sessionID);
 
     console.log(lifts);
     console.log(this.state);
@@ -609,9 +614,8 @@ class SessionScreen extends React.Component {
     const { goBack } = this.props.navigation;
     const { params } = this.props.navigation.state;
 
-    // lifts parameter is in the form of an array where each element is a 2-element array
-    // that specifies each lifts Tier (first element) and Exercise (second element)
-    const lifts = params.session.lifts;
+    // lifts parameter is an array where each element is a lift's ID
+    const lifts = gzclp.getSessionLifts(params.sessionID);
 
     // Populate an array of Lift components to display in this Session Screen component
     var liftComponents = [];
@@ -872,15 +876,9 @@ class Timer extends React.Component {
     var tier = this.props.tier;
     var time = '';
 
-    if (tier == 'T1') {
-      time = '3-5';
-    }
-    if (tier == 'T2') {
-      time = '2-3';
-    }
-    if (tier == 'T3') {
-      time = '1-2';
-    }
+    if (tier == 'T1') { time = '3-5'; }   // TODO Generalise
+    if (tier == 'T2') { time = '2-3'; }
+    if (tier == 'T3') { time = '1-2'; }
 
     return (
       <View ref='myRef' style={styles.timerContainer}>
@@ -893,10 +891,27 @@ class Timer extends React.Component {
 
 
 
+class SettingsScreen extends React.Component {
+  static navigationOptions = {
+    title: 'Settings ',
+    headerTintColor: '#fff',
+    headerStyle: { backgroundColor: primaryColour },
+  };
+
+  render() {
+    return (
+      null
+    )
+  }
+}
+
+
+
 /*-------------------- REACT NAVIGATION NAVIGATOR --------------------*/
 
 const App = StackNavigator({
   Home: {screen: HomeScreen},
-  Session: {screen: SessionScreen}
+  Session: {screen: SessionScreen},
+  Settings: {screen: SettingsScreen}
 });
 export default App;
