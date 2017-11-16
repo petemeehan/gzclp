@@ -15,7 +15,11 @@ const DEVICE_H = Dimensions.get('window').height;
 StatusBar.setBarStyle('light-content');
 
 export default StyleSheet.create({
+  settingsIcon: {
+    marginLeft: (0.03125+0.015625) * DEVICE_W,
+  },
   nextSessionContainer: {
+    //borderWidth: 1,
     backgroundColor: '#fff',
     paddingLeft: (0.03125+0.015625) * DEVICE_W,
     paddingRight: (0.03125+0.015625) * DEVICE_W / 2,
