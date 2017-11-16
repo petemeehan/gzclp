@@ -5,6 +5,9 @@ import {
 } from 'react-native';
 
 const primaryColour = '#fa375a';
+const lightGrey = '#eee';
+const mediumGrey = '#aaa';
+const darkGrey = '#666';
 
 const DEVICE_W = Dimensions.get('window').width;
 const DEVICE_H = Dimensions.get('window').height;
@@ -19,13 +22,12 @@ export default StyleSheet.create({
     paddingVertical: 10,
   },
   nextSessionTitle: {
-    //color: primaryColour,
+    color: primaryColour,
     marginBottom: 5,
     fontSize: 16,
     fontWeight: 'bold',
   },
   progressDataContainer: {
-    ///backgroundColor: '#fff',
     paddingHorizontal: (0.03125+0.015625) * DEVICE_W,
     marginVertical: 20,
   },
@@ -51,16 +53,16 @@ export default StyleSheet.create({
   liftDetails: {
     marginVertical: 5,
   },
-  setButtonContainer: {
+  liftButtonContainer: {
     marginBottom: 10,
     flexDirection: 'row',
     marginHorizontal: 0.03125 * DEVICE_W,
     flexWrap: 'wrap',
     //borderWidth: 1
   },
-  setButtonActive: {
+  liftButtonClickable: {
     borderColor: primaryColour,
-    borderWidth: 1.5,
+    borderWidth: 1.25,
     margin: 0.015625 * DEVICE_W,
     width: 0.15625 * DEVICE_W,
     height: 0.15625 * DEVICE_W,
@@ -68,8 +70,8 @@ export default StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  setButtonInactive: {
-    backgroundColor: '#eee',
+  liftButtonUnclickable: {
+    backgroundColor: lightGrey,
     margin: 0.015625 * DEVICE_W,
     width: 0.15625 * DEVICE_W,
     height: 0.15625 * DEVICE_W,
@@ -77,7 +79,7 @@ export default StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  setButtonClicked: {
+  liftButtonSuccessful: {
     backgroundColor: primaryColour,
     margin: 0.015625 * DEVICE_W,
     width: 0.15625 * DEVICE_W,
@@ -86,19 +88,33 @@ export default StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  setButtonTextActive: {
+  liftButtonFailed: {
+    backgroundColor: mediumGrey,
+    //borderColor: primaryColour,
+    //borderWidth: 1.25,
+    margin: 0.015625 * DEVICE_W,
+    width: 0.15625 * DEVICE_W,
+    height: 0.15625 * DEVICE_W,
+    borderRadius: 0.15625 * DEVICE_W / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  liftButtonTextClickable: {
     color: primaryColour,
   },
-  setButtonTextInactive: {
-    color: '#777'
+  liftButtonTextUnclickable: {
+    color: mediumGrey,
   },
-  setButtonTextClicked: {
+  liftButtonTextSuccessful: {
+    color: '#fff',
+  },
+  liftButtonTextFailed: {
     color: '#fff',
   },
   timerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#777',
+    backgroundColor: darkGrey,
     paddingHorizontal: (0.03125+0.015625) * DEVICE_W,
     paddingVertical: 2,
   },

@@ -277,10 +277,10 @@ gzclp.incrementSessionCounter = function() {
  * On successful completion of a lift (a workout), continue with same rep scheme
  * but increment the weight
  */
-gzclp.handleSuccessfulLift = function(id) {
-  let repSchemeIndex = gzclp.getCurrentRepSchemeIndex(id);
-  let newWeight = gzclp.getCurrentWeight(id) + gzclp.getIncrement(id);
-  gzclp.addWorkout(id, newWeight, repSchemeIndex);
+gzclp.handleSuccessfulLift = function(liftID) {
+  let newWeight = gzclp.getCurrentWeight(liftID) + gzclp.getIncrement(liftID);
+  let currentRepSchemeIndex = gzclp.getCurrentRepSchemeIndex(liftID)
+  gzclp.addWorkout(liftID, newWeight, currentRepSchemeIndex);
 }
 
 /*
@@ -292,26 +292,32 @@ gzclp.handleSuccessfulLift = function(id) {
  * (TODO: this is currently implemented same as for T1, as previous sessions are not yet recorded)
  * T3: no change
  */
-gzclp.handleFailedLift = function(id) {
-  const tier = gzclp.getTier(id);
+gzclp.handleFailedLift = function(liftID) {
+  const tier = gzclp.getTier(liftID);
 
   // If failed on last rep scheme of cycle, weight is deloaded. Otherwise, it stays the same
-  var newWeight = gzclp.getCurrentWeight(id);
-  if (gzclp.getCurrentRepSchemeIndex(id) == gzclp.getNumberOfRepSchemes(tier) - 1) {
+  var newWeight;
+  if (gzclp.getCurrentRepSchemeIndex(liftID) == gzclp.getNumberOfRepSchemes(tier) - 1) {
     if (tier == 'T1') {
       newWeight = roundDownToNearestIncrement(
-        gzclp.getCurrentWeight(id) * gzclp.T1_DELOAD_FACTOR, gzclp.SMALLEST_INCREMENT
+        gzclp.getCurrentWeight(liftID) * gzclp.T1_DELOAD_FACTOR, gzclp.SMALLEST_INCREMENT
       );
     }
     if (tier == 'T2') {
       newWeight = roundDownToNearestIncrement(
-        gzclp.getCurrentWeight(id) * gzclp.T2_DELOAD_FACTOR, gzclp.SMALLEST_INCREMENT
+        gzclp.getCurrentWeight(liftID) * gzclp.T2_DELOAD_FACTOR, gzclp.SMALLEST_INCREMENT
       );
     }
+    if (tier == 'T3') {
+      newWeight = gzclp.getCurrentWeight(liftID);
+    }
+  } else {
+    newWeight = gzclp.getCurrentWeight(liftID);
   }
 
-  let newRepScheme = (gzclp.getCurrentRepSchemeIndex(id) + 1) % gzclp.getNumberOfRepSchemes(tier);
-  gzclp.addWorkout(id, newWeight, newRepScheme);
+  let newRepSchemeIndex = (gzclp.getCurrentRepSchemeIndex(liftID) + 1) % gzclp.getNumberOfRepSchemes(tier);
+
+  gzclp.addWorkout(liftID, newWeight, newRepSchemeIndex);
 }
 
 
@@ -535,14 +541,14 @@ class NextSessionButton extends React.Component {
 
 
 const ProgramState = () => {
-    var output = gzclp.outputProgramStateAsString();
+  var output = gzclp.outputProgramStateAsString();
 
-    return (
-      <View style={styles.progressDataContainer}>
-        <Text style={styles.progressDataTitle}>Current Program State</Text>
-        <Text style={styles.progressDataContent}>{output}</Text>
-      </View>
-    )
+  return (
+    <View style={styles.progressDataContainer}>
+      <Text style={styles.progressDataTitle}>Current Program State</Text>
+      <Text style={styles.progressDataContent}>{output}</Text>
+    </View>
+  )
 }
 
 
@@ -551,6 +557,9 @@ class SessionScreen extends React.Component {
   constructor(props) {
     super(props);
     // Session state used to keep track of which lifts are complete
+    // eg., if lifts with ID number 2 and 3 had been successfully completed,
+    // state object would look as follows:
+    // {2: true, 3: true}
     this.state = {};
   }
 
@@ -567,13 +576,13 @@ class SessionScreen extends React.Component {
     // lifts parameter is an array where each element is a lift's ID
     const lifts = params.session.lifts;
 
-    // If all sets of a lift complete, clicking "Done" button increments that lift for next time
-    // If not, the lift moves onto its next rep scheme for next time
-    lifts.forEach(liftID => {
-      let tier = gzclp.getTier(liftID);
-      let exercise = gzclp.getExercise(liftID);
+    console.log(lifts);
+    console.log(this.state);
 
-      if (this.state[ exercise ]) {
+    // Clicking "Done" button calls the "success" or "failure" function for each lift,
+    // depending on whether all sets were completed (as recorded in this component's state)
+    lifts.forEach(liftID => {
+      if ( this.state[liftID] ) {
         gzclp.handleSuccessfulLift(liftID);
       } else {
         gzclp.handleFailedLift(liftID);
@@ -604,19 +613,20 @@ class SessionScreen extends React.Component {
     // that specifies each lifts Tier (first element) and Exercise (second element)
     const lifts = params.session.lifts;
 
-    // Populate an array of Lift components to display in this SessionScreen component
+    // Populate an array of Lift components to display in this Session Screen component
     var liftComponents = [];
-    lifts.forEach( (id, index) => {
-      let tier = gzclp.getTier(id);
-      let exercise = gzclp.getExercise(id);
-      let repSchemeIndex = gzclp.getCurrentRepSchemeIndex(id);
-      let weight = gzclp.getCurrentWeight(id);
+    lifts.forEach( (liftID, index) => {
+      let tier = gzclp.getTier(liftID);
+      let exercise = gzclp.getExercise(liftID);
+      let repSchemeIndex = gzclp.getCurrentRepSchemeIndex(liftID);
+      let weight = gzclp.getCurrentWeight(liftID);
 
       liftComponents.push(
         <Lift key={index} tier={tier} exercise={exercise}
           repSchemeIndex={repSchemeIndex} weight={weight}
           // Test for whether all sets are complete
-          setLiftComplete={(isComplete) => {this.setState({[ exercise ]:isComplete})}}
+          // "isComplete" is a boolean that is True when all sets of lift are completed
+          setLiftComplete={(isComplete) => {this.setState( { [liftID]: isComplete } )}}
         />
       )
     });
@@ -642,24 +652,63 @@ class SessionScreen extends React.Component {
 class Lift extends React.Component {
   constructor(props) {
     super(props);
+
+    // Initiate an array to be used to keep track of state of lift buttons
+    // (which represent each set)
+    // ie. whether they have been clicked, and if they have been set to
+    // successful/failed/incomplete
+    // Each element is an integer 0, 1 or 2:
+    // 0 - incomplete
+    // 1 - successful
+    // 2 - failed
+    let numberOfSets = gzclp.getNumberOfSets(props.tier, props.repSchemeIndex);
+    var buttonStates = [];
+    for (var i = 0; i < numberOfSets; i++) {
+      buttonStates[i] = 0;
+    }
+
     this.state = {
-      lastClickedButton: 0,
+      buttonStates,
       isTimerVisible: false,
     };
   }
 
-  // If last set button is clicked, pass this to parent so it knows
-  // all sets are complete and lift was successful
-  areAllSetButtonsClicked(id, sets) {
-    return (id == sets)
+  componentDidUpdate() {
+    console.log(this.state);
   }
 
-  // Display timer for this lift and pass it the corresponding tier as a prop,
-  // so it knows how long to tell user to rest
-  renderTimer(tier) {
-    if (this.state.isTimerVisible) {
-      return (<Timer tier={tier} />)
+  // Each button, which represents a set, should be clickable
+  // if ANY of these conditions are true:
+  // 1. The set immediately preceeding it is completed
+  // 2. The current set has already been completed
+  // 3. Any of the following sets are completed
+  isButtonClickable(id, numberOfSets) {
+    var test = false;
+    for (var i = -1; i < numberOfSets - id; i++) {
+      test = test || this.state.buttonStates[id + i] != 0;
     }
+    return test;
+  }
+
+  setWhetherTimerVisible(buttonID, numberOfSets) {
+    // Timer isn't affected by selecting set as failed
+    if (this.state.buttonStates[buttonID] != 2) {   // TODO: generalise
+      // Before activating timer, disable it first to force it to restart after each set
+      this.setState({isTimerVisible: false}, () => {
+        // Check that set isn't final one, as no need for timer after that
+        if (buttonID != numberOfSets - 1) {
+          this.setState({isTimerVisible: this.state.buttonStates[buttonID] == 1});
+        }
+      });
+    }
+  }
+
+  areAllSetsSuccessful(numberOfSets) {
+    var test = true;
+    for (var i = 0; i < numberOfSets; i++) {
+      test = test && this.state.buttonStates[i] == 1;
+    }
+    return test;
   }
 
   render() {
@@ -668,37 +717,32 @@ class Lift extends React.Component {
     let numberOfSets = gzclp.getNumberOfSets(tier, repSchemeIndex);
     let numberOfRepsPerSet = gzclp.getNumberOfRepsPerSet(tier, repSchemeIndex);
 
-    // Populate an array of SetButtons to display
-    var setButtons = [];
-    for (var i = 1; i <= numberOfSets; i++) {
-      setButtons.push(
-        <SetButton
-          key={i}
-          id={i}
-          reps={gzclp.getNumberOfRepsInASet(tier, repSchemeIndex, i - 1)}
-          // Keep track of whether each button is in inactive/active/clicked state
-          isActive={i <= this.state.lastClickedButton + 1}
-          isClicked={i <= this.state.lastClickedButton}
-          // Keep track of which button was last clicked, so buttons can only be clicked in order
-          setLastClickedButton={(lastClickedButton) => {
-            this.setState({lastClickedButton})
-          }}
-          // When all sets are complete (ie. all buttons are clicked), set whole
-          // lift to be complete in parent 'Session' component
-          setLiftComplete={(id) => {
-            this.props.setLiftComplete( this.areAllSetButtonsClicked(id, numberOfSets) );
-          }}
+    // Populate an array of LiftButtons to display
+    var liftButtons = [];
+    for (var id = 0; id < numberOfSets; id++) {
+      liftButtons.push(
+        <LiftButton
+          key={id} // Required by React as every element requires a unique key
+          id={id}
+          reps={gzclp.getNumberOfRepsInASet(tier, repSchemeIndex, id)}
+          isClickable={this.isButtonClickable(id, numberOfSets)}
+          buttonState={this.state.buttonStates[id]}
 
-          // If activating timer, disable it first to force it to restart after each set
-          // Also check if set is last one, as no need for timer after that
-          activateTimer={(isTimerVisible, id) => {
-            this.setState({isTimerVisible: false}, () => {
-              //if (!this.areAllSetButtonsClicked(i, numberOfSets)) {  //NOTE need to check again why this doesnt work
-              if (!this.areAllSetButtonsClicked(id, numberOfSets)) {
-                this.setState({isTimerVisible})
-              }
-            }
-          )}}
+          // This prop declares a function that is passed to and called by the child component LiftButton
+          handleButtonClick={(clickedButtonID) => {
+            // Keep track of which button was last clicked, so buttons can only be clicked in order
+            this.setState(prevState => {
+              let buttonStates = prevState.buttonStates;
+              buttonStates[clickedButtonID] = (buttonStates[clickedButtonID] + 1) % 3;
+              return { buttonStates };
+            }, () => {
+              this.setWhetherTimerVisible(clickedButtonID, numberOfSets);
+              // When all sets are complete (ie. all buttons are clicked), set
+              // lift as complete (by updating state) in parent component, Session
+              this.props.setLiftComplete( this.areAllSetsSuccessful(numberOfSets) );
+            });
+
+          }}
         />
       );
     }
@@ -712,14 +756,68 @@ class Lift extends React.Component {
           />
         </View>
 
-        <View style={styles.setButtonContainer}>
-          {setButtons}
+        <View style={styles.liftButtonContainer}>
+          {liftButtons}
         </View>
 
-        {this.renderTimer(tier)}
+        {this.state.isTimerVisible ? <Timer tier={tier} /> : null}
       </View>
     );
   }
+}
+
+
+
+const LiftButton = props => {
+  var {
+    id,
+    reps,
+    isClickable,
+    buttonState,
+    handleButtonClick,
+  } = props;
+
+  var isClicked = buttonState != 0;
+  var isSuccessful = buttonState == 1;
+
+  // If button is clicked, display a tick either a tick or cross depending on
+  // whether lift is successful or failed. Otherwise display number of reps
+  var buttonText = isClicked ? (isSuccessful ? '✓' : '✕') : reps;
+
+  // Apply style depending on whether button is inactive, active, or clicked
+  // And, if clicked, successful or unsuccessful
+  var currentStyle, currentTextStyle;
+  if (isClicked) {
+    if (isSuccessful) {
+      currentStyle = styles.liftButtonSuccessful;
+      currentTextStyle = styles.liftButtonTextSuccessful;
+    } else {
+      currentStyle = styles.liftButtonFailed;
+      currentTextStyle = styles.liftButtonTextFailed;
+    }
+  } else if (isClickable) {
+    currentStyle = styles.liftButtonClickable;
+    currentTextStyle = styles.liftButtonTextClickable;
+  } else {
+    currentStyle = styles.liftButtonUnclickable;
+    currentTextStyle = styles.liftButtonTextUnclickable;
+  }
+
+  return (
+    <TouchableOpacity
+      activeOpacity={0.8}
+      style={currentStyle}
+      onPress={() => {
+        if (isClickable) {
+          handleButtonClick(id);
+        }
+      }}
+    >
+      <Text style={currentTextStyle}>
+        {buttonText}
+      </Text>
+    </TouchableOpacity>
+  )
 }
 
 
@@ -743,61 +841,6 @@ const LiftInfo = props => {
         </Text>
       </View>
     )
-}
-
-
-
-const SetButton = props => {
-  var {
-    reps,
-    isClicked,
-    isActive,
-    setLastClickedButton,
-    setLiftComplete,
-    activateTimer,
-    id
-  } = props;
-
-  // If button is clicked, display a tick. Otherwise display number of reps.
-  // And if set is an AMRAP set, display a '+' sign next the rep number
-  var buttonText = isClicked ? '✓' : reps;
-
-  // Apply style depending on whether button is inactive, active or clicked
-  var currentStyle, currentTextStyle;
-  if (isClicked) {
-    currentStyle = styles.setButtonClicked;
-    currentTextStyle = styles.setButtonTextClicked;
-  } else if (isActive) {
-    currentStyle = styles.setButtonActive;
-    currentTextStyle = styles.setButtonTextActive;
-  } else {
-    currentStyle = styles.setButtonInactive;
-    currentTextStyle = styles.setButtonTextInactive;
-  }
-
-  function handlePress() {
-    // If button is clicked, and hasn't already been clicked,
-    // set to "clicked" state. If it has been, undo its "clicked" state
-    // and make the button to the immediate left of it the last "clicked" button
-    if (isActive) {
-      let lastClickedButton = isClicked ? id - 1 : id;
-      setLastClickedButton(lastClickedButton);
-      setLiftComplete(lastClickedButton);
-      activateTimer(isClicked ? false : true, lastClickedButton);
-    }
-  }
-
-  return (
-    <TouchableOpacity
-      activeOpacity={0.8}
-      style={currentStyle}
-      onPress={() => handlePress()}
-    >
-      <Text style={currentTextStyle}>
-        {buttonText}
-      </Text>
-    </TouchableOpacity>
-  )
 }
 
 
