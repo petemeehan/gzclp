@@ -46,6 +46,12 @@ gzclp.REP_SCHEMES = {
   ]
 }
 
+gzclp.REST_TIMES = {
+  T1: [3, 5],
+  T2: [2, 3],
+  T3: [1, 2]
+}
+
 /*
  * Used for initialising program data
  * Each element is in the format [tier, exercise, increment, starting weight, session(s)]
@@ -65,12 +71,12 @@ gzclp.DEFAULT_LIFTS = [
 
 /*
  * Lifts are stored in following format:
- *  gzclp.state.lifts = {
+ *  {
  *    0: {
  *      tier: 'T1',
  *      exercise: 'Squat',
  *      increment: 5,
- *      workouts: [
+ *      progress: [
  *        {
  *          weight: 20,
  *          repSchemeIndex: 0
@@ -99,6 +105,23 @@ gzclp.state.sessions = [
 // To keep track of which session is next
 gzclp.state.currentSessionID = 0;
 
+// For keeping a record of completed sessions
+// Stored in the following format:
+//  [
+//    {
+//       liftID: liftResult
+//       liftID: liftResult
+//       liftID: liftResult
+//    },
+//    {
+//       liftID: liftResult
+//       liftID: liftResult
+//       liftID: liftResult
+//    },
+//    ...
+//  ]
+gzclp.state.completedSessions = [];
+
 
 
 /*-------------------- PROGRAM HELPER METHODS --------------------*/
@@ -111,7 +134,7 @@ gzclp.createNewLift = function(tier, exercise, increment, startingWeight) {
     tier,
     exercise,
     increment,
-    workouts: [
+    progress: [
       {
         weight: startingWeight,
         repSchemeIndex: 0,
@@ -188,8 +211,8 @@ gzclp.removeLiftIdFromSessions = function(id, sessions) {
  * with that lift and adds it to the array of that lift's previous workouts
  */
 gzclp.addWorkout = function(id, weight, repSchemeIndex) {
-  let workouts = gzclp.state.lifts[id].workouts;
-  workouts.push({weight, repSchemeIndex});
+  let progress = gzclp.state.lifts[id].progress;
+  progress.push({weight, repSchemeIndex});
 }
 
 /*
@@ -199,6 +222,7 @@ gzclp.resetProgramState = function() {
   gzclp.setCurrentSessionID(0);
   gzclp.setNextLiftId(0);
   gzclp.setLifts({});
+  gzclp.setCompletedSessions([]);
 
   for (var i = 0; i < gzclp.state.sessions.length; i++) {
     gzclp.setSessionLifts(i, []);
@@ -248,17 +272,18 @@ gzclp.outputProgramStateAsString = function() {
     let exercise = gzclp.getExercise(liftID);
     let repSchemeIndex = gzclp.getCurrentRepSchemeIndex(liftID);
     let numberOfSets = gzclp.getNumberOfSets(tier, repSchemeIndex);
-    let numberOfRepsPerSet = gzclp.getNumberOfRepsPerSet(tier, repSchemeIndex);
+    let displayedRepsPerSet = gzclp.getDisplayedRepsPerSet(tier, repSchemeIndex);
     let weight = gzclp.getCurrentWeight(liftID);
     output += (
       tier + ' ' +
       numberOfSets + '×' +
-      numberOfRepsPerSet + ' \t' +
+      displayedRepsPerSet + ' \t' +
       weight + 'kg\t ' +
-      exercise +
-      '\n'
+      exercise + '\n'
     );
   }
+  output += '\nNumber of completed sessions: ' + gzclp.state.completedSessions.length
+
   return output;
 }
 
@@ -331,9 +356,15 @@ gzclp.getNumberOfSets = function(tier, repSchemeIndex) { return gzclp.getRepSche
 gzclp.getNumberOfRepsInASet = function(tier, repSchemeIndex, setIndex) { return gzclp.getRepScheme(tier, repSchemeIndex)[setIndex] }
 
 // For displaying typical reps per set (eg. "5 x 3+")
-gzclp.getNumberOfRepsPerSet = function(tier, repSchemeIndex) {
+gzclp.getDisplayedRepsPerSet = function(tier, repSchemeIndex) {
   let repScheme = gzclp.getRepScheme(tier, repSchemeIndex);
   return repScheme[repScheme.length - 1];
+}
+
+gzclp.getRestTime = function(tier) {
+  var restTime = gzclp.REST_TIMES[tier];
+  var string = restTime[0] + '-' + restTime[1];
+  return string;
 }
 
 gzclp.getProgramState = function() { return gzclp.state; }
@@ -358,16 +389,19 @@ gzclp.setNextLiftId = function(num) { gzclp.state.nextLiftId = num; }
 gzclp.getTier = function(id) { return gzclp.state.lifts[id].tier; }
 gzclp.getExercise = function(id) { return gzclp.state.lifts[id].exercise; }
 gzclp.getIncrement = function(id) { return gzclp.state.lifts[id].increment; }
-gzclp.getWorkouts = function(id) { return gzclp.state.lifts[id].workouts; }
+gzclp.getProgress = function(id) { return gzclp.state.lifts[id].progress; }
 
 gzclp.getCurrentWeight = function(id) {
-  let workouts = gzclp.getWorkouts(id);
-  return workouts[workouts.length - 1].weight;
+  let progress = gzclp.getProgress(id);
+  return progress[progress.length - 1].weight;
 }
 gzclp.getCurrentRepSchemeIndex = function(id) {
-  let workouts = gzclp.getWorkouts(id);
-  return workouts[workouts.length - 1].repSchemeIndex;
+  let progress = gzclp.getProgress(id);
+  return progress[progress.length - 1].repSchemeIndex;
 }
+
+gzclp.setCompletedSessions = function(obj) { gzclp.state.completedSessions = obj; }
+gzclp.addCompletedSession = function(completedSession) { gzclp.state.completedSessions.push(completedSession); }
 
 gzclp.setTier = function(id, tier) { gzclp.state.lifts[id].tier = tier; }
 gzclp.setExercise = function(id, exercise) { gzclp.state.lifts[id].tier = exercise; }
@@ -398,7 +432,11 @@ class HomeScreen extends React.Component {
     super(props);
     // Initialise program state with default values
     gzclp.resetProgramState();
+
+    this.state = {test: false};
   }
+
+
 
   static navigationOptions = ({ navigation }) => ({
     title: 'GZCLP',
@@ -448,10 +486,12 @@ class HomeScreen extends React.Component {
     const { navigate } = this.props.navigation;
 
     return (
-      <View>
+      <View style={{flex: 1}}>
         <NextSessionButton navigate={navigate} onGoBack={() => refresh(this)} />
 
-        <ProgramState />
+        <ScrollView >
+          <ProgramState />
+        </ScrollView>
 
         <Button
           title='Reset All Progress'
@@ -508,7 +548,7 @@ const NextSessionButton = props => {
       <Text key={i}>
         {gzclp.getNumberOfSets( tier, gzclp.getCurrentRepSchemeIndex(liftID) )}
         ×
-        {gzclp.getNumberOfRepsPerSet( tier, gzclp.getCurrentRepSchemeIndex(liftID) )}
+        {gzclp.getDisplayedRepsPerSet( tier, gzclp.getCurrentRepSchemeIndex(liftID) )}
       </Text>
     );
   });
@@ -562,9 +602,10 @@ class SessionScreen extends React.Component {
   constructor(props) {
     super(props);
     // Session state used to keep track of which lifts are complete
-    // eg., if lifts with ID number 2 and 3 had been successfully completed,
+    // eg., if lifts with IDs 2 and 5 had been completed, lift-2 successfully
+    // and lift-5 not, and lift-7 was left uncompleted,
     // state object would look as follows:
-    // {2: true, 3: true}
+    // {2: 1, 5: 2, 7: 0}
     this.state = {};
   }
 
@@ -574,24 +615,41 @@ class SessionScreen extends React.Component {
     headerStyle: { backgroundColor: primaryColour },
   });
 
-  async handleDoneButtonPress() {
+  componentDidMount() {
+    // Initialise state
+    const { params } = this.props.navigation.state;
+    const lifts = gzclp.getSessionLifts(params.sessionID);
+    for (var i = 0; i < lifts.length; i++) {
+      this.setState( { [lifts[i]]: 0 } )
+    }
+  }
+
+  componentDidUpdate() {
+    //console.log(this.state);
+  }
+
+  handleLiftResult( liftID, liftResult ) {
+    if (liftResult == 1) {      // TODO generalise
+      gzclp.handleSuccessfulLift(liftID);
+    }
+    if (liftResult == 2) {
+      gzclp.handleFailedLift(liftID);
+    }
+  }
+
+  async handleDoneButtonPress(lifts) {
     const { goBack } = this.props.navigation;
     const { params } = this.props.navigation.state;
 
-    // lifts parameter is an array where each element is a lift's ID
-    const lifts = gzclp.getSessionLifts(params.sessionID);
-
-    console.log(lifts);
-    console.log(this.state);
+    // Keep a record of this session
+    gzclp.addCompletedSession(this.state);   // TODO use setter method
+    console.log(gzclp.state.completedSessions);
 
     // Clicking "Done" button calls the "success" or "failure" function for each lift,
-    // depending on whether all sets were completed (as recorded in this component's state)
+    // depending on whether all sets were successful/failed, or do nothing if incomplete
     lifts.forEach(liftID => {
-      if ( this.state[liftID] ) {
-        gzclp.handleSuccessfulLift(liftID);
-      } else {
-        gzclp.handleFailedLift(liftID);
-      }
+      let liftResult = this.state[liftID];
+      this.handleLiftResult( liftID, liftResult );
     });
 
     // Increment the session counter so sessions are cycled from A1 to B2
@@ -628,15 +686,17 @@ class SessionScreen extends React.Component {
       liftComponents.push(
         <Lift key={index} tier={tier} exercise={exercise}
           repSchemeIndex={repSchemeIndex} weight={weight}
-          // Test for whether all sets are complete
-          // "isComplete" is a boolean that is True when all sets of lift are completed
-          setLiftComplete={(isComplete) => {this.setState( { [liftID]: isComplete } )}}
+          // Test for whether lift is
+          // 1. Successful (all sets successful),
+          // 2. Failed (all sets attempted but not all successful)
+          // 3. Incomplete (not all sets attempted)
+          setLiftResult={(liftResult) => {this.setState( { [liftID]: liftResult } )}}
         />
       )
     });
 
     return (
-      <View>
+      <View style={{flex: 1}}>
         <ScrollView>
           {liftComponents}
         </ScrollView>
@@ -644,9 +704,9 @@ class SessionScreen extends React.Component {
         <Button
           title='Done'
           color={primaryColour}
-          onPress={() => this.handleDoneButtonPress()}
+          onPress={() => this.handleDoneButtonPress(lifts)}
         />
-    </View>
+      </View>
     );
   }
 }
@@ -674,11 +734,16 @@ class Lift extends React.Component {
     this.state = {
       buttonStates,
       isTimerVisible: false,
+      areAllSetsSuccessful: false,
     };
   }
 
+  getNumberOfSets() {
+    return this.state.buttonStates.length;
+  }
+
   componentDidUpdate() {
-    console.log(this.state);
+    //console.log(this.state);
   }
 
   // Each button, which represents a set, should be clickable
@@ -686,40 +751,83 @@ class Lift extends React.Component {
   // 1. The set immediately preceeding it is completed
   // 2. The current set has already been completed
   // 3. Any of the following sets are completed
-  isButtonClickable(id, numberOfSets) {
+  isButtonClickable(id) {
     var test = false;
+
+    let numberOfSets = this.getNumberOfSets();
     for (var i = -1; i < numberOfSets - id; i++) {
       test = test || this.state.buttonStates[id + i] != 0;
     }
     return test;
   }
 
-  setWhetherTimerVisible(buttonID, numberOfSets) {
+  setWhetherTimerVisible(buttonID) {
+    let numberOfSets = this.getNumberOfSets();
+
     // Timer isn't affected by selecting set as failed
     if (this.state.buttonStates[buttonID] != 2) {   // TODO: generalise
       // Before activating timer, disable it first to force it to restart after each set
       this.setState({isTimerVisible: false}, () => {
-        // Check that set isn't final one, as no need for timer after that
-        if (buttonID != numberOfSets - 1) {
+        // Check that sets aren't all completed, as no need for timer after that
+        let allSetsAreComplete = true;
+        for (var i = 0; i < numberOfSets; i++) {
+          let buttonState = this.state.buttonStates[i];
+          if (buttonState == 0) {
+            allSetsAreComplete = false;
+            break;
+          }
+        }
+        if (!allSetsAreComplete) {
           this.setState({isTimerVisible: this.state.buttonStates[buttonID] == 1});
         }
       });
     }
   }
 
-  areAllSetsSuccessful(numberOfSets) {
-    var test = true;
-    for (var i = 0; i < numberOfSets; i++) {
-      test = test && this.state.buttonStates[i] == 1;
+  // States represent the following:
+  // 0 - Incomplete lift (not all sets attempted
+  // 1 - Successful lift (all sets successful)
+  // 2 - Failed lift (all sets attempted but not all successful)
+  // TODO generalise this and define possible states as gzclp constants
+  determineLiftResult() {
+    var liftResult;
+
+    var isComplete = true;
+    var isFailed = false;
+
+    for (var i = 0; i < this.getNumberOfSets(); i++) {
+      let buttonState = this.state.buttonStates[i];
+
+      if (buttonState == 0) {
+        isComplete = false;
+        break;
+      } else if (buttonState == 2) {
+        isFailed = true;
+      }
     }
-    return test;
+
+    liftResult = isComplete ? (isFailed ? 2 : 1) : 0;
+
+    // Check if all sets successful, so visual feedback can be given
+    if (liftResult == 1) {
+      this.setState({ areAllSetsSuccessful: true })
+    } else {
+      this.setState({ areAllSetsSuccessful: false })
+    }
+
+    return liftResult;
   }
 
   render() {
-    var { tier, repSchemeIndex, exercise, weight } = this.props;   // TODO: are these needed, surely only id is
+    var {
+      tier,
+      repSchemeIndex,
+      exercise,
+      weight
+    } = this.props;   // TODO: are these needed, surely only id is
 
-    let numberOfSets = gzclp.getNumberOfSets(tier, repSchemeIndex);
-    let numberOfRepsPerSet = gzclp.getNumberOfRepsPerSet(tier, repSchemeIndex);
+    let numberOfSets = this.getNumberOfSets();
+    let displayedRepsPerSet = gzclp.getDisplayedRepsPerSet(tier, repSchemeIndex);
 
     // Populate an array of LiftButtons to display
     var liftButtons = [];
@@ -732,18 +840,21 @@ class Lift extends React.Component {
           isClickable={this.isButtonClickable(id, numberOfSets)}
           buttonState={this.state.buttonStates[id]}
 
+          // True if all sets were completed successfully
+          areAllSetsSuccessful={this.state.areAllSetsSuccessful}
+
           // This prop declares a function that is passed to and called by the child component LiftButton
           handleButtonClick={(clickedButtonID) => {
             // Keep track of which button was last clicked, so buttons can only be clicked in order
             this.setState(prevState => {
               let buttonStates = prevState.buttonStates;
-              buttonStates[clickedButtonID] = (buttonStates[clickedButtonID] + 1) % 3;
+              buttonStates[clickedButtonID] = (buttonStates[clickedButtonID] + 1) % 3;  // TODO Generalise
               return { buttonStates };
             }, () => {
-              this.setWhetherTimerVisible(clickedButtonID, numberOfSets);
+              this.setWhetherTimerVisible(clickedButtonID);
               // When all sets are complete (ie. all buttons are clicked), set
               // lift as complete (by updating state) in parent component, Session
-              this.props.setLiftComplete( this.areAllSetsSuccessful(numberOfSets) );
+              this.props.setLiftResult( this.determineLiftResult() );
             });
 
           }}
@@ -756,11 +867,11 @@ class Lift extends React.Component {
         <View style={styles.liftInfoContainer}>
           <LiftInfo
             tier={tier} exercise={exercise} weight={weight}
-            sets={numberOfSets} reps={numberOfRepsPerSet}
+            sets={numberOfSets} reps={displayedRepsPerSet}
           />
         </View>
 
-        <View style={styles.liftButtonContainer}>
+        <View style={styles.liftButtonsContainer}>
           {liftButtons}
         </View>
 
@@ -771,7 +882,7 @@ class Lift extends React.Component {
 }
 
 
-
+// TODO control layout using flexbox (space-between), not by setting exact widths
 const LiftButton = props => {
   var {
     id,
@@ -779,6 +890,7 @@ const LiftButton = props => {
     isClickable,
     buttonState,
     handleButtonClick,
+    areAllSetsSuccessful,
   } = props;
 
   var isClicked = buttonState != 0;
@@ -790,37 +902,52 @@ const LiftButton = props => {
 
   // Apply style depending on whether button is inactive, active, or clicked
   // And, if clicked, successful or unsuccessful
-  var currentStyle, currentTextStyle;
+  var currentStyle, currentTextStyle, currentBorderStyle;
   if (isClicked) {
     if (isSuccessful) {
       currentStyle = styles.liftButtonSuccessful;
       currentTextStyle = styles.liftButtonTextSuccessful;
+      currentBorderStyle = styles.liftButtonBorderSuccessful;
     } else {
       currentStyle = styles.liftButtonFailed;
       currentTextStyle = styles.liftButtonTextFailed;
+      currentBorderStyle = styles.liftButtonBorderFailed;
     }
   } else if (isClickable) {
     currentStyle = styles.liftButtonClickable;
     currentTextStyle = styles.liftButtonTextClickable;
+    currentBorderStyle = styles.liftButtonBorderClickable;
   } else {
-    currentStyle = styles.liftButtonUnclickable;
-    currentTextStyle = styles.liftButtonTextUnclickable;
+    currentStyle = styles.liftButtonNotClickable;
+    currentTextStyle = styles.liftButtonTextNotClickable;
+    currentBorderStyle = styles.liftButtonBorderNotClickable;
+  }
+  if (areAllSetsSuccessful) {
+    //currentStyle = styles.liftButtonAllSuccessful;
+    //currentBorderStyle = styles.liftButtonBorderAllSuccessful;
   }
 
   return (
-    <TouchableOpacity
-      activeOpacity={0.8}
-      style={currentStyle}
-      onPress={() => {
-        if (isClickable) {
-          handleButtonClick(id);
-        }
-      }}
-    >
-      <Text style={currentTextStyle}>
-        {buttonText}
-      </Text>
-    </TouchableOpacity>
+    <View style={styles.liftButtonContainer}>
+      <View style={currentBorderStyle}></View>
+
+      <TouchableOpacity
+        activeOpacity={0.8}
+        style={currentStyle}
+        onPress={() => {
+          if (isClickable) {
+            handleButtonClick(id);
+          }
+        }}
+      >
+        <Text style={currentTextStyle}>
+          {buttonText}
+        </Text>
+      </TouchableOpacity>
+
+      {//<View style={styles.liftButtonBorderAllSuccessful}></View>}
+    }
+    </View>
   )
 }
 
@@ -874,11 +1001,7 @@ class Timer extends React.Component {
 
   render() {
     var tier = this.props.tier;
-    var time = '';
-
-    if (tier == 'T1') { time = '3-5'; }   // TODO Generalise
-    if (tier == 'T2') { time = '2-3'; }
-    if (tier == 'T3') { time = '1-2'; }
+    var time = gzclp.getRestTime(tier);
 
     return (
       <View ref='myRef' style={styles.timerContainer}>

@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 
 const primaryColour = '#fa375a';
+const allSuccessfulColour = '#00aaff'
 const lightGrey = '#eee';
 const mediumGrey = '#aaa';
 const darkGrey = '#666';
@@ -33,7 +34,6 @@ export default StyleSheet.create({
   },
   progressDataContainer: {
     paddingHorizontal: (0.03125+0.015625) * DEVICE_W,
-    marginVertical: 20,
   },
   progressDataTitle: {
     marginVertical: 10
@@ -57,13 +57,19 @@ export default StyleSheet.create({
   liftDetails: {
     marginVertical: 5,
   },
-  liftButtonContainer: {
+  liftButtonsContainer: {
     marginBottom: 10,
     flexDirection: 'row',
     marginHorizontal: 0.03125 * DEVICE_W,
     flexWrap: 'wrap',
     //borderWidth: 1
   },
+  liftButtonContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    //borderWidth: 1
+  },
+
   liftButtonClickable: {
     borderColor: primaryColour,
     borderWidth: 1.25,
@@ -74,7 +80,7 @@ export default StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  liftButtonUnclickable: {
+  liftButtonNotClickable: {
     backgroundColor: lightGrey,
     margin: 0.015625 * DEVICE_W,
     width: 0.15625 * DEVICE_W,
@@ -85,6 +91,15 @@ export default StyleSheet.create({
   },
   liftButtonSuccessful: {
     backgroundColor: primaryColour,
+    margin: 0.015625 * DEVICE_W,
+    width: 0.15625 * DEVICE_W,
+    height: 0.15625 * DEVICE_W,
+    borderRadius: 0.15625 * DEVICE_W / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  liftButtonAllSuccessful: {
+    backgroundColor: allSuccessfulColour,
     margin: 0.015625 * DEVICE_W,
     width: 0.15625 * DEVICE_W,
     height: 0.15625 * DEVICE_W,
@@ -103,10 +118,52 @@ export default StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+
+  liftButtonBorderClickable: {
+    //borderColor: primaryColour,
+    //borderWidth: 1.5,
+    width: 0.175 * DEVICE_W,
+    height: 0.175 * DEVICE_W,
+    borderRadius: 0.175 * DEVICE_W / 2,
+    position: 'absolute',
+  },
+  liftButtonBorderNotClickable: {
+    //borderColor: '#fff',
+    //borderWidth: 1.5,
+    width: 0.175 * DEVICE_W,
+    height: 0.175 * DEVICE_W,
+    borderRadius: 0.175 * DEVICE_W / 2,
+    position: 'absolute',
+  },
+  liftButtonBorderSuccessful: {
+    borderColor: primaryColour,
+    borderWidth: 1.5,
+    width: 0.175 * DEVICE_W,
+    height: 0.175 * DEVICE_W,
+    borderRadius: 0.175 * DEVICE_W / 2,
+    position: 'absolute',
+  },
+  liftButtonBorderFailed: {
+    borderColor: mediumGrey,
+    borderWidth: 1.5,
+    width: 0.175 * DEVICE_W,
+    height: 0.175 * DEVICE_W,
+    borderRadius: 0.175 * DEVICE_W / 2,
+    position: 'absolute',
+  },
+  liftButtonBorderAllSuccessful: {
+    borderColor: allSuccessfulColour,
+    borderWidth: 1.5,
+    width: 0.175 * DEVICE_W,
+    height: 0.175 * DEVICE_W,
+    borderRadius: 0.175 * DEVICE_W / 2,
+    position: 'absolute',
+  },
+
   liftButtonTextClickable: {
     color: primaryColour,
   },
-  liftButtonTextUnclickable: {
+  liftButtonTextNotClickable: {
     color: mediumGrey,
   },
   liftButtonTextSuccessful: {
@@ -115,6 +172,7 @@ export default StyleSheet.create({
   liftButtonTextFailed: {
     color: '#fff',
   },
+
   timerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
