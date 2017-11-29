@@ -18,13 +18,16 @@ StatusBar.setBarStyle('light-content');
 export default StyleSheet.create({
   settingsIcon: {
     marginLeft: (0.03125+0.015625) * DEVICE_W,
+    height: 24,
+    width: 24
   },
-  nextSessionContainer: {
+  sessionContainer: {
     //borderWidth: 1,
     backgroundColor: '#fff',
     paddingLeft: (0.03125+0.015625) * DEVICE_W,
     paddingRight: (0.03125+0.015625) * DEVICE_W / 2,
     paddingVertical: 10,
+    marginBottom: 2,
   },
   nextSessionTitle: {
     color: primaryColour,
@@ -32,11 +35,16 @@ export default StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  completedSessionTitle: {
+    marginBottom: 5,
+    fontSize: 14.5,
+    fontWeight: 'bold',
+  },
   progressDataContainer: {
     paddingHorizontal: (0.03125+0.015625) * DEVICE_W,
   },
   progressDataTitle: {
-    marginVertical: 10
+    marginVertical: 10,
   },
   progressDataContent: {
     fontFamily: 'Courier New',
