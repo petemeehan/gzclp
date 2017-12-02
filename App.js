@@ -596,8 +596,8 @@ const NextSessionButton = props => {
           <View style={{flexDirection: 'row'}}>
             <View style={{width: 25}}>{tiers}</View>
             <View style={{width: 120}}>{labels}</View>
-            <View style={{width: 50, alignItems: 'flex-end', marginRight: 20}}>{weights}</View>
-            <View>{repSchemes}</View>
+            <View style={{width: 50}}>{repSchemes}</View>
+            <View style={{width: 50, alignItems: 'flex-end'}}>{weights}</View>
           </View>
         </View>
 
