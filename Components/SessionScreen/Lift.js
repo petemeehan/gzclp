@@ -3,8 +3,8 @@ import {
   View,
 } from 'react-native';
 
-import { styles, colours } from '../../styles';
-import { gzclp } from '../../gzclp';
+import { styles, colours } from '../../js/styles';
+import { gzclp } from '../../js/gzclp';
 
 import LiftButton from './LiftButton';
 import LiftInfo from './LiftInfo';

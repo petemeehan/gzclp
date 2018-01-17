@@ -4,8 +4,8 @@ import {
   View,
 } from 'react-native';
 
-import { styles } from '../../styles';
-import { gzclp } from '../../gzclp';
+import { styles, colours } from '../../js/styles';
+import { gzclp } from '../../js/gzclp';
 
 
 
