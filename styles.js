@@ -4,18 +4,25 @@ import {
   StatusBar,
 } from 'react-native';
 
-const primaryColour = '#fa375a';
-const allSuccessfulColour = '#00aaff'
-const lightGrey = '#eee';
-const mediumGrey = '#aaa';
-const darkGrey = '#666';
+StatusBar.setBarStyle('light-content');
 
 const DEVICE_W = Dimensions.get('window').width;
 const DEVICE_H = Dimensions.get('window').height;
 
-StatusBar.setBarStyle('light-content');
+export const colours = {
+  primaryColour: '#fa375a',
+  lightGrey: '#eee',
+  mediumGrey: '#999',
+  darkGrey: '#666',
+  successful: '#4cd964',
+  //successful: '#fa375a',
+  failed: '#999',
+};
 
-export default StyleSheet.create({
+export const styles = StyleSheet.create({
+  header: {
+    backgroundColor: colours.primaryColour
+  },
   settingsIcon: {
     marginLeft: (0.03125+0.015625) * DEVICE_W,
     height: 24,
@@ -30,7 +37,7 @@ export default StyleSheet.create({
     marginBottom: 2,
   },
   nextSessionTitle: {
-    color: primaryColour,
+    color: colours.primaryColour,
     marginBottom: 5,
     fontSize: 16,
     fontWeight: 'bold',
@@ -79,7 +86,7 @@ export default StyleSheet.create({
   },
 
   liftButtonClickable: {
-    borderColor: primaryColour,
+    borderColor: colours.primaryColour,
     borderWidth: 1.25,
     margin: 0.015625 * DEVICE_W,
     width: 0.15625 * DEVICE_W,
@@ -89,7 +96,7 @@ export default StyleSheet.create({
     justifyContent: 'center',
   },
   liftButtonNotClickable: {
-    backgroundColor: lightGrey,
+    backgroundColor: colours.lightGrey,
     margin: 0.015625 * DEVICE_W,
     width: 0.15625 * DEVICE_W,
     height: 0.15625 * DEVICE_W,
@@ -98,7 +105,7 @@ export default StyleSheet.create({
     justifyContent: 'center',
   },
   liftButtonSuccessful: {
-    backgroundColor: primaryColour,
+    backgroundColor: colours.primaryColour,
     margin: 0.015625 * DEVICE_W,
     width: 0.15625 * DEVICE_W,
     height: 0.15625 * DEVICE_W,
@@ -107,7 +114,7 @@ export default StyleSheet.create({
     justifyContent: 'center',
   },
   liftButtonAllSuccessful: {
-    backgroundColor: allSuccessfulColour,
+    backgroundColor: colours.successful,
     margin: 0.015625 * DEVICE_W,
     width: 0.15625 * DEVICE_W,
     height: 0.15625 * DEVICE_W,
@@ -116,9 +123,7 @@ export default StyleSheet.create({
     justifyContent: 'center',
   },
   liftButtonFailed: {
-    backgroundColor: mediumGrey,
-    //borderColor: primaryColour,
-    //borderWidth: 1.25,
+    backgroundColor: colours.failed,
     margin: 0.015625 * DEVICE_W,
     width: 0.15625 * DEVICE_W,
     height: 0.15625 * DEVICE_W,
@@ -126,25 +131,9 @@ export default StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-
-  liftButtonBorderClickable: {
-    //borderColor: primaryColour,
-    //borderWidth: 1.5,
-    width: 0.175 * DEVICE_W,
-    height: 0.175 * DEVICE_W,
-    borderRadius: 0.175 * DEVICE_W / 2,
-    position: 'absolute',
-  },
-  liftButtonBorderNotClickable: {
-    //borderColor: '#fff',
-    //borderWidth: 1.5,
-    width: 0.175 * DEVICE_W,
-    height: 0.175 * DEVICE_W,
-    borderRadius: 0.175 * DEVICE_W / 2,
-    position: 'absolute',
-  },
+  /**
   liftButtonBorderSuccessful: {
-    borderColor: primaryColour,
+    borderColor: colours.primaryColour,
     borderWidth: 1.5,
     width: 0.175 * DEVICE_W,
     height: 0.175 * DEVICE_W,
@@ -152,7 +141,7 @@ export default StyleSheet.create({
     position: 'absolute',
   },
   liftButtonBorderFailed: {
-    borderColor: mediumGrey,
+    borderColor: colours.failed,
     borderWidth: 1.5,
     width: 0.175 * DEVICE_W,
     height: 0.175 * DEVICE_W,
@@ -160,19 +149,19 @@ export default StyleSheet.create({
     position: 'absolute',
   },
   liftButtonBorderAllSuccessful: {
-    borderColor: allSuccessfulColour,
+    borderColor: colours.successful,
     borderWidth: 1.5,
     width: 0.175 * DEVICE_W,
     height: 0.175 * DEVICE_W,
     borderRadius: 0.175 * DEVICE_W / 2,
     position: 'absolute',
   },
-
+  **/
   liftButtonTextClickable: {
-    color: primaryColour,
+    color: colours.primaryColour,
   },
   liftButtonTextNotClickable: {
-    color: mediumGrey,
+    color: colours.mediumGrey,
   },
   liftButtonTextSuccessful: {
     color: '#fff',
@@ -184,16 +173,16 @@ export default StyleSheet.create({
   timerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: darkGrey,
+    backgroundColor: colours.darkGrey,
     paddingHorizontal: (0.03125+0.015625) * DEVICE_W,
     paddingVertical: 2,
   },
   timerNumbers: {
     width: 50,
-    color: '#fff',
-    fontSize: 15,
+    color: 'white',
+    fontSize: 18,
   },
   timerText: {
-    color: '#fff',
+    color: 'white',
   }
 });
