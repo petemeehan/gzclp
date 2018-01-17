@@ -9,7 +9,7 @@ import { styles, colours } from '../../js/styles';
 import { gzclp } from '../../js/gzclp';
 
 
-
+// TODO: dont use inline styles
 export default props => {
   function handlePress() {
     const { navigate, onGoBack } = props;
