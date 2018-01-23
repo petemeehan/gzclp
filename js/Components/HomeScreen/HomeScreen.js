@@ -7,8 +7,8 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-import { styles, colours } from '../../js/styles';
-import { gzclp } from '../../js/gzclp';
+import { styles, colours } from '../../styles';
+import { gzclp } from '../../gzclp';
 
 import NextSessionButton from './NextSessionButton';
 import CompletedSessionResult from './CompletedSessionResult';
@@ -34,7 +34,7 @@ export default class extends React.Component {
     >
       <Image
         style={styles.settingsIcon}
-        source={require('../../Icons/settings.png')}
+        source={require('../../../Icons/settings.png')}
       />
     </TouchableOpacity>,
   });

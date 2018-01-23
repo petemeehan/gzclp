@@ -5,8 +5,8 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-import { styles, colours } from '../../js/styles';
-import { gzclp } from '../../js/gzclp';
+import { styles, colours } from '../../styles';
+import { gzclp } from '../../gzclp';
 
 
 // TODO: dont use inline styles

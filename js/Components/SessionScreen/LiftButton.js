@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-import { styles } from '../../js/styles';
+import { styles } from '../../styles';
 
 
 
@@ -25,7 +25,7 @@ export default props => {
 
   // If button is clicked, display a tick either a tick or cross depending on
   // whether lift is successful or failed. Otherwise display number of reps
-  var buttonText = isClicked ? (isSuccessful ? '✓' : '✕') : reps;
+  var buttonText = isClicked ? (isSuccessful ? '✓' : '✕') : reps;   //TODO generalise
 
   // Apply style depending on whether button is inactive, active, or clicked
   // And, if clicked, successful or unsuccessful

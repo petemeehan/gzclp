@@ -3,7 +3,7 @@ import {
   Text,
 } from 'react-native';
 
-import { styles } from '../../js/styles';
+import { styles } from '../../styles';
 
 
 

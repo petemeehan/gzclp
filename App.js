@@ -3,9 +3,9 @@ import { StackNavigator } from 'react-navigation';
 
 /*-------------------- APP COMPONENTS --------------------*/
 
-import HomeScreen from './Components/HomeScreen/HomeScreen';
-import SessionScreen from './Components/SessionScreen/SessionScreen';
-import SettingsScreen from './Components/SettingsScreen/SettingsScreen';
+import HomeScreen from './js/Components/HomeScreen/HomeScreen';
+import SessionScreen from './js/Components/SessionScreen/SessionScreen';
+import SettingsScreen from './js/Components/SettingsScreen/SettingsScreen';
 
 
 /*-------------------- REACT NAVIGATION NAVIGATOR --------------------*/
