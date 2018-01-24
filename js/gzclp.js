@@ -7,7 +7,7 @@ export const gzclp = {};
 /*-------------------- PROGRAM PROPERTIES --------------------*/
 
 // To store all data that is subject to change
-gzclp.state = {};
+gzclp.state = gzclp.state || {};
 
 // Depends on equipment user has access to - 2.5kg is often smallest possible increment
 gzclp.SMALLEST_INCREMENT = 2.5;
@@ -114,7 +114,64 @@ gzclp.state.completedSessions = [];
 
 
 
-/*-------------------- PROGRAM HELPER METHODS --------------------*/
+/*-------------------- GETTERS & SETTERS --------------------*/
+
+gzclp.getNumberOfRepSchemes = function(tier) { return gzclp.REP_SCHEMES[tier].length; }
+gzclp.getRepScheme = function(tier, repSchemeIndex) { return gzclp.REP_SCHEMES[tier][repSchemeIndex]; }
+gzclp.getNumberOfSets = function(tier, repSchemeIndex) { return gzclp.getRepScheme(tier, repSchemeIndex).length; }
+gzclp.getNumberOfRepsInASet = function(tier, repSchemeIndex, setIndex) { return gzclp.getRepScheme(tier, repSchemeIndex)[setIndex] }
+
+// For displaying typical reps per set (eg. "5 x 3+")
+gzclp.getDisplayedRepsPerSet = function(tier, repSchemeIndex) {
+  let repScheme = gzclp.getRepScheme(tier, repSchemeIndex);
+  return repScheme[repScheme.length - 1];
+}
+
+gzclp.getRestTime = function(tier) {
+  var restTime = gzclp.REST_TIMES[tier];
+  var string = restTime[0] + '-' + restTime[1];
+  return string;
+}
+
+gzclp.getProgramState = function() { return gzclp.state; }
+gzclp.setProgramState = function(programState) { gzclp.state = gzclp.getCopyOfObject(programState); }
+
+gzclp.getLifts = function() { return gzclp.state.lifts; }
+gzclp.addLift = function(id, lift) { gzclp.state.lifts[id] = lift; }
+
+gzclp.getSession = function(id) { return gzclp.state.sessions[id]; }
+gzclp.getNumberOfSessions = function() { return gzclp.state.sessions.length; }
+gzclp.getSessionName = function(id) { return gzclp.getSession(id).name; }
+gzclp.getSessionLifts = function(id) { return gzclp.getSession(id).lifts; }
+gzclp.setSessionLifts = function(id, arr) { gzclp.getSession(id).lifts = arr; }
+
+gzclp.getCurrentSessionID = function() { return gzclp.state.nextSessionID; }
+gzclp.setCurrentSessionID = function(num) { gzclp.state.nextSessionID = num; }
+
+gzclp.getNextLiftId = function() { return gzclp.state.nextLiftId; }
+gzclp.setNextLiftID = function(num) { gzclp.state.nextLiftId = num; }
+
+gzclp.getLiftTier = function(id) { return gzclp.state.lifts[id].tier; }
+gzclp.getLiftName = function(id) { return gzclp.state.lifts[id].name; }
+gzclp.getLiftIncrement = function(id) { return gzclp.state.lifts[id].increment; }
+
+gzclp.getNextAttemptWeight = function(id) { return gzclp.state.lifts[id].nextAttempt.weight; }
+gzclp.getNextAttemptRepSchemeIndex = function(id) { return gzclp.state.lifts[id].nextAttempt.repSchemeIndex; }
+gzclp.setNextAttemptWeight = function(id, weight) { gzclp.state.lifts[id].nextAttempt.weight = weight; }
+gzclp.setNextAttemptRepSchemeIndex = function(id, repSchemeIndex) { gzclp.state.lifts[id].nextAttempt.repSchemeIndex = repSchemeIndex; }
+
+gzclp.setLiftTier = function(id, tier) { gzclp.state.lifts[id].tier = tier; }
+gzclp.setLiftName = function(id, name) { gzclp.state.lifts[id].tier = name; }
+gzclp.setLiftIncrement = function(id, increment) { gzclp.state.lifts[id].tier = increment; }
+
+gzclp.getAllCompletedSessions = function() { return gzclp.state.completedSessions};
+gzclp.getCompletedSession = function(id) { return gzclp.state.completedSessions[id]};
+gzclp.setCompletedSessions = function(completedSessions) { gzclp.state.completedSessions = completedSessions; }
+gzclp.addCompletedSession = function(completedSession) { gzclp.state.completedSessions.push(completedSession); }
+
+
+
+/*-------------------- MAIN PROGRAM METHODS --------------------*/
 
 /*
  * Given defining variables, creates and returns a 'lift' object
@@ -297,9 +354,12 @@ gzclp.incrementSessionCounter = function() {
  * but increment the weight
  */
 gzclp.handleSuccessfulLift = function(liftID) {
-  let newWeight = gzclp.getNextAttemptWeight(liftID) + gzclp.getLiftIncrement(liftID);
+  let currentWeight = gzclp.getNextAttemptWeight(liftID);
+  let currentRepSchemeIndex = gzclp.getNextAttemptRepSchemeIndex(liftID);
+  let newWeight = currentWeight + gzclp.getLiftIncrement(liftID);
+
+  gzclp.addToLiftPreviousAttempts(liftID, currentWeight, currentRepSchemeIndex);
   gzclp.setNextAttemptWeight(liftID, newWeight);
-  //gzclp.addToLiftPreviousAttempts(liftID, newWeight, currentRepSchemeIndex);
 }
 
 /*
@@ -312,95 +372,41 @@ gzclp.handleSuccessfulLift = function(liftID) {
  * T3: no change
  */
 gzclp.handleFailedLift = function(liftID) {
-  const tier = gzclp.getLiftTier(liftID);
+  let tier = gzclp.getLiftTier(liftID);
+  let currentWeight = gzclp.getNextAttemptWeight(liftID);
+  let currentRepSchemeIndex = gzclp.getNextAttemptRepSchemeIndex(liftID);
 
   // If failed on last rep scheme of cycle, weight is deloaded. Otherwise, it stays the same
   var newWeight;
-  if (gzclp.getNextAttemptRepSchemeIndex(liftID) == gzclp.getNumberOfRepSchemes(tier) - 1) {
+  if (currentRepSchemeIndex == gzclp.getNumberOfRepSchemes(tier) - 1) {
     if (tier == 'T1') {
       newWeight = gzclp.roundDownToNearestIncrement(
-        gzclp.getNextAttemptWeight(liftID) * gzclp.T1_DELOAD_FACTOR, gzclp.SMALLEST_INCREMENT
+        currentWeight * gzclp.T1_DELOAD_FACTOR, gzclp.SMALLEST_INCREMENT
       );
     }
     if (tier == 'T2') {
       newWeight = gzclp.roundDownToNearestIncrement(
-        gzclp.getNextAttemptWeight(liftID) * gzclp.T2_DELOAD_FACTOR, gzclp.SMALLEST_INCREMENT
+        currentWeight * gzclp.T2_DELOAD_FACTOR, gzclp.SMALLEST_INCREMENT
       );
     }
     if (tier == 'T3') {
-      newWeight = gzclp.getNextAttemptWeight(liftID);
+      newWeight = currentWeight;
     }
   } else {
-    newWeight = gzclp.getNextAttemptWeight(liftID);
+    newWeight = currentWeight;
   }
 
-  let newRepSchemeIndex = (gzclp.getNextAttemptRepSchemeIndex(liftID) + 1) % gzclp.getNumberOfRepSchemes(tier);
+  let newRepSchemeIndex = (currentRepSchemeIndex + 1) % gzclp.getNumberOfRepSchemes(tier);
+
+  gzclp.addToLiftPreviousAttempts(liftID, currentWeight, currentRepSchemeIndex);
 
   gzclp.setNextAttemptWeight(liftID, newWeight);
   gzclp.setNextAttemptRepSchemeIndex(liftID, newRepSchemeIndex);
-  //gzclp.addToLiftPreviousAttempts(liftID, newWeight, newRepSchemeIndex);
 }
 
 
 
-/*-------------------- GETTERS & SETTERS --------------------*/
-
-gzclp.getNumberOfRepSchemes = function(tier) { return gzclp.REP_SCHEMES[tier].length; }
-gzclp.getRepScheme = function(tier, repSchemeIndex) { return gzclp.REP_SCHEMES[tier][repSchemeIndex]; }
-gzclp.getNumberOfSets = function(tier, repSchemeIndex) { return gzclp.getRepScheme(tier, repSchemeIndex).length; }
-gzclp.getNumberOfRepsInASet = function(tier, repSchemeIndex, setIndex) { return gzclp.getRepScheme(tier, repSchemeIndex)[setIndex] }
-
-// For displaying typical reps per set (eg. "5 x 3+")
-gzclp.getDisplayedRepsPerSet = function(tier, repSchemeIndex) {
-  let repScheme = gzclp.getRepScheme(tier, repSchemeIndex);
-  return repScheme[repScheme.length - 1];
-}
-
-gzclp.getRestTime = function(tier) {
-  var restTime = gzclp.REST_TIMES[tier];
-  var string = restTime[0] + '-' + restTime[1];
-  return string;
-}
-
-gzclp.getProgramState = function() { return gzclp.state; }
-gzclp.setProgramState = function(programState) { gzclp.state = gzclp.getCopyOfObject(programState); }
-
-gzclp.getLifts = function() { return gzclp.state.lifts; }
-gzclp.addLift = function(id, lift) { gzclp.state.lifts[id] = lift; }
-
-gzclp.getSession = function(id) { return gzclp.state.sessions[id]; }
-gzclp.getNumberOfSessions = function() { return gzclp.state.sessions.length; }
-gzclp.getSessionName = function(id) { return gzclp.getSession(id).name; }
-gzclp.getSessionLifts = function(id) { return gzclp.getSession(id).lifts; }
-gzclp.setSessionLifts = function(id, arr) { gzclp.getSession(id).lifts = arr; }
-
-gzclp.getCurrentSessionID = function() { return gzclp.state.nextSessionID; }
-gzclp.setCurrentSessionID = function(num) { gzclp.state.nextSessionID = num; }
-
-gzclp.getNextLiftId = function() { return gzclp.state.nextLiftId; }
-gzclp.setNextLiftID = function(num) { gzclp.state.nextLiftId = num; }
-
-gzclp.getLiftTier = function(id) { return gzclp.state.lifts[id].tier; }
-gzclp.getLiftName = function(id) { return gzclp.state.lifts[id].name; }
-gzclp.getLiftIncrement = function(id) { return gzclp.state.lifts[id].increment; }
-
-gzclp.getNextAttemptWeight = function(id) { return gzclp.state.lifts[id].nextAttempt.weight; }
-gzclp.getNextAttemptRepSchemeIndex = function(id) { return gzclp.state.lifts[id].nextAttempt.repSchemeIndex; }
-gzclp.setNextAttemptWeight = function(id, weight) { gzclp.state.lifts[id].nextAttempt.weight = weight; }
-gzclp.setNextAttemptRepSchemeIndex = function(id, repSchemeIndex) { gzclp.state.lifts[id].nextAttempt.repSchemeIndex = repSchemeIndex; }
-
-gzclp.setLiftTier = function(id, tier) { gzclp.state.lifts[id].tier = tier; }
-gzclp.setLiftName = function(id, name) { gzclp.state.lifts[id].tier = name; }
-gzclp.setLiftIncrement = function(id, increment) { gzclp.state.lifts[id].tier = increment; }
-
-gzclp.getAllCompletedSessions = function() { return gzclp.state.completedSessions};
-gzclp.getCompletedSession = function(id) { return gzclp.state.completedSessions[id]};
-gzclp.setCompletedSessions = function(completedSessions) { gzclp.state.completedSessions = completedSessions; }
-gzclp.addCompletedSession = function(completedSession) { gzclp.state.completedSessions.push(completedSession); }
-
-
-
-/*-------------------- SMALL HELPER FUNCTIONS --------------------*/
+/*-------------------- MISC HELPER FUNCTIONS --------------------*/
 
 gzclp.refreshComponent = function(component) {
   component.setState({});
