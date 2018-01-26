@@ -89,8 +89,8 @@ export default class extends React.Component {
     }
 
     return (
-      <View style={{flex: 1}}>
-        <NextSessionButton navigate={navigate} onGoBack={() => gzclp.refreshComponent(this)} />
+      <View>
+        <NextSessionButton navigate={navigate} onReturnToHomeScreen={() => gzclp.refreshComponent(this)} />
 
         <ScrollView style={{marginTop: 10}}>
           {previousSessionResults.reverse()}

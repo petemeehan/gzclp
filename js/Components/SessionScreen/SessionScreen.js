@@ -76,8 +76,8 @@ export default class extends React.Component {
       console.log("Error saving data")
     }
 
-    // Run onGoBack function to force rerender of home screen when it's navigated back to
-    params.onGoBack()
+    // Run onReturnToHomeScreen function to force rerender of home screen when it's navigated back to
+    params.onReturnToHomeScreen();
     goBack();
   }
 

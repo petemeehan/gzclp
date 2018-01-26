@@ -7,7 +7,8 @@ import {
 StatusBar.setBarStyle('light-content');
 
 const DEVICE_W = Dimensions.get('window').width;
-const DEVICE_H = Dimensions.get('window').height;
+
+console.log((0.03125+0.015625) * DEVICE_W);
 
 export const colours = {
   primaryColour: '#fa375a',
@@ -24,31 +25,41 @@ export const styles = StyleSheet.create({
     backgroundColor: colours.primaryColour
   },
   settingsIcon: {
-    marginLeft: (0.03125+0.015625) * DEVICE_W,
-    height: 24,
-    width: 24
+    marginLeft: 15,
+    height: 30,
+    width: 30
   },
-  sessionContainer: {
+  navArrow: {
+    fontSize: 22,
+    color: colours.mediumGrey
+  },
+  genericContainer: {
     //borderWidth: 1,
     backgroundColor: '#fff',
-    paddingLeft: (0.03125+0.015625) * DEVICE_W,
-    paddingRight: (0.03125+0.015625) * DEVICE_W / 2,
+    paddingHorizontal: 15,
     paddingVertical: 10,
     marginBottom: 2,
   },
+  menuText: {
+    fontSize: 18,
+  },
+  allText: {
+    color: 'red'
+  },
+
   nextSessionTitle: {
     color: colours.primaryColour,
     marginBottom: 5,
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: 'bold',
   },
   completedSessionTitle: {
     marginBottom: 5,
-    fontSize: 14.5,
+    fontSize: 15,
     fontWeight: 'bold',
   },
   progressDataContainer: {
-    paddingHorizontal: (0.03125+0.015625) * DEVICE_W,
+    paddingHorizontal: 15,
   },
   progressDataTitle: {
     marginVertical: 10,
@@ -56,51 +67,45 @@ export const styles = StyleSheet.create({
   progressDataContent: {
     fontFamily: 'Courier New',
   },
-  liftContainer: {
-    backgroundColor: '#fff',
-    marginBottom: 1,
-  },
-  liftInfoContainer: {
-    marginHorizontal: (0.03125+0.015625) * DEVICE_W,
-    marginTop: 5 + 0.015625 * DEVICE_W,
-    marginBottom: 5,
-  },
+
+
+
   liftName: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: 'bold',
   },
   liftDetails: {
     marginVertical: 5,
   },
   liftButtonsContainer: {
-    marginBottom: 10,
     flexDirection: 'row',
-    marginHorizontal: 0.03125 * DEVICE_W,
     flexWrap: 'wrap',
-    //borderWidth: 1
+    borderWidth: 1
   },
+  // Container for underlying circle which gives "border" effect
   liftButtonContainer: {
     alignItems: 'center',
     justifyContent: 'center',
     //borderWidth: 1
   },
 
+
   liftButtonClickable: {
     borderColor: colours.primaryColour,
     borderWidth: 1.25,
-    margin: 0.015625 * DEVICE_W,
-    width: 0.15625 * DEVICE_W,
-    height: 0.15625 * DEVICE_W,
-    borderRadius: 0.15625 * DEVICE_W / 2,
+    //margin: 0.015625 * DEVICE_W,
+    width: 0.15 * DEVICE_W,
+    height: 0.15 * DEVICE_W,
+    borderRadius: 0.15 * DEVICE_W / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
   liftButtonNotClickable: {
     backgroundColor: colours.lightGrey,
-    margin: 0.015625 * DEVICE_W,
-    width: 0.15625 * DEVICE_W,
-    height: 0.15625 * DEVICE_W,
-    borderRadius: 0.15625 * DEVICE_W / 2,
+    //margin: 0.015625 * DEVICE_W,
+    width: 0.15 * DEVICE_W,
+    height: 0.15 * DEVICE_W,
+    borderRadius: 0.15 * DEVICE_W / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -169,6 +174,7 @@ export const styles = StyleSheet.create({
   liftButtonTextFailed: {
     color: '#fff',
   },
+
 
   timerContainer: {
     flexDirection: 'row',

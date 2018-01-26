@@ -162,8 +162,8 @@ export default class extends React.Component {
     }
 
     return (
-      <View style={styles.liftContainer}>
-        <View style={styles.liftInfoContainer}>
+      <View style={styles.genericContainer}>
+        <View>
           <LiftInfo
             tier={tier} name={name} weight={weight}
             sets={numberOfSets} reps={displayedRepsPerSet}

@@ -35,7 +35,7 @@ export default props => {
   }
 
   return (
-    <View style={styles.sessionContainer}>
+    <View style={styles.genericContainer}>
       <Text style={styles.completedSessionTitle}>
         Session {sessionID + 1}: {gzclp.getSessionName(sessionID % gzclp.getNumberOfSessions())}
       </Text>
