@@ -47,6 +47,7 @@ export const styles = StyleSheet.create({
     color: 'red'
   },
 
+
   nextSessionTitle: {
     color: colours.primaryColour,
     marginBottom: 5,
@@ -68,8 +69,15 @@ export const styles = StyleSheet.create({
     fontFamily: 'Courier New',
   },
 
-
-
+  liftContainer: {
+    //borderWidth: 1,
+    backgroundColor: '#fff',
+    marginBottom: 2,
+  },
+  liftInfoContainer: {
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+  },
   liftName: {
     fontSize: 17,
     fontWeight: 'bold',
@@ -78,12 +86,16 @@ export const styles = StyleSheet.create({
     marginVertical: 5,
   },
   liftButtonsContainer: {
+    marginLeft: 15,
+    marginRight: -2,
     flexDirection: 'row',
     flexWrap: 'wrap',
-    borderWidth: 1
+    //borderWidth: 1
   },
   // Container for underlying circle which gives "border" effect
   liftButtonContainer: {
+    marginRight: 10,
+    marginTop: 7,
     alignItems: 'center',
     justifyContent: 'center',
     //borderWidth: 1

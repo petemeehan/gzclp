@@ -62,17 +62,6 @@ export default class extends React.Component {
     this.setState({isProgramStateVisible: !this.state.isProgramStateVisible})
   }
 
-  // Remove stored data and reset program state to initial values
-  async handleResetButtonPress() {
-    try {
-      await gzclp.deleteSavedProgramState();
-      gzclp.resetProgramState();
-      gzclp.refreshComponent(this);
-    } catch (error) {
-      console.log("Error removing data");
-    }
-  }
-
   render() {
     const { navigate } = this.props.navigation;
 
@@ -102,12 +91,6 @@ export default class extends React.Component {
           title={this.state.isProgramStateVisible ? 'Hide Current Progress' : 'Show Current Progress'}
           color={colours.primaryColour}
           onPress={() => this.handleShowProgramStateButton()}
-        />
-
-        <Button
-          title='Reset Everything'
-          color='#777'
-          onPress={() => this.handleResetButtonPress()}
         />
       </View>
     );
