@@ -55,7 +55,7 @@ export default props => {
   }
 
   return (
-    <View style={styles.liftButtonContainer}>
+    <View style={styles.individualLiftButtonContainer}>
       <View style={currentBorderStyle}></View>
 
       <TouchableOpacity
@@ -73,7 +73,7 @@ export default props => {
       </TouchableOpacity>
 
       {//<View style={styles.liftButtonBorderAllSuccessful}></View>}
-    }
+      }
     </View>
   )
 }
