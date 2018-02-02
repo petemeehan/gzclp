@@ -7,8 +7,8 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-import { styles, colours } from '../../styles';
-import { gzclp } from '../../gzclp';
+import { styles, colours } from 'gzclp/js/styles';
+import { gzclp } from 'gzclp/js/gzclp';
 
 import NextSessionButton from './NextSessionButton';
 import CompletedSessionResult from './CompletedSessionResult';
@@ -29,8 +29,9 @@ export default class extends React.Component {
     title: 'GZCLP',
     headerTintColor: '#fff',
     headerStyle: styles.header,
+    headerTitleStyle: styles.headerTitle,
     headerLeft: <TouchableOpacity
-      onPress={() => navigation.navigate('Settings')}
+      onPress={() => navigation.navigate('Settings', navigation.state.params)}
     >
       <Image
         style={styles.settingsIcon}
@@ -42,6 +43,10 @@ export default class extends React.Component {
   componentDidMount() {
     // Overwrite initial default program state values with stored ones, if they exist
     this.loadSavedData();
+
+    // Put refreshHomeScreen function into navigation.state.params
+    // so it can be invoked in navigationOptions and then passed to Settings screen
+    this.props.navigation.setParams({refreshHomeScreen: () => gzclp.refreshComponent(this)})
   }
 
   async loadSavedData() {
@@ -78,8 +83,11 @@ export default class extends React.Component {
     }
 
     return (
-      <View>
-        <NextSessionButton navigate={navigate} onReturnToHomeScreen={() => gzclp.refreshComponent(this)} />
+      <View style={{flex: 1}}>
+        <NextSessionButton
+          navigate={navigate}
+          refreshHomeScreen={() => gzclp.refreshComponent(this)}
+        />
 
         <ScrollView style={{marginTop: 10}}>
           {previousSessionResults.reverse()}

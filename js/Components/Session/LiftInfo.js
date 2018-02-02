@@ -4,11 +4,11 @@ import {
   View,
 } from 'react-native';
 
-import { styles } from '../../styles';
+import { styles } from 'gzclp/js/styles';
 
 
 
-export default props => {
+export default (props) => {
     var {
       tier,
       name,

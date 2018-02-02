@@ -5,12 +5,12 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-import { styles } from '../../styles';
+import { styles, colours } from 'gzclp/js/styles';
 
 
 
 // TODO control layout using flexbox (space-between), not by setting exact widths
-export default props => {
+export default (props) => {
   var {
     id,
     reps,
@@ -59,7 +59,7 @@ export default props => {
       <View style={currentBorderStyle}></View>
 
       <TouchableOpacity
-        activeOpacity={0.8}
+        activeOpacity={1}
         style={currentStyle}
         onPress={() => {
           if (isClickable) {

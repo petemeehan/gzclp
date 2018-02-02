@@ -20,30 +20,47 @@ export const colours = {
   successful: '#4cd964',
   //successful: '#fa375a',
   failed: '#999',
+  underlayColor: '#ddd',
 };
 
 export const styles = StyleSheet.create({
   header: {
     backgroundColor: colours.primaryColour
   },
+  headerTitle: {
+    fontWeight: 'bold',
+  },
   settingsIcon: {
     marginLeft: DEVICE_MARGIN,
-    height: 30,
-    width: 30
+    height: 50,
+    width: 25
   },
   navArrow: {
     fontSize: 22,
-    color: colours.mediumGrey
+    color: '#bbb',
   },
   genericContainer: {
-    //borderWidth: 1,
     backgroundColor: '#fff',
     paddingHorizontal: DEVICE_MARGIN,
     paddingVertical: 10,
-    marginBottom: 2,
+    marginBottom: 1,
   },
-  menuText: {
-    fontSize: 18,
+
+  menuHeading: {
+    paddingHorizontal: DEVICE_MARGIN,
+    marginTop: 30,
+    marginBottom: 10,
+    fontSize: 15,
+    //fontWeight: 'bold',
+  },
+  menuItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  menuItemText: {
+    fontSize: 17,
+    alignItems: 'center',
   },
   allText: {
     color: 'red'
@@ -74,7 +91,7 @@ export const styles = StyleSheet.create({
   liftContainer: {
     //borderWidth: 1,
     backgroundColor: '#fff',
-    marginBottom: 2,
+    marginBottom: 1,
   },
   liftInfoContainer: {
     paddingHorizontal: DEVICE_MARGIN,
@@ -103,6 +120,7 @@ export const styles = StyleSheet.create({
   },
 
   liftButtonClickable: {
+    backgroundColor: 'white',
     borderColor: colours.primaryColour,
     borderWidth: 1.25,
     width: BUTTON_SIZE,

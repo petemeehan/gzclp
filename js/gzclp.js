@@ -38,6 +38,8 @@ gzclp.REST_TIMES = {
   T3: [1, 2]
 }
 
+gzclp.INCREMENTS = [1, 2.5 , 5];
+
 /*
  * Used for initialising program data
  * Each element is in the format [tier, name, increment, starting weight, session(s)]
@@ -116,6 +118,8 @@ gzclp.state.completedSessions = [];
 
 /*-------------------- GETTERS & SETTERS --------------------*/
 
+gzclp.getIncrements = function() { return gzclp.INCREMENTS }
+
 gzclp.getNumberOfRepSchemes = function(tier) { return gzclp.REP_SCHEMES[tier].length; }
 gzclp.getRepScheme = function(tier, repSchemeIndex) { return gzclp.REP_SCHEMES[tier][repSchemeIndex]; }
 gzclp.getNumberOfSets = function(tier, repSchemeIndex) { return gzclp.getRepScheme(tier, repSchemeIndex).length; }
@@ -136,7 +140,7 @@ gzclp.getRestTime = function(tier) {
 gzclp.getProgramState = function() { return gzclp.state; }
 gzclp.setProgramState = function(programState) { gzclp.state = gzclp.getCopyOfObject(programState); }
 
-gzclp.getLifts = function() { return gzclp.state.lifts; }
+gzclp.getAllLifts = function() { return gzclp.state.lifts; }
 gzclp.addLift = function(id, lift) { gzclp.state.lifts[id] = lift; }
 
 gzclp.getSession = function(id) { return gzclp.state.sessions[id]; }
@@ -209,7 +213,7 @@ gzclp.addLiftToProgram = function(tier, name, increment, startingWeight, session
  * references to it in the sessions
  */
 gzclp.removeLiftFromProgram = function(id) {
-  delete gzclp.getLifts()[id];
+  delete gzclp.getAllLifts()[id];
 
   for (var session = 0; session < gzclp.getNumberOfSessions(); session++) {
     gzclp.removeLiftIdFromSessions(id, session)
@@ -316,8 +320,9 @@ gzclp.deleteSavedProgramState = async function() {
  */
 gzclp.outputProgramStateAsString = function() {
   var output = '';
+  const lifts = gzclp.getAllLifts();
 
-  for (var liftID in gzclp.state.lifts) {
+  Object.keys(lifts).forEach(function(liftID) {
     let tier = gzclp.getLiftTier(liftID);
     let name = gzclp.getLiftName(liftID);
     let repSchemeIndex = gzclp.getNextAttemptRepSchemeIndex(liftID);
@@ -331,12 +336,27 @@ gzclp.outputProgramStateAsString = function() {
       weight + 'kg\t ' +
       name + '\n'
     );
-  }
+  });
   output += '\nNumber of completed sessions: ' + gzclp.getAllCompletedSessions().length
 
   return output;
 }
 
+/*
+ * Given a tier (eg. "T1"), returns as an array of all IDs of lifts in that tier
+ */
+gzclp.getAllLiftIDsInTier = function(tier) {
+  var liftIDs = [];
+  const lifts = gzclp.getAllLifts();
+
+  Object.keys(lifts).forEach(function(liftID) {
+    if (lifts[liftID].tier == tier) {
+      liftIDs.push(liftID);
+    }
+  });
+
+  return liftIDs;
+}
 
 
 /*-------------------- PROGRAM PROGRESSION METHODS --------------------*/

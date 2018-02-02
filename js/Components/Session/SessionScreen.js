@@ -5,8 +5,8 @@ import {
   Button,
 } from 'react-native';
 
-import { styles, colours } from '../../styles';
-import { gzclp } from '../../gzclp';
+import { styles, colours } from 'gzclp/js/styles';
+import { gzclp } from 'gzclp/js/gzclp';
 
 import Lift from './Lift';
 
@@ -27,6 +27,7 @@ export default class extends React.Component {
     title: 'Session ' + gzclp.getSessionName(navigation.state.params.sessionID),
     headerTintColor: '#fff',
     headerStyle: styles.header,
+    headerTitleStyle: styles.headerTitle,
   });
 
   componentDidMount() {
@@ -53,7 +54,7 @@ export default class extends React.Component {
 
   async handleDoneButtonPress(lifts) {
     const { goBack } = this.props.navigation;
-    const { params } = this.props.navigation.state;
+    const { refreshHomeScreen } = this.props.navigation.state.params;
 
     // Keep a record of this session
     gzclp.addCompletedSession(this.state);   // TODO use setter method
@@ -76,13 +77,12 @@ export default class extends React.Component {
       console.log("Error saving data")
     }
 
-    // Run onReturnToHomeScreen function to force rerender of home screen when it's navigated back to
-    params.onReturnToHomeScreen();
+    // Call refreshHomeScreen function to force rerender of home screen when it's navigated back to
+    refreshHomeScreen();
     goBack();
   }
 
   render() {
-    const { goBack } = this.props.navigation;
     const { params } = this.props.navigation.state;
 
     // lifts parameter is an array where each element is a lift's ID

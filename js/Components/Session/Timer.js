@@ -4,8 +4,8 @@ import {
   Text,
 } from 'react-native';
 
-import { styles } from '../../styles';
-import { gzclp } from '../../gzclp';
+import { styles } from 'gzclp/js/styles';
+import { gzclp } from 'gzclp/js/gzclp';
 
 
 

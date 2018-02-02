@@ -5,20 +5,20 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-import { styles, colours } from '../../styles';
-import { gzclp } from '../../gzclp';
+import { styles, colours } from 'gzclp/js/styles';
+import { gzclp } from 'gzclp/js/gzclp';
 
 
 // TODO: dont use inline styles
 export default props => {
 
   function handlePress() {
-    const { navigate, onReturnToHomeScreen } = props;
+    const { navigate, refreshHomeScreen } = props;
 
     // Navigate to Session screen, which will display according to provided parameters
     navigate('Session', {
       sessionID: gzclp.getCurrentSessionID(),
-      onReturnToHomeScreen: () => onReturnToHomeScreen()
+      refreshHomeScreen: refreshHomeScreen
     });
   }
 
