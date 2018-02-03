@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  View,
   ScrollView,
   Text,
   TouchableHighlight,
@@ -18,7 +19,7 @@ export default class extends React.Component {
   }
 
   static navigationOptions = ({ navigation }) => ({
-    title: 'Increments ',
+    title: 'Increments',
     headerTintColor: '#fff',
     headerStyle: styles.header,
     headerTitleStyle: styles.headerTitle,
@@ -39,7 +40,9 @@ export default class extends React.Component {
       menuItemsT1.push(
         <MenuItem
           menuItemText={gzclp.getLiftName( liftIDsT1[i] )}
-          onPress={() => navigate()}
+          onPress={() => navigate('IncrementPicker', {
+            liftID: liftIDsT1[i],
+          })}
           hasNavArrow={true}
           key={i}
         />
@@ -49,7 +52,9 @@ export default class extends React.Component {
       menuItemsT2.push(
         <MenuItem
           menuItemText={gzclp.getLiftName( liftIDsT2[i] )}
-          onPress={() => navigate()}
+          onPress={() => navigate('IncrementPicker', {
+            liftID: liftIDsT2[i],
+          })}
           hasNavArrow={true}
           key={i}
         />
@@ -59,7 +64,9 @@ export default class extends React.Component {
       menuItemsT3.push(
         <MenuItem
           menuItemText={gzclp.getLiftName( liftIDsT3[i] )}
-          onPress={() => navigate()}
+          onPress={() => navigate('IncrementPicker', {
+            liftID: liftIDsT3[i],
+          })}
           hasNavArrow={true}
           key={i}
         />
@@ -69,13 +76,13 @@ export default class extends React.Component {
     return (
       <ScrollView>
         <Text style={styles.menuHeading}>T1 Lifts</Text>
-        {menuItemsT1}
+        <View style={{marginBottom: 20}}>{menuItemsT1}</View>
 
         <Text style={styles.menuHeading}>T2 Lifts</Text>
-        {menuItemsT2}
+        <View style={{marginBottom: 20}}>{menuItemsT2}</View>
 
         <Text style={styles.menuHeading}>T3 Lifts</Text>
-        {menuItemsT3}
+        <View style={{marginBottom: 20}}>{menuItemsT3}</View>
 
       </ScrollView>
     )

@@ -35,10 +35,6 @@ export const styles = StyleSheet.create({
     height: 50,
     width: 25
   },
-  navArrow: {
-    fontSize: 22,
-    color: '#bbb',
-  },
   genericContainer: {
     backgroundColor: '#fff',
     paddingHorizontal: DEVICE_MARGIN,
@@ -48,10 +44,9 @@ export const styles = StyleSheet.create({
 
   menuHeading: {
     paddingHorizontal: DEVICE_MARGIN,
-    marginTop: 30,
-    marginBottom: 10,
+    marginVertical: 10,
     fontSize: 15,
-    //fontWeight: 'bold',
+    fontWeight: 'bold',
   },
   menuItem: {
     flexDirection: 'row',
@@ -62,8 +57,15 @@ export const styles = StyleSheet.create({
     fontSize: 17,
     alignItems: 'center',
   },
-  allText: {
-    color: 'red'
+  menuTick: {
+    fontSize: 22,
+    color: colours.primaryColour,
+    marginVertical: -10,          // TODO: hack
+  },
+  navArrow: {
+    fontSize: 22,
+    color: '#bbb',
+    marginVertical: -10,          // TODO: hack
   },
 
 

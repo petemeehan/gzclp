@@ -14,6 +14,7 @@ export default (props) => {
       onPress,
       menuItemText,
       hasNavArrow,
+      hasMenuTick,
     } = props;
 
     return (
@@ -24,6 +25,7 @@ export default (props) => {
       >
         <View style={styles.menuItem}>
           <Text style={styles.menuItemText}>{menuItemText}</Text>
+          {hasMenuTick ? <Text style={styles.menuTick}>✓</Text> : null}
           {hasNavArrow ? <Text style={styles.navArrow}>></Text> : null}
         </View>
       </TouchableHighlight>

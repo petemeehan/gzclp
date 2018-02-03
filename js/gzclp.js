@@ -38,7 +38,7 @@ gzclp.REST_TIMES = {
   T3: [1, 2]
 }
 
-gzclp.INCREMENTS = [1, 2.5 , 5];
+gzclp.INCREMENTS = [0.5, 1, 2.5 , 5, 10];
 
 /*
  * Used for initialising program data
@@ -159,14 +159,14 @@ gzclp.getLiftTier = function(id) { return gzclp.state.lifts[id].tier; }
 gzclp.getLiftName = function(id) { return gzclp.state.lifts[id].name; }
 gzclp.getLiftIncrement = function(id) { return gzclp.state.lifts[id].increment; }
 
+gzclp.setLiftTier = function(id, tier) { gzclp.state.lifts[id].tier = tier; }
+gzclp.setLiftName = function(id, name) { gzclp.state.lifts[id].name = name; }
+gzclp.setLiftIncrement = function(id, increment) { gzclp.state.lifts[id].increment = increment; }
+
 gzclp.getNextAttemptWeight = function(id) { return gzclp.state.lifts[id].nextAttempt.weight; }
 gzclp.getNextAttemptRepSchemeIndex = function(id) { return gzclp.state.lifts[id].nextAttempt.repSchemeIndex; }
 gzclp.setNextAttemptWeight = function(id, weight) { gzclp.state.lifts[id].nextAttempt.weight = weight; }
 gzclp.setNextAttemptRepSchemeIndex = function(id, repSchemeIndex) { gzclp.state.lifts[id].nextAttempt.repSchemeIndex = repSchemeIndex; }
-
-gzclp.setLiftTier = function(id, tier) { gzclp.state.lifts[id].tier = tier; }
-gzclp.setLiftName = function(id, name) { gzclp.state.lifts[id].tier = name; }
-gzclp.setLiftIncrement = function(id, increment) { gzclp.state.lifts[id].tier = increment; }
 
 gzclp.getAllCompletedSessions = function() { return gzclp.state.completedSessions};
 gzclp.getCompletedSession = function(id) { return gzclp.state.completedSessions[id]};

@@ -19,7 +19,7 @@ export default class extends React.Component {
   }
 
   static navigationOptions = ({ navigation }) => ({
-    title: 'Settings ',
+    title: 'Settings',
     headerTintColor: '#fff',
     headerStyle: styles.header,
     headerTitleStyle: styles.headerTitle,
@@ -50,7 +50,7 @@ export default class extends React.Component {
           hasNavArrow={true}
         />
 
-        <View style={{marginTop: 30}}>
+        <View style={{marginTop: 20}}>
           <MenuItem
             menuItemText='Reset Everything'
             onPress={() => this.handleResetButtonPress()}
