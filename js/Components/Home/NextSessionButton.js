@@ -5,19 +5,20 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-import { styles, colours } from '../../js/styles';
-import { gzclp } from '../../js/gzclp';
+import { styles, colours } from 'gzclp/js/styles';
+import { gzclp } from 'gzclp/js/gzclp';
 
 
 // TODO: dont use inline styles
 export default props => {
+
   function handlePress() {
-    const { navigate, onGoBack } = props;
+    const { navigate, refreshHomeScreen } = props;
 
     // Navigate to Session screen, which will display according to provided parameters
     navigate('Session', {
       sessionID: gzclp.getCurrentSessionID(),
-      onGoBack: () => onGoBack()
+      refreshHomeScreen: refreshHomeScreen
     });
   }
 
@@ -25,7 +26,7 @@ export default props => {
   const sessionLifts = gzclp.getSessionLifts( gzclp.getCurrentSessionID() );
   // Populate arrays of data to display in the Next Session component
   var tiers = [];
-  var labels = [];
+  var names = [];
   var weights = [];
   var repSchemes = [];
 
@@ -33,12 +34,14 @@ export default props => {
     let tier = gzclp.getLiftTier(liftID);
     let name = gzclp.getLiftName(liftID);
 
+    // TODO This is all WAY more cumbersome than it needs to be,
+    // see CompletedSessionResult.js
     tiers.push(
       <Text key={i}>
         {tier}
       </Text>
     );
-    labels.push(
+    names.push(
       <Text key={i}>
         {gzclp.getLiftName(liftID)}
       </Text>
@@ -59,7 +62,7 @@ export default props => {
 
   return (
     <TouchableOpacity
-      style={styles.sessionContainer}
+      style={styles.genericContainer}
       activeOpacity={0.8}
       // Navigate to session screen and pass as two parameters the required session
       // and the callback function that will refresh the home screen when session is finished
@@ -73,14 +76,14 @@ export default props => {
 
           <View style={{flexDirection: 'row'}}>
             <View style={{width: 25}}>{tiers}</View>
-            <View style={{width: 120}}>{labels}</View>
+            <View style={{width: 120}}>{names}</View>
             <View style={{width: 50}}>{repSchemes}</View>
             <View style={{width: 50, alignItems: 'flex-end'}}>{weights}</View>
           </View>
         </View>
 
         <View style={{justifyContent: 'center'}}>
-          <Text style={{fontSize: 20, color: colours.primaryColour}}>＞</Text>
+          <Text style={styles.navArrow}>></Text>
         </View>
       </View>
     </TouchableOpacity>

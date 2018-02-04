@@ -4,8 +4,8 @@ import {
   View,
 } from 'react-native';
 
-import { styles } from '../../js/styles';
-import { gzclp } from '../../js/gzclp';
+import { styles } from 'gzclp/js/styles';
+import { gzclp } from 'gzclp/js/gzclp';
 
 
 
@@ -35,7 +35,7 @@ export default props => {
   }
 
   return (
-    <View style={styles.sessionContainer}>
+    <View style={styles.genericContainer}>
       <Text style={styles.completedSessionTitle}>
         Session {sessionID + 1}: {gzclp.getSessionName(sessionID % gzclp.getNumberOfSessions())}
       </Text>

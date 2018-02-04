@@ -7,8 +7,8 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-import { styles, colours } from '../../js/styles';
-import { gzclp } from '../../js/gzclp';
+import { styles, colours } from 'gzclp/js/styles';
+import { gzclp } from 'gzclp/js/gzclp';
 
 import NextSessionButton from './NextSessionButton';
 import CompletedSessionResult from './CompletedSessionResult';
@@ -29,12 +29,13 @@ export default class extends React.Component {
     title: 'GZCLP',
     headerTintColor: '#fff',
     headerStyle: styles.header,
+    headerTitleStyle: styles.headerTitle,
     headerLeft: <TouchableOpacity
-      onPress={() => navigation.navigate('Settings')}
+      onPress={() => navigation.navigate('Settings', navigation.state.params)}
     >
       <Image
         style={styles.settingsIcon}
-        source={require('../../Icons/settings.png')}
+        source={require('../../../Icons/settings.png')}
       />
     </TouchableOpacity>,
   });
@@ -42,6 +43,10 @@ export default class extends React.Component {
   componentDidMount() {
     // Overwrite initial default program state values with stored ones, if they exist
     this.loadSavedData();
+
+    // Put refreshHomeScreen function into navigation.state.params
+    // so it can be invoked in navigationOptions and then passed to Settings screen
+    this.props.navigation.setParams({refreshHomeScreen: () => gzclp.refreshComponent(this)})
   }
 
   async loadSavedData() {
@@ -62,17 +67,6 @@ export default class extends React.Component {
     this.setState({isProgramStateVisible: !this.state.isProgramStateVisible})
   }
 
-  // Remove stored data and reset program state to initial values
-  async handleResetButtonPress() {
-    try {
-      await gzclp.deleteSavedProgramState();
-      gzclp.resetProgramState();
-      gzclp.refreshComponent(this);
-    } catch (error) {
-      console.log("Error removing data");
-    }
-  }
-
   render() {
     const { navigate } = this.props.navigation;
 
@@ -90,7 +84,10 @@ export default class extends React.Component {
 
     return (
       <View style={{flex: 1}}>
-        <NextSessionButton navigate={navigate} onGoBack={() => gzclp.refreshComponent(this)} />
+        <NextSessionButton
+          navigate={navigate}
+          refreshHomeScreen={() => gzclp.refreshComponent(this)}
+        />
 
         <ScrollView style={{marginTop: 10}}>
           {previousSessionResults.reverse()}
@@ -102,12 +99,6 @@ export default class extends React.Component {
           title={this.state.isProgramStateVisible ? 'Hide Current Progress' : 'Show Current Progress'}
           color={colours.primaryColour}
           onPress={() => this.handleShowProgramStateButton()}
-        />
-
-        <Button
-          title='Reset Everything'
-          color='#777'
-          onPress={() => this.handleResetButtonPress()}
         />
       </View>
     );

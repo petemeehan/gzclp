@@ -5,12 +5,12 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-import { styles } from '../../js/styles';
+import { styles, colours } from 'gzclp/js/styles';
 
 
 
 // TODO control layout using flexbox (space-between), not by setting exact widths
-export default props => {
+export default (props) => {
   var {
     id,
     reps,
@@ -25,7 +25,7 @@ export default props => {
 
   // If button is clicked, display a tick either a tick or cross depending on
   // whether lift is successful or failed. Otherwise display number of reps
-  var buttonText = isClicked ? (isSuccessful ? '✓' : '✕') : reps;
+  var buttonText = isClicked ? (isSuccessful ? '✓' : '✕') : reps;   //TODO generalise
 
   // Apply style depending on whether button is inactive, active, or clicked
   // And, if clicked, successful or unsuccessful
@@ -55,11 +55,11 @@ export default props => {
   }
 
   return (
-    <View style={styles.liftButtonContainer}>
+    <View style={styles.individualLiftButtonContainer}>
       <View style={currentBorderStyle}></View>
 
       <TouchableOpacity
-        activeOpacity={0.8}
+        activeOpacity={1}
         style={currentStyle}
         onPress={() => {
           if (isClickable) {
@@ -73,7 +73,7 @@ export default props => {
       </TouchableOpacity>
 
       {//<View style={styles.liftButtonBorderAllSuccessful}></View>}
-    }
+      }
     </View>
   )
 }

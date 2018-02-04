@@ -7,7 +7,10 @@ import {
 StatusBar.setBarStyle('light-content');
 
 const DEVICE_W = Dimensions.get('window').width;
-const DEVICE_H = Dimensions.get('window').height;
+const DEVICE_MARGIN = 15;
+
+const BUTTON_MARGIN = 8;
+const BUTTON_SIZE = (DEVICE_W - (2 * DEVICE_MARGIN)) / 5 - BUTTON_MARGIN;
 
 export const colours = {
   primaryColour: '#fa375a',
@@ -17,38 +20,68 @@ export const colours = {
   successful: '#4cd964',
   //successful: '#fa375a',
   failed: '#999',
+  underlayColor: '#ddd',
 };
 
 export const styles = StyleSheet.create({
   header: {
     backgroundColor: colours.primaryColour
   },
+  headerTitle: {
+    fontWeight: 'bold',
+  },
   settingsIcon: {
-    marginLeft: (0.03125+0.015625) * DEVICE_W,
-    height: 24,
-    width: 24
+    marginLeft: DEVICE_MARGIN,
+    height: 50,
+    width: 25
   },
-  sessionContainer: {
-    //borderWidth: 1,
+  genericContainer: {
     backgroundColor: '#fff',
-    paddingLeft: (0.03125+0.015625) * DEVICE_W,
-    paddingRight: (0.03125+0.015625) * DEVICE_W / 2,
+    paddingHorizontal: DEVICE_MARGIN,
     paddingVertical: 10,
-    marginBottom: 2,
+    marginBottom: 1,
   },
+
+  menuHeading: {
+    paddingHorizontal: DEVICE_MARGIN,
+    marginVertical: 10,
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
+  menuItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  menuItemText: {
+    fontSize: 17,
+    alignItems: 'center',
+  },
+  menuTick: {
+    fontSize: 22,
+    color: colours.primaryColour,
+    marginVertical: -10,          // TODO: hack
+  },
+  navArrow: {
+    fontSize: 22,
+    color: '#bbb',
+    marginVertical: -10,          // TODO: hack
+  },
+
+
   nextSessionTitle: {
     color: colours.primaryColour,
     marginBottom: 5,
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: 'bold',
   },
   completedSessionTitle: {
     marginBottom: 5,
-    fontSize: 14.5,
+    fontSize: 15,
     fontWeight: 'bold',
   },
   progressDataContainer: {
-    paddingHorizontal: (0.03125+0.015625) * DEVICE_W,
+    paddingHorizontal: DEVICE_MARGIN,
   },
   progressDataTitle: {
     marginVertical: 10,
@@ -56,107 +89,107 @@ export const styles = StyleSheet.create({
   progressDataContent: {
     fontFamily: 'Courier New',
   },
+
   liftContainer: {
+    //borderWidth: 1,
     backgroundColor: '#fff',
     marginBottom: 1,
   },
   liftInfoContainer: {
-    marginHorizontal: (0.03125+0.015625) * DEVICE_W,
-    marginTop: 5 + 0.015625 * DEVICE_W,
-    marginBottom: 5,
+    paddingHorizontal: DEVICE_MARGIN,
+    paddingVertical: 10,
   },
   liftName: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: 'bold',
   },
   liftDetails: {
     marginVertical: 5,
   },
   liftButtonsContainer: {
-    marginBottom: 10,
+    marginHorizontal: DEVICE_MARGIN,
+    marginBottom: 15,
     flexDirection: 'row',
-    marginHorizontal: 0.03125 * DEVICE_W,
     flexWrap: 'wrap',
     //borderWidth: 1
   },
-  liftButtonContainer: {
+  // Container for both buttons including background one which gives "border" effect
+  individualLiftButtonContainer: {
+    marginRight: BUTTON_MARGIN,
     alignItems: 'center',
     justifyContent: 'center',
     //borderWidth: 1
   },
 
   liftButtonClickable: {
+    backgroundColor: 'white',
     borderColor: colours.primaryColour,
     borderWidth: 1.25,
-    margin: 0.015625 * DEVICE_W,
-    width: 0.15625 * DEVICE_W,
-    height: 0.15625 * DEVICE_W,
-    borderRadius: 0.15625 * DEVICE_W / 2,
+    width: BUTTON_SIZE,
+    height: BUTTON_SIZE,
+    borderRadius: BUTTON_SIZE / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
   liftButtonNotClickable: {
     backgroundColor: colours.lightGrey,
-    margin: 0.015625 * DEVICE_W,
-    width: 0.15625 * DEVICE_W,
-    height: 0.15625 * DEVICE_W,
-    borderRadius: 0.15625 * DEVICE_W / 2,
+    width: BUTTON_SIZE,
+    height: BUTTON_SIZE,
+    borderRadius: BUTTON_SIZE / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
   liftButtonSuccessful: {
     backgroundColor: colours.primaryColour,
-    margin: 0.015625 * DEVICE_W,
-    width: 0.15625 * DEVICE_W,
-    height: 0.15625 * DEVICE_W,
-    borderRadius: 0.15625 * DEVICE_W / 2,
+    width: BUTTON_SIZE,
+    height: BUTTON_SIZE,
+    borderRadius: BUTTON_SIZE / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
   liftButtonAllSuccessful: {
     backgroundColor: colours.successful,
-    margin: 0.015625 * DEVICE_W,
-    width: 0.15625 * DEVICE_W,
-    height: 0.15625 * DEVICE_W,
-    borderRadius: 0.15625 * DEVICE_W / 2,
+    width: BUTTON_SIZE,
+    height: BUTTON_SIZE,
+    borderRadius: BUTTON_SIZE / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
   liftButtonFailed: {
     backgroundColor: colours.failed,
-    margin: 0.015625 * DEVICE_W,
-    width: 0.15625 * DEVICE_W,
-    height: 0.15625 * DEVICE_W,
-    borderRadius: 0.15625 * DEVICE_W / 2,
+    width: BUTTON_SIZE,
+    height: BUTTON_SIZE,
+    borderRadius: BUTTON_SIZE / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  /**
+
+  // Gives buttons a border when sets have been attempted
   liftButtonBorderSuccessful: {
     borderColor: colours.primaryColour,
     borderWidth: 1.5,
-    width: 0.175 * DEVICE_W,
-    height: 0.175 * DEVICE_W,
-    borderRadius: 0.175 * DEVICE_W / 2,
+    width: BUTTON_SIZE + 5,
+    height: BUTTON_SIZE + 5,
+    borderRadius: (BUTTON_SIZE + 5) / 2,
     position: 'absolute',
   },
   liftButtonBorderFailed: {
     borderColor: colours.failed,
     borderWidth: 1.5,
-    width: 0.175 * DEVICE_W,
-    height: 0.175 * DEVICE_W,
-    borderRadius: 0.175 * DEVICE_W / 2,
+    width: BUTTON_SIZE + 5,
+    height: BUTTON_SIZE + 5,
+    borderRadius: (BUTTON_SIZE + 5) / 2,
     position: 'absolute',
   },
   liftButtonBorderAllSuccessful: {
     borderColor: colours.successful,
     borderWidth: 1.5,
-    width: 0.175 * DEVICE_W,
-    height: 0.175 * DEVICE_W,
-    borderRadius: 0.175 * DEVICE_W / 2,
+    width: BUTTON_SIZE + 5,
+    height: BUTTON_SIZE + 5,
+    borderRadius: (BUTTON_SIZE + 5) / 2,
     position: 'absolute',
   },
-  **/
+
   liftButtonTextClickable: {
     color: colours.primaryColour,
   },
@@ -170,11 +203,12 @@ export const styles = StyleSheet.create({
     color: '#fff',
   },
 
+
   timerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colours.darkGrey,
-    paddingHorizontal: (0.03125+0.015625) * DEVICE_W,
+    paddingHorizontal: DEVICE_MARGIN,
     paddingVertical: 2,
   },
   timerNumbers: {
