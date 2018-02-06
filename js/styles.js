@@ -7,10 +7,11 @@ import {
 StatusBar.setBarStyle('light-content');
 
 const DEVICE_W = Dimensions.get('window').width;
-const DEVICE_MARGIN = 15;
+const HORIZONTAL_PADDING = 15;
+const VERTICAL_PADDING = 12;
 
 const BUTTON_MARGIN = 8;
-const BUTTON_SIZE = (DEVICE_W - (2 * DEVICE_MARGIN)) / 5 - BUTTON_MARGIN;
+const BUTTON_SIZE = (DEVICE_W - (2 * HORIZONTAL_PADDING)) / 5 - BUTTON_MARGIN;
 
 export const colours = {
   primaryColour: '#fa375a',
@@ -32,28 +33,28 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   settingsIcon: {
-    marginLeft: DEVICE_MARGIN,
+    marginLeft: HORIZONTAL_PADDING,
     height: 50,
     width: 25
   },
   genericContainer: {
     backgroundColor: '#fff',
-    paddingHorizontal: DEVICE_MARGIN,
-    paddingVertical: 10,
+    paddingHorizontal: HORIZONTAL_PADDING,
+    paddingVertical: VERTICAL_PADDING,
     marginBottom: 1,
   },
 
 
   menuItemContainer: {
     backgroundColor: '#fff',
-    paddingHorizontal: DEVICE_MARGIN,
+    paddingHorizontal: HORIZONTAL_PADDING,
     marginBottom: 1,
   },
   menuHeading: {
-    paddingHorizontal: DEVICE_MARGIN,
-    marginTop: 20,
-    marginBottom: 10,
-    fontSize: 16,
+    paddingHorizontal: HORIZONTAL_PADDING,
+    marginTop: 22,
+    marginBottom: VERTICAL_PADDING,
+    fontSize: 17,
     //fontWeight: 'bold',
     //borderWidth: 1,
   },
@@ -70,8 +71,8 @@ export const styles = StyleSheet.create({
     //borderWidth: 1
   },
   menuItemText: {
-    paddingVertical: 12,
-    //fontSize: 16,
+    paddingVertical: VERTICAL_PADDING,
+    fontSize: 15,
     fontWeight: 'bold',
     alignItems: 'center',
     //borderWidth: 1
@@ -102,10 +103,10 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   progressDataContainer: {
-    paddingHorizontal: DEVICE_MARGIN,
+    paddingHorizontal: HORIZONTAL_PADDING,
   },
   progressDataTitle: {
-    marginVertical: 10,
+    marginVertical: VERTICAL_PADDING,
   },
   progressDataContent: {
     fontFamily: 'Courier New',
@@ -117,8 +118,8 @@ export const styles = StyleSheet.create({
     marginBottom: 1,
   },
   liftInfoContainer: {
-    paddingHorizontal: DEVICE_MARGIN,
-    paddingVertical: 10,
+    paddingHorizontal: HORIZONTAL_PADDING,
+    paddingVertical: VERTICAL_PADDING,
   },
   liftName: {
     fontSize: 17,
@@ -128,8 +129,8 @@ export const styles = StyleSheet.create({
     marginVertical: 5,
   },
   liftButtonsContainer: {
-    marginHorizontal: DEVICE_MARGIN,
-    marginBottom: 15,
+    marginHorizontal: HORIZONTAL_PADDING,
+    marginBottom: VERTICAL_PADDING,
     flexDirection: 'row',
     flexWrap: 'wrap',
     //borderWidth: 1
@@ -229,7 +230,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colours.darkGrey,
-    paddingHorizontal: DEVICE_MARGIN,
+    paddingHorizontal: HORIZONTAL_PADDING,
     paddingVertical: 2,
   },
   timerNumbers: {
