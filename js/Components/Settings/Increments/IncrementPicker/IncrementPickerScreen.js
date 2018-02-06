@@ -19,7 +19,8 @@ export default class extends React.Component {
   }
 
   static navigationOptions = ({ navigation }) => ({
-    title: gzclp.getLiftName(navigation.state.params.liftID),
+    title: gzclp.getLiftTier(navigation.state.params.liftID)
+     + ' ' + gzclp.getLiftName(navigation.state.params.liftID),
     headerTintColor: '#fff',
     headerStyle: styles.header,
     headerTitleStyle: styles.headerTitle,
@@ -39,7 +40,8 @@ export default class extends React.Component {
             gzclp.setLiftIncrement(liftID, increments[i]);
             gzclp.refreshComponent(this);
           }}
-          hasMenuTick={gzclp.getLiftIncrement(liftID) == increments[i]}
+          isTickMenu={true}
+          hasTick={gzclp.getLiftIncrement(liftID) == increments[i]}
           key={i}
         />
       )

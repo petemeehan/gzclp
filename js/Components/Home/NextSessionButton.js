@@ -2,7 +2,7 @@ import React from 'react';
 import {
   Text,
   View,
-  TouchableOpacity,
+  TouchableHighlight,
 } from 'react-native';
 
 import { styles, colours } from 'gzclp/js/styles';
@@ -61,9 +61,9 @@ export default props => {
   });
 
   return (
-    <TouchableOpacity
+    <TouchableHighlight
       style={styles.genericContainer}
-      activeOpacity={0.8}
+      underlayColor={colours.underlayColor}
       // Navigate to session screen and pass as two parameters the required session
       // and the callback function that will refresh the home screen when session is finished
       onPress={() => handlePress()}
@@ -86,6 +86,6 @@ export default props => {
           <Text style={styles.navArrow}>></Text>
         </View>
       </View>
-    </TouchableOpacity>
+    </TouchableHighlight>
   )
 }

@@ -20,8 +20,9 @@ export const colours = {
   successful: '#4cd964',
   //successful: '#fa375a',
   failed: '#999',
-  underlayColor: '#ddd',
+  underlayColor: '#f0f0f0',
 };
+
 
 export const styles = StyleSheet.create({
   header: {
@@ -42,30 +43,50 @@ export const styles = StyleSheet.create({
     marginBottom: 1,
   },
 
+
+  menuItemContainer: {
+    backgroundColor: '#fff',
+    paddingHorizontal: DEVICE_MARGIN,
+    marginBottom: 1,
+  },
   menuHeading: {
     paddingHorizontal: DEVICE_MARGIN,
-    marginVertical: 10,
-    fontSize: 15,
-    fontWeight: 'bold',
+    marginTop: 20,
+    marginBottom: 10,
+    fontSize: 16,
+    //fontWeight: 'bold',
+    //borderWidth: 1,
   },
-  menuItem: {
+  menuItemTickAndContents: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    //borderWidth: 1
+  },
+  menuItemContents: {
+    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    //borderWidth: 1
   },
   menuItemText: {
-    fontSize: 17,
+    paddingVertical: 12,
+    //fontSize: 16,
+    fontWeight: 'bold',
     alignItems: 'center',
+    //borderWidth: 1
   },
   menuTick: {
+    width: 26,
     fontSize: 22,
     color: colours.primaryColour,
-    marginVertical: -10,          // TODO: hack
+    //marginRight: 5,
+    //borderWidth: 1
   },
   navArrow: {
     fontSize: 22,
     color: '#bbb',
-    marginVertical: -10,          // TODO: hack
+    //borderWidth: 1
   },
 
 
