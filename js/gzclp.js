@@ -194,14 +194,14 @@ gzclp.createNewLift = function(tier, name, increment, weight) {
 }
 
 /*
- * To add new lift to program, gives it a unique ID as a key along with
+ * To add new lift to program. Gives it a unique ID as a key along with
  * its other descriptors, adds it to the list of lifts so that its progress
  * may be tracked, and also adds its ID to the 'sessions' array which dictates
  * which lift is performed in which session
  */
 gzclp.addLiftToProgram = function(tier, name, increment, startingWeight, sessions) {
   var newLift = gzclp.createNewLift(tier, name, increment, startingWeight);
-  var nextLiftId = gzclp.getNextLiftId();
+  var nextLiftId = gzclp.getNextLiftId().toString();
 
   gzclp.addLift(nextLiftId, newLift);
   gzclp.addLiftToSessions(sessions, nextLiftId);
@@ -216,7 +216,7 @@ gzclp.removeLiftFromProgram = function(id) {
   delete gzclp.getAllLifts()[id];
 
   for (var session = 0; session < gzclp.getNumberOfSessions(); session++) {
-    gzclp.removeLiftIdFromSessions(id, session)
+    gzclp.removeLiftFromSessions(id, session)
   }
 }
 
@@ -224,25 +224,24 @@ gzclp.removeLiftFromProgram = function(id) {
  * Given a lift's ID, and either a session number (0-3) or array of session numbers,
  * adds that ID to the corresponding session(s)
  */
-gzclp.addLiftToSessions = function(sessions, id) {
-  if (sessions instanceof Array) {
-    for (var i = 0; i < sessions.length; i++) {
-      gzclp.addLiftToSession(sessions[i], id);
+gzclp.addLiftToSessions = function(sessionIDs, liftID) {
+  if (sessionIDs instanceof Array) {
+    for (var i = 0; i < sessionIDs.length; i++) {
+      gzclp.addLiftToSession(sessionIDs[i], liftID);
     }
   } else {
-    gzclp.addLiftToSession(sessions, id);
+    gzclp.addLiftToSession(sessionIDs, liftID);
   }
 }
-gzclp.addLiftToSession = function(id, liftID) {
-  gzclp.getSessionLifts(id).push(liftID);
+gzclp.addLiftToSession = function(sessionID, liftID) {
+  gzclp.getSessionLifts(sessionID).push(liftID);
 }
-
 
 /*
  * Given a lift's ID, and either a session number (0-3) or array of session numbers,
  * removes that ID from the corresponding session(s)
  */
-gzclp.removeLiftIdFromSessions = function(id, sessions) {
+gzclp.removeLiftFromSessions = function(id, sessions) {
   if (sessions instanceof Array) {
     for (var i = 0; i < sessions.length; i++) {
       let sessionLifts = gzclp.getSessionLifts(sessions[i]);

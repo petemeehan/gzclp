@@ -19,14 +19,16 @@ export default class extends React.Component {
   }
 
   static navigationOptions = ({ navigation }) => ({
-    title: 'Increments',
+    title: gzclp.getSessionName(navigation.state.params.sessionID),
     headerTintColor: '#fff',
     headerStyle: styles.header,
     headerTitleStyle: styles.headerTitle,
   });
 
   render() {
-    const { navigate } = this.props.navigation;
+    const { sessionID } = this.props.navigation.state.params;
+
+    const sessionLifts = gzclp.getSessionLifts(sessionID);
 
     // TODO DUPLICATION!!...
 
@@ -42,8 +44,15 @@ export default class extends React.Component {
       menuItemsT1.push(
         <MenuItem
           menuItemText={gzclp.getLiftName( liftIDsT1[i] )}
-          onPress={() => navigate('IncrementsPicker', { liftID: liftIDsT1[i] })}
-          hasNavArrow={true}
+          onPress={() => {
+            // If the lift is already in the session, remove it. If not, add it
+            sessionLifts.includes(liftIDsT1[i]) ?
+              sessionLifts.splice( sessionLifts.indexOf(liftIDsT1[i]), 1 ) :
+              sessionLifts.push(liftIDsT1[i]);
+            gzclp.refreshComponent(this);
+          }}
+          isTickMenu={true}
+          hasTick={sessionLifts.includes(liftIDsT1[i])}
           key={i}
         />
       )
@@ -52,8 +61,15 @@ export default class extends React.Component {
       menuItemsT2.push(
         <MenuItem
           menuItemText={gzclp.getLiftName( liftIDsT2[i] )}
-          onPress={() => navigate('IncrementsPicker', { liftID: liftIDsT2[i] })}
-          hasNavArrow={true}
+          onPress={() => {
+            // If the lift is already in the session, remove it. If not, add it
+            sessionLifts.includes(liftIDsT2[i]) ?
+              sessionLifts.splice( sessionLifts.indexOf(liftIDsT2[i]), 1 ) :
+              sessionLifts.push(liftIDsT2[i]);
+            gzclp.refreshComponent(this);
+          }}
+          isTickMenu={true}
+          hasTick={sessionLifts.includes(liftIDsT2[i])}
           key={i}
         />
       )
@@ -62,8 +78,15 @@ export default class extends React.Component {
       menuItemsT3.push(
         <MenuItem
           menuItemText={gzclp.getLiftName( liftIDsT3[i] )}
-          onPress={() => navigate('IncrementsPicker', { liftID: liftIDsT3[i] })}
-          hasNavArrow={true}
+          onPress={() => {
+            // If the lift is already in the session, remove it. If not, add it
+            sessionLifts.includes(liftIDsT3[i]) ?
+              sessionLifts.splice( sessionLifts.indexOf(liftIDsT3[i]), 1 ) :
+              sessionLifts.push(liftIDsT3[i]);
+            gzclp.refreshComponent(this);
+          }}
+          isTickMenu={true}
+          hasTick={sessionLifts.includes(liftIDsT3[i])}
           key={i}
         />
       )

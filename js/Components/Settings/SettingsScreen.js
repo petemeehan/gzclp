@@ -10,7 +10,7 @@ import {
 import { gzclp } from 'gzclp/js/gzclp';
 import { styles, colours } from 'gzclp/js/styles';
 
-import MenuItem from './MenuItem';
+import MenuItem from 'gzclp/js/Components/Common/MenuItem';
 
 
 export default class extends React.Component {
@@ -45,12 +45,17 @@ export default class extends React.Component {
     return (
       <View>
         <MenuItem
+          menuItemText='Edit Sessions'
+          onPress={() => navigate('EditSessions')}
+          hasNavArrow={true}
+        />
+        <MenuItem
           menuItemText='Increments'
           onPress={() => navigate('Increments')}
           hasNavArrow={true}
         />
 
-        <View style={{marginTop: 20}}>
+        <View style={{marginTop: 22}}>
           <MenuItem
             menuItemText='Reset Everything'
             onPress={() => this.handleResetButtonPress()}

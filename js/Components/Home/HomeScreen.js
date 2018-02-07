@@ -89,7 +89,7 @@ export default class extends React.Component {
           refreshHomeScreen={() => gzclp.refreshComponent(this)}
         />
 
-        <ScrollView style={{marginTop: 10}}>
+        <ScrollView style={{marginTop: 22}}>
           {previousSessionResults.reverse()}
         </ScrollView>
 

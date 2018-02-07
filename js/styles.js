@@ -9,6 +9,7 @@ StatusBar.setBarStyle('light-content');
 const DEVICE_W = Dimensions.get('window').width;
 const HORIZONTAL_PADDING = 15;
 const VERTICAL_PADDING = 12;
+const COMPONENT_MARGIN = 22;
 
 const BUTTON_MARGIN = 8;
 const BUTTON_SIZE = (DEVICE_W - (2 * HORIZONTAL_PADDING)) / 5 - BUTTON_MARGIN;
@@ -52,10 +53,11 @@ export const styles = StyleSheet.create({
   },
   menuHeading: {
     paddingHorizontal: HORIZONTAL_PADDING,
-    marginTop: 22,
+    marginTop: COMPONENT_MARGIN,
     marginBottom: VERTICAL_PADDING,
     fontSize: 17,
-    //fontWeight: 'bold',
+    fontWeight: 'bold',
+    color: '#777',
     //borderWidth: 1,
   },
   menuItemTickAndContents: {
@@ -115,7 +117,7 @@ export const styles = StyleSheet.create({
   liftContainer: {
     //borderWidth: 1,
     backgroundColor: '#fff',
-    marginBottom: 1,
+    marginBottom: 4,
   },
   liftInfoContainer: {
     paddingHorizontal: HORIZONTAL_PADDING,

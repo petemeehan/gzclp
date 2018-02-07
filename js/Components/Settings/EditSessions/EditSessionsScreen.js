@@ -9,7 +9,7 @@ import {
 import { gzclp } from 'gzclp/js/gzclp';
 import { styles, colours } from 'gzclp/js/styles';
 
-import MenuItem from '../../MenuItem';
+import MenuItem from 'gzclp/js/Components/Common/MenuItem';
 
 
 
@@ -19,29 +19,22 @@ export default class extends React.Component {
   }
 
   static navigationOptions = ({ navigation }) => ({
-    title: gzclp.getLiftTier(navigation.state.params.liftID)
-     + ' ' + gzclp.getLiftName(navigation.state.params.liftID),
+    title: 'Edit Sessions',
     headerTintColor: '#fff',
     headerStyle: styles.header,
     headerTitleStyle: styles.headerTitle,
   });
 
   render() {
-    const { liftID } = this.props.navigation.state.params;
+    const { navigate } = this.props.navigation;
 
-    const increments = gzclp.getIncrements();
     const menuItems = []
-
-    for (let i = 0; i < increments.length; i++) {
+    for (let i = 0; i < gzclp.getNumberOfSessions(); i++) {
       menuItems.push(
         <MenuItem
-          menuItemText={increments[i]}
-          onPress={() => {
-            gzclp.setLiftIncrement(liftID, increments[i]);
-            gzclp.refreshComponent(this);
-          }}
-          isTickMenu={true}
-          hasTick={gzclp.getLiftIncrement(liftID) == increments[i]}
+          menuItemText={gzclp.getSessionName(i)}
+          onPress={() => navigate('EditSessionsPicker', { sessionID: i })}
+          hasNavArrow={true}
           key={i}
         />
       )
