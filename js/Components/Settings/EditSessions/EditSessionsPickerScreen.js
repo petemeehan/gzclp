@@ -47,6 +47,13 @@ export default class extends React.Component {
               sessionLifts.splice( sessionLifts.indexOf(liftIDsT1[i]), 1 ) :
               sessionLifts.push(liftIDsT1[i]);
             gzclp.refreshComponent(this);
+
+            // Store current state of the app
+            try {
+              gzclp.saveProgramState();
+            } catch (error) {
+              console.log("Error saving data")
+            }
           }}
           isTickMenu={true}
           hasTick={sessionLifts.includes(liftIDsT1[i])}
@@ -64,6 +71,13 @@ export default class extends React.Component {
               sessionLifts.splice( sessionLifts.indexOf(liftIDsT2[i]), 1 ) :
               sessionLifts.push(liftIDsT2[i]);
             gzclp.refreshComponent(this);
+
+            // Store current state of the app
+            try {
+              gzclp.saveProgramState();
+            } catch (error) {
+              console.log("Error saving data")
+            }
           }}
           isTickMenu={true}
           hasTick={sessionLifts.includes(liftIDsT2[i])}
@@ -81,6 +95,13 @@ export default class extends React.Component {
               sessionLifts.splice( sessionLifts.indexOf(liftIDsT3[i]), 1 ) :
               sessionLifts.push(liftIDsT3[i]);
             gzclp.refreshComponent(this);
+
+            // Store current state of the app
+            try {
+              gzclp.saveProgramState();
+            } catch (error) {
+              console.log("Error saving data")
+            }
           }}
           isTickMenu={true}
           hasTick={sessionLifts.includes(liftIDsT3[i])}

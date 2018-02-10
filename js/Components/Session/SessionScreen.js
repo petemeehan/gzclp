@@ -50,8 +50,7 @@ export default class extends React.Component {
   }
 
   async handleDoneButtonPress(lifts) {
-    const { goBack } = this.props.navigation;
-    const { refreshHomeScreen } = this.props.navigation.state.params;
+    const { navigation } = this.props;
 
     // Keep a record of this session
     gzclp.addCompletedSession(this.state);   // TODO use setter method
@@ -75,8 +74,8 @@ export default class extends React.Component {
     }
 
     // Call refreshHomeScreen function to force rerender of home screen when it's navigated back to
-    refreshHomeScreen();
-    goBack();
+    navigation.state.params.refreshHomeScreen();
+    navigation.goBack();
   }
 
   render() {

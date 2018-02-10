@@ -36,6 +36,13 @@ export default class extends React.Component {
           onPress={() => {
             gzclp.setLiftIncrement(liftID, increments[i]);
             gzclp.refreshComponent(this);
+
+            // Store current state of the app
+            try {
+              gzclp.saveProgramState();
+            } catch (error) {
+              console.log("Error saving data")
+            }
           }}
           isTickMenu={true}
           hasTick={gzclp.getLiftIncrement(liftID) == increments[i]}
