@@ -27,26 +27,23 @@ export default class extends React.Component {
 
   static navigationOptions = ({ navigation }) => ({
     title: 'GZCLP',
-    headerTintColor: '#fff',
-    headerStyle: styles.header,
-    headerTitleStyle: styles.headerTitle,
     headerLeft: <TouchableOpacity
-      onPress={() => navigation.navigate('Settings', navigation.state.params)}
+      onPress={() => navigation.navigate('SettingsStack', navigation.state.params)}
     >
       <Image
-        style={styles.settingsIcon}
-        source={require('../../../Icons/settings.png')}
+        style={styles.headerIcon}
+        source={require('gzclp/icons/settings.png')}
       />
     </TouchableOpacity>,
   });
 
-  componentDidMount() {
+  componentWillMount() {
     // Overwrite initial default program state values with stored ones, if they exist
     this.loadSavedData();
 
     // Put refreshHomeScreen function into navigation.state.params
     // so it can be invoked in navigationOptions and then passed to Settings screen
-    this.props.navigation.setParams({refreshHomeScreen: () => gzclp.refreshComponent(this)})
+    this.props.navigation.setParams( {refreshHomeScreen: () => gzclp.refreshComponent(this)} )
   }
 
   async loadSavedData() {

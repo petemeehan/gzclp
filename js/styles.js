@@ -33,10 +33,9 @@ export const styles = StyleSheet.create({
   headerTitle: {
     fontWeight: 'bold',
   },
-  settingsIcon: {
-    marginLeft: HORIZONTAL_PADDING,
-    height: 50,
-    width: 25
+  headerIcon: {
+    height: 40,
+    width: 40
   },
   genericContainer: {
     backgroundColor: '#fff',
@@ -117,7 +116,7 @@ export const styles = StyleSheet.create({
   liftContainer: {
     //borderWidth: 1,
     backgroundColor: '#fff',
-    marginBottom: 4,
+    marginBottom: 1,
   },
   liftInfoContainer: {
     paddingHorizontal: HORIZONTAL_PADDING,

@@ -1,5 +1,7 @@
 import { StackNavigator } from 'react-navigation';
 
+import { styles } from 'gzclp/js/styles';
+
 
 /*-------------------- APP COMPONENTS --------------------*/
 
@@ -15,14 +17,37 @@ import EditSessionsPickerScreen from './js/Components/Settings/EditSessions/Edit
 
 /*-------------------- REACT NAVIGATION NAVIGATOR --------------------*/
 
-export default StackNavigator({
+const MainStack = StackNavigator({
   Home: {screen: HomeScreen},
   Session: {screen: SessionScreen},
+}, {
+  navigationOptions: {
+    headerTintColor: '#fff',
+    headerStyle: styles.header,
+    headerTitleStyle: styles.headerTitle,
+  }
+})
+
+const SettingsStack = StackNavigator({
   Settings: {screen: SettingsScreen},
   Increments: {screen: IncrementsScreen},
   IncrementsPicker: {screen: IncrementsPickerScreen},
   EditSessions: {screen: EditSessionsScreen},
   EditSessionsPicker: {screen: EditSessionsPickerScreen},
 }, {
-    initialRouteName: 'Home',
+  navigationOptions: {
+    headerTintColor: '#fff',
+    headerStyle: styles.header,
+    headerTitleStyle: styles.headerTitle,
+  }
+})
+
+const RootStack = StackNavigator({
+  MainStack: {screen: MainStack},
+  SettingsStack: {screen: SettingsStack},
+}, {
+  mode: 'modal',
+  headerMode: 'none',
 });
+
+export default RootStack;

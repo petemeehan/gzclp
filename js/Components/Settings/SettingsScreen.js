@@ -3,7 +3,8 @@ import {
   View,
   Text,
   TextInput,
-  TouchableHighlight,
+  TouchableOpacity,
+  Image,
   Button,
 } from 'react-native';
 
@@ -20,23 +21,27 @@ export default class extends React.Component {
 
   static navigationOptions = ({ navigation }) => ({
     title: 'Settings',
-    headerTintColor: '#fff',
-    headerStyle: styles.header,
-    headerTitleStyle: styles.headerTitle,
+    headerLeft: <TouchableOpacity
+      onPress={() => {
+        navigation.state.params.refreshHomeScreen();
+        navigation.goBack(null);
+      }}
+    >
+      <Image
+        style={styles.headerIcon}
+        source={require('gzclp/icons/close.png')}
+      />
+    </TouchableOpacity>
   });
 
   // Remove stored data and reset program state to initial values
   async handleResetButtonPress() {
-    const { refreshHomeScreen } = this.props.navigation.state.params;
-
     try {
       await gzclp.deleteSavedProgramState();
       gzclp.resetProgramState();
     } catch (error) {
       console.log("Error removing data");
     }
-
-    refreshHomeScreen();
   }
 
   render() {

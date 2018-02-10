@@ -18,12 +18,9 @@ export default class extends React.Component {
     super(props);
   }
 
-  static navigationOptions = ({ navigation }) => ({
+  static navigationOptions = {
     title: 'Increments',
-    headerTintColor: '#fff',
-    headerStyle: styles.header,
-    headerTitleStyle: styles.headerTitle,
-  });
+  };
 
   render() {
     const { navigate } = this.props.navigation;

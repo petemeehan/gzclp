@@ -20,9 +20,6 @@ export default class extends React.Component {
 
   static navigationOptions = ({ navigation }) => ({
     title: gzclp.getSessionName(navigation.state.params.sessionID),
-    headerTintColor: '#fff',
-    headerStyle: styles.header,
-    headerTitleStyle: styles.headerTitle,
   });
 
   render() {

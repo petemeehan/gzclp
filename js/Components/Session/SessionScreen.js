@@ -24,11 +24,8 @@ export default class extends React.Component {
   }
 
   static navigationOptions = ({ navigation }) => ({
-    title: 'Session ' + gzclp.getSessionName(navigation.state.params.sessionID),
-    headerTintColor: '#fff',
-    headerStyle: styles.header,
-    headerTitleStyle: styles.headerTitle,
-  });
+    title: 'Session ' + gzclp.getSessionName(navigation.state.params.sessionID)
+  })
 
   componentDidMount() {
     // Initialise state

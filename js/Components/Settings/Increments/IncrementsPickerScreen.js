@@ -21,9 +21,6 @@ export default class extends React.Component {
   static navigationOptions = ({ navigation }) => ({
     title: gzclp.getLiftTier(navigation.state.params.liftID)
      + ' ' + gzclp.getLiftName(navigation.state.params.liftID),
-    headerTintColor: '#fff',
-    headerStyle: styles.header,
-    headerTitleStyle: styles.headerTitle,
   });
 
   render() {
