@@ -16,9 +16,9 @@ const BUTTON_SIZE = (DEVICE_W - (2 * HORIZONTAL_PADDING)) / 5 - BUTTON_MARGIN;
 
 export const colours = {
   primaryColour: '#fa375a',
-  lightGrey: '#eee',
+  lightGrey: '#f0f0f0',
   mediumGrey: '#999',
-  darkGrey: '#666',
+  darkGrey: '#555',
   successful: '#4cd964',
   //successful: '#fa375a',
   failed: '#999',

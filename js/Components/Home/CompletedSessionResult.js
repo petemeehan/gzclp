@@ -16,7 +16,9 @@ export default props => {
   const liftIDs = Object.keys(session);
   const liftResults = Object.values(session);
 
-  const resultStrings = ['Not Completed', '✓', '✕'];  // TODO Define as global and use everywhere
+  //console.log(session);
+
+  const resultStrings = ['−', '✓', '✕'];  // TODO Define as global and use everywhere
 
   // Populate an array to display each lift result in the session
   var lifts = [];

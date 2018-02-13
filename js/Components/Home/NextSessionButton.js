@@ -10,8 +10,8 @@ import { gzclp } from 'gzclp/js/gzclp';
 
 
 // TODO: dont use inline styles
-export default props => {
 
+export default props => {
   function handlePress() {
     const { navigate, refreshHomeScreen } = props;
 
@@ -22,43 +22,31 @@ export default props => {
     });
   }
 
-  // lifts is an array where each element is a lift's ID
-  const sessionLifts = gzclp.getSessionLifts( gzclp.getCurrentSessionID() );
-  // Populate arrays of data to display in the Next Session component
-  var tiers = [];
-  var names = [];
-  var weights = [];
-  var repSchemes = [];
+  const liftIDs = gzclp.getSessionLifts( gzclp.getCurrentSessionID() );
+  const sortedLiftIDs = gzclp.sortLiftIDsByTier(liftIDs);
 
-  sessionLifts.forEach( (liftID, i) => {
-    let tier = gzclp.getLiftTier(liftID);
-    let name = gzclp.getLiftName(liftID);
+  var lifts = [];
+  for (var i = 0; i < sortedLiftIDs.length; i++) {
+    const liftID = sortedLiftIDs[i];
 
-    // TODO This is all WAY more cumbersome than it needs to be,
-    // see CompletedSessionResult.js
-    tiers.push(
-      <Text key={i}>
-        {tier}
-      </Text>
-    );
-    names.push(
-      <Text key={i}>
-        {gzclp.getLiftName(liftID)}
-      </Text>
-    );
-    weights.push(
-      <Text key={i}>
-        {gzclp.getNextAttemptWeight(liftID)} kg
-      </Text>
-    );
-    repSchemes.push(
-      <Text key={i}>
-        {gzclp.getNumberOfSets( tier, gzclp.getNextAttemptRepSchemeIndex(liftID) )}
-        ×
-        {gzclp.getDisplayedRepsPerSet( tier, gzclp.getNextAttemptRepSchemeIndex(liftID) )}
-      </Text>
-    );
-  });
+    const tier = gzclp.getLiftTier( liftID );
+    const name = gzclp.getLiftName( liftID );
+    const weight = gzclp.getNextAttemptWeight( liftID )
+    const numberOfSets = gzclp.getNumberOfSets( tier, gzclp.getNextAttemptRepSchemeIndex(liftID) );
+    const numberOfReps = gzclp.getDisplayedRepsPerSet( tier, gzclp.getNextAttemptRepSchemeIndex(liftID) );
+
+    lifts.push(
+      <View key={i} style={{flexDirection: 'row'}}>
+        <Text style={{width: 25}}>{tier}</Text>
+        <Text style={{width: 120}}>{name}</Text>
+        <Text style={{width: 50}}>{numberOfSets}×{numberOfReps}</Text>
+
+        <View style={{width: 50, alignItems: 'flex-end'}}>
+          <Text>{weight} kg</Text>
+        </View>
+      </View>
+    )
+  }
 
   return (
     <TouchableHighlight
@@ -68,23 +56,16 @@ export default props => {
       // and the callback function that will refresh the home screen when session is finished
       onPress={() => handlePress()}
     >
-      <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+      <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
         <View>
           <Text style={styles.nextSessionTitle}>
             {'Next Session: ' + gzclp.getSessionName( gzclp.getCurrentSessionID() )}
           </Text>
 
-          <View style={{flexDirection: 'row'}}>
-            <View style={{width: 25}}>{tiers}</View>
-            <View style={{width: 120}}>{names}</View>
-            <View style={{width: 50}}>{repSchemes}</View>
-            <View style={{width: 50, alignItems: 'flex-end'}}>{weights}</View>
-          </View>
+          {lifts}
         </View>
 
-        <View style={{justifyContent: 'center'}}>
-          <Text style={styles.navArrow}>></Text>
-        </View>
+        <Text style={styles.navArrow}>></Text>
       </View>
     </TouchableHighlight>
   )

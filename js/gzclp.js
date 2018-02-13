@@ -84,7 +84,7 @@ gzclp.DEFAULT_LIFTS = [
 gzclp.state.lifts = {};
 
 // For assigning unique IDs to new lifts
-gzclp.state.nextLiftId = 0;
+gzclp.state.nextLiftID = 0;
 
 // For keeping track of which lifts are in each session
 gzclp.state.sessions = [
@@ -98,7 +98,7 @@ gzclp.state.sessions = [
 gzclp.state.nextSessionID = 0;
 
 // For keeping a record of completed sessions
-// Stored in the following format:
+// Stored in the following format, where liftID and liftResult are both integers:
 //  [
 //    {
 //       liftID: liftResult
@@ -143,17 +143,16 @@ gzclp.setProgramState = function(programState) { gzclp.state = gzclp.getCopyOfOb
 gzclp.getAllLifts = function() { return gzclp.state.lifts; }
 gzclp.addLift = function(id, lift) { gzclp.state.lifts[id] = lift; }
 
-gzclp.getSession = function(id) { return gzclp.state.sessions[id]; }
 gzclp.getNumberOfSessions = function() { return gzclp.state.sessions.length; }
-gzclp.getSessionName = function(id) { return gzclp.getSession(id).name; }
-gzclp.getSessionLifts = function(id) { return gzclp.getSession(id).lifts; }
-gzclp.setSessionLifts = function(id, arr) { gzclp.getSession(id).lifts = arr; }
+gzclp.getSessionName = function(id) { return gzclp.state.sessions[id].name; }
+gzclp.getSessionLifts = function(id) { return gzclp.state.sessions[id].lifts; }
+gzclp.setSessionLifts = function(id, arr) { gzclp.state.sessions[id].lifts = arr; }
 
 gzclp.getCurrentSessionID = function() { return gzclp.state.nextSessionID; }
 gzclp.setCurrentSessionID = function(num) { gzclp.state.nextSessionID = num; }
 
-gzclp.getNextLiftId = function() { return gzclp.state.nextLiftId; }
-gzclp.setNextLiftID = function(num) { gzclp.state.nextLiftId = num; }
+gzclp.getNextLiftID = function() { return gzclp.state.nextLiftID; }
+gzclp.setNextLiftID = function(num) { gzclp.state.nextLiftID = num; }
 
 gzclp.getLiftTier = function(id) { return gzclp.state.lifts[id].tier; }
 gzclp.getLiftName = function(id) { return gzclp.state.lifts[id].name; }
@@ -201,11 +200,11 @@ gzclp.createNewLift = function(tier, name, increment, weight) {
  */
 gzclp.addLiftToProgram = function(tier, name, increment, startingWeight, sessions) {
   var newLift = gzclp.createNewLift(tier, name, increment, startingWeight);
-  var nextLiftId = gzclp.getNextLiftId().toString();
+  var nextLiftID = gzclp.getNextLiftID().toString();
 
-  gzclp.addLift(nextLiftId, newLift);
-  gzclp.addLiftToSessions(sessions, nextLiftId);
-  gzclp.setNextLiftID(gzclp.getNextLiftId() + 1);
+  gzclp.addLift(nextLiftID, newLift);
+  gzclp.addLiftToSessions(sessions, nextLiftID);
+  gzclp.setNextLiftID(gzclp.getNextLiftID() + 1);
 }
 
 /*
@@ -357,6 +356,33 @@ gzclp.getAllLiftIDsInTier = function(tier) {
   return liftIDs;
 }
 
+/*
+ * Given an array of lift IDs, returns an array of those IDs that are sorted
+ * in order of T1 -> T2 -> T3
+ */
+gzclp.sortLiftIDsByTier = function(liftIDs) {
+  const liftIDs_T1 = [];
+  const liftIDs_T2 = [];
+  const liftIDs_T3 = [];
+
+  for (var i = 0; i < liftIDs.length; i++) {
+    const liftID = liftIDs[i];
+    const liftTier = gzclp.getLiftTier(liftID);
+
+    if (liftTier == 'T1') {
+      liftIDs_T1.push(liftID);
+    }
+    else if (liftTier == 'T2') {
+      liftIDs_T2.push(liftID);
+    }
+    else if (liftTier == 'T3') {
+      liftIDs_T3.push(liftID);
+    }
+  }
+
+  return [...liftIDs_T1, ...liftIDs_T2, ...liftIDs_T3]
+}
+
 
 /*-------------------- PROGRAM PROGRESSION METHODS --------------------*/
 
@@ -390,7 +416,7 @@ gzclp.handleSuccessfulLift = function(liftID) {
  * (TODO: this is currently implemented same as for T1, as previous sessions are not yet recorded)
  * T3: no change
  */
-gzclp.handleFailedLift = function(liftID) {
+gzclp.handleFailedLift = function(liftID) { console.log(liftID);
   let tier = gzclp.getLiftTier(liftID);
   let currentWeight = gzclp.getNextAttemptWeight(liftID);
   let currentRepSchemeIndex = gzclp.getNextAttemptRepSchemeIndex(liftID);

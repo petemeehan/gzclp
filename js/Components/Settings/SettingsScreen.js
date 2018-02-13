@@ -21,17 +21,14 @@ export default class extends React.Component {
 
   static navigationOptions = ({ navigation }) => ({
     title: 'Settings',
-    headerLeft: <TouchableOpacity
+    headerLeft: <Button
+      title='Done'
+      color='#fff'
       onPress={() => {
         navigation.state.params.refreshHomeScreen();
         navigation.goBack(null);
       }}
-    >
-      <Image
-        style={styles.headerIcon}
-        source={require('gzclp/icons/close.png')}
-      />
-    </TouchableOpacity>
+    />
   });
 
   // Remove stored data and reset program state to initial values

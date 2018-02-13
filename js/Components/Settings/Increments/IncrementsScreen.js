@@ -27,39 +27,39 @@ export default class extends React.Component {
 
     // TODO DUPLICATION!!...
 
-    const liftIDsT1 = gzclp.getAllLiftIDsInTier('T1');
-    const liftIDsT2 = gzclp.getAllLiftIDsInTier('T2');
-    const liftIDsT3 = gzclp.getAllLiftIDsInTier('T3');
+    const liftIDs_T1 = gzclp.getAllLiftIDsInTier('T1');
+    const liftIDs_T2 = gzclp.getAllLiftIDsInTier('T2');
+    const liftIDs_T3 = gzclp.getAllLiftIDsInTier('T3');
 
     const menuItemsT1 = [];
     const menuItemsT2 = [];
     const menuItemsT3 = [];
 
-    for (let i = 0; i < liftIDsT1.length; i++) {
+    for (let i = 0; i < liftIDs_T1.length; i++) {
       menuItemsT1.push(
         <MenuItem
-          menuItemText={gzclp.getLiftName( liftIDsT1[i] )}
-          onPress={() => navigate('IncrementsPicker', { liftID: liftIDsT1[i] })}
+          menuItemText={gzclp.getLiftName( liftIDs_T1[i] )}
+          onPress={() => navigate('IncrementsPicker', { liftID: liftIDs_T1[i] })}
           hasNavArrow={true}
           key={i}
         />
       )
     };
-    for (let i = 0; i < liftIDsT2.length; i++) {
+    for (let i = 0; i < liftIDs_T2.length; i++) {
       menuItemsT2.push(
         <MenuItem
-          menuItemText={gzclp.getLiftName( liftIDsT2[i] )}
-          onPress={() => navigate('IncrementsPicker', { liftID: liftIDsT2[i] })}
+          menuItemText={gzclp.getLiftName( liftIDs_T2[i] )}
+          onPress={() => navigate('IncrementsPicker', { liftID: liftIDs_T2[i] })}
           hasNavArrow={true}
           key={i}
         />
       )
     };
-    for (let i = 0; i < liftIDsT3.length; i++) {
+    for (let i = 0; i < liftIDs_T3.length; i++) {
       menuItemsT3.push(
         <MenuItem
-          menuItemText={gzclp.getLiftName( liftIDsT3[i] )}
-          onPress={() => navigate('IncrementsPicker', { liftID: liftIDsT3[i] })}
+          menuItemText={gzclp.getLiftName( liftIDs_T3[i] )}
+          onPress={() => navigate('IncrementsPicker', { liftID: liftIDs_T3[i] })}
           hasNavArrow={true}
           key={i}
         />
