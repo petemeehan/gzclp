@@ -361,26 +361,14 @@ gzclp.getAllLiftIDsInTier = function(tier) {
  * in order of T1 -> T2 -> T3
  */
 gzclp.sortLiftIDsByTier = function(liftIDs) {
-  const liftIDs_T1 = [];
-  const liftIDs_T2 = [];
-  const liftIDs_T3 = [];
+  liftIDs.sort((a, b) => {
+    var tierA = gzclp.getLiftTier(a);
+    var tierB = gzclp.getLiftTier(b);
 
-  for (var i = 0; i < liftIDs.length; i++) {
-    const liftID = liftIDs[i];
-    const liftTier = gzclp.getLiftTier(liftID);
+    return tierA < tierB ? -1 : (tierA > tierB ? 1 : 0);
+  });
 
-    if (liftTier == 'T1') {
-      liftIDs_T1.push(liftID);
-    }
-    else if (liftTier == 'T2') {
-      liftIDs_T2.push(liftID);
-    }
-    else if (liftTier == 'T3') {
-      liftIDs_T3.push(liftID);
-    }
-  }
-
-  return [...liftIDs_T1, ...liftIDs_T2, ...liftIDs_T3]
+  return liftIDs;
 }
 
 

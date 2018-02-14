@@ -23,11 +23,11 @@ export default props => {
   }
 
   const liftIDs = gzclp.getSessionLifts( gzclp.getCurrentSessionID() );
-  const sortedLiftIDs = gzclp.sortLiftIDsByTier(liftIDs);
+  gzclp.sortLiftIDsByTier(liftIDs);
 
   var lifts = [];
-  for (var i = 0; i < sortedLiftIDs.length; i++) {
-    const liftID = sortedLiftIDs[i];
+  for (var i = 0; i < liftIDs.length; i++) {
+    const liftID = liftIDs[i];
 
     const tier = gzclp.getLiftTier( liftID );
     const name = gzclp.getLiftName( liftID );

@@ -82,12 +82,12 @@ export default class extends React.Component {
     const { params } = this.props.navigation.state;
 
     const liftIDs = gzclp.getSessionLifts(params.sessionID);
-    const sortedLiftIDs = gzclp.sortLiftIDsByTier(liftIDs);
+    gzclp.sortLiftIDsByTier(liftIDs);
 
     // Populate an array of Lift components to display in this Session Screen component
     var lifts = [];
-    for (var i = 0; i < sortedLiftIDs.length; i++) {
-      const liftID = sortedLiftIDs[i];
+    for (var i = 0; i < liftIDs.length; i++) {
+      const liftID = liftIDs[i];
 
       const tier = gzclp.getLiftTier(liftID);
       const name = gzclp.getLiftName(liftID);
