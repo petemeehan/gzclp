@@ -44,7 +44,6 @@ export default class extends React.Component {
               console.log("Error saving data")
             }
           }}
-          isTickMenu={true}
           hasTick={gzclp.getLiftIncrement(liftID) == increments[i]}
           key={i}
         />

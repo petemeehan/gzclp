@@ -13,7 +13,6 @@ export default (props) => {
     var {
       onPress,
       menuItemText,
-      isTickMenu,
       hasTick,
       hasNavArrow,
     } = props;
@@ -25,11 +24,9 @@ export default (props) => {
         onPress={onPress}
       >
         <View style={styles.menuItemTickAndContents}>
-          {hasTick ? <Text style={styles.menuTick}>✓</Text> : null}
-          {isTickMenu && !hasTick ? <Text style={styles.menuTick}></Text> : null}
-
           <View style={styles.menuItemContents}>
             <Text style={styles.menuItemText}>{menuItemText}</Text>
+            {hasTick ? <Text style={styles.menuTick}>✓</Text> : null}
             {hasNavArrow ? <Text style={styles.navArrow}>></Text> : null}
           </View>
         </View>

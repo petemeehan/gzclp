@@ -9,7 +9,7 @@ StatusBar.setBarStyle('light-content');
 const DEVICE_W = Dimensions.get('window').width;
 const HORIZONTAL_PADDING = 15;
 const VERTICAL_PADDING = 12;
-const COMPONENT_MARGIN = 22;
+//const COMPONENT_MARGIN = 22;
 
 const BUTTON_MARGIN = 8;
 const BUTTON_SIZE = (DEVICE_W - (2 * HORIZONTAL_PADDING)) / 5 - BUTTON_MARGIN;
@@ -17,12 +17,12 @@ const BUTTON_SIZE = (DEVICE_W - (2 * HORIZONTAL_PADDING)) / 5 - BUTTON_MARGIN;
 export const colours = {
   primaryColour: '#fa375a',
   lightGrey: '#f0f0f0',
-  mediumGrey: '#999',
+  mediumGrey: '#aaa',
   darkGrey: '#555',
-  successful: '#4cd964',
-  //successful: '#fa375a',
-  failed: '#999',
+  failed: '#888',
   underlayColor: '#f0f0f0',
+  negativeRed: '#ff3d3d',
+  positiveGreen: '#4cd964'
 };
 
 
@@ -52,10 +52,10 @@ export const styles = StyleSheet.create({
   },
   menuHeading: {
     paddingHorizontal: HORIZONTAL_PADDING,
-    marginTop: COMPONENT_MARGIN,
-    marginBottom: VERTICAL_PADDING,
-    fontSize: 17,
-    fontWeight: 'bold',
+    marginTop: 16,
+    marginBottom: 8,
+    fontSize: 15,
+    //fontWeight: 'bold',
     color: '#777',
     //borderWidth: 1,
   },
@@ -171,7 +171,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   liftButtonAllSuccessful: {
-    backgroundColor: colours.successful,
+    backgroundColor: colours.positiveGreen,
     width: BUTTON_SIZE,
     height: BUTTON_SIZE,
     borderRadius: BUTTON_SIZE / 2,
@@ -205,7 +205,7 @@ export const styles = StyleSheet.create({
     position: 'absolute',
   },
   liftButtonBorderAllSuccessful: {
-    borderColor: colours.successful,
+    borderColor: colours.positiveGreen,
     borderWidth: 1.5,
     width: BUTTON_SIZE + 5,
     height: BUTTON_SIZE + 5,
