@@ -15,8 +15,8 @@ import Lift from './Lift';
 export default class extends React.Component {
   constructor(props) {
     super(props);
-    // Session state used to keep track of which lifts are complete
-    // eg., if lifts with IDs 2 and 5 had been completed, lift-2 successfully
+    // Session state used to keep track of which liftIDs are complete
+    // eg., if liftIDs with IDs 2 and 5 had been completed, lift-2 successfully
     // and lift-5 not, and lift-7 was left uncompleted,
     // state object would look as follows:
     // {2: 1, 5: 2, 7: 0}
@@ -24,18 +24,15 @@ export default class extends React.Component {
   }
 
   static navigationOptions = ({ navigation }) => ({
-    title: 'Session ' + gzclp.getSessionName(navigation.state.params.sessionID),
-    headerTintColor: '#fff',
-    headerStyle: styles.header,
-    headerTitleStyle: styles.headerTitle,
-  });
+    title: 'Session ' + gzclp.getSessionName(navigation.state.params.sessionID)
+  })
 
-  componentDidMount() {
+  componentWillMount() {
     // Initialise state
     const { params } = this.props.navigation.state;
-    const lifts = gzclp.getSessionLifts(params.sessionID);
-    for (var i = 0; i < lifts.length; i++) {
-      this.setState( { [lifts[i]]: 0 } )
+    const liftIDs = gzclp.getSessionLifts(params.sessionID);
+    for (var i = 0; i < liftIDs.length; i++) {
+      this.setState( { [liftIDs[i]]: 0 } )
     }
   }
 
@@ -52,16 +49,15 @@ export default class extends React.Component {
     }
   }
 
-  async handleDoneButtonPress(lifts) {
-    const { goBack } = this.props.navigation;
-    const { refreshHomeScreen } = this.props.navigation.state.params;
+  async handleDoneButtonPress(liftIDs) {
+    const { navigation } = this.props;
 
     // Keep a record of this session
     gzclp.addCompletedSession(this.state);   // TODO use setter method
 
     // Clicking "Done" button calls the "success" or "failure" function for each lift,
     // depending on whether all sets were successful/failed, or do nothing if incomplete
-    lifts.forEach(liftID => {
+    liftIDs.forEach(liftID => {
       let liftResult = this.state[liftID];
       this.handleLiftResult( liftID, liftResult );
     });
@@ -78,26 +74,28 @@ export default class extends React.Component {
     }
 
     // Call refreshHomeScreen function to force rerender of home screen when it's navigated back to
-    refreshHomeScreen();
-    goBack();
+    navigation.state.params.refreshHomeScreen();
+    navigation.goBack();
   }
 
   render() {
     const { params } = this.props.navigation.state;
 
-    // lifts parameter is an array where each element is a lift's ID
-    const lifts = gzclp.getSessionLifts(params.sessionID);
+    const liftIDs = gzclp.getSessionLifts(params.sessionID);
+    gzclp.sortLiftIDsByTier(liftIDs);
 
     // Populate an array of Lift components to display in this Session Screen component
-    var liftComponents = [];
-    lifts.forEach( (liftID, index) => {   // TODO No need for forEach, just use For Loop
-      let tier = gzclp.getLiftTier(liftID);
-      let name = gzclp.getLiftName(liftID);
-      let repSchemeIndex = gzclp.getNextAttemptRepSchemeIndex(liftID);
-      let weight = gzclp.getNextAttemptWeight(liftID);
+    var lifts = [];
+    for (var i = 0; i < liftIDs.length; i++) {
+      const liftID = liftIDs[i];
 
-      liftComponents.push(
-        <Lift key={index} tier={tier} name={name}
+      const tier = gzclp.getLiftTier(liftID);
+      const name = gzclp.getLiftName(liftID);
+      const repSchemeIndex = gzclp.getNextAttemptRepSchemeIndex(liftID);
+      const weight = gzclp.getNextAttemptWeight(liftID);
+
+      lifts.push(
+        <Lift key={i} tier={tier} name={name}
           repSchemeIndex={repSchemeIndex} weight={weight}
           // Test for whether lift is
           // 1. Successful (all sets successful),
@@ -106,18 +104,18 @@ export default class extends React.Component {
           setLiftResult={(liftResult) => {this.setState( { [liftID]: liftResult } )}}
         />
       )
-    });
+    };
 
     return (
       <View style={{flex: 1}}>
         <ScrollView>
-          {liftComponents}
+          {lifts}
         </ScrollView>
 
         <Button
           title='Done'
           color={colours.primaryColour}
-          onPress={() => this.handleDoneButtonPress(lifts)}
+          onPress={() => this.handleDoneButtonPress(liftIDs)}
         />
       </View>
     );

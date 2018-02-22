@@ -9,7 +9,7 @@ import {
 import { gzclp } from 'gzclp/js/gzclp';
 import { styles, colours } from 'gzclp/js/styles';
 
-import MenuItem from '../../MenuItem';
+import MenuItem from 'gzclp/js/Components/Common/MenuItem';
 
 
 
@@ -19,10 +19,8 @@ export default class extends React.Component {
   }
 
   static navigationOptions = ({ navigation }) => ({
-    title: gzclp.getLiftName(navigation.state.params.liftID),
-    headerTintColor: '#fff',
-    headerStyle: styles.header,
-    headerTitleStyle: styles.headerTitle,
+    title: gzclp.getLiftTier(navigation.state.params.liftID)
+     + ' ' + gzclp.getLiftName(navigation.state.params.liftID),
   });
 
   render() {
@@ -38,8 +36,15 @@ export default class extends React.Component {
           onPress={() => {
             gzclp.setLiftIncrement(liftID, increments[i]);
             gzclp.refreshComponent(this);
+
+            // Store current state of the app
+            try {
+              gzclp.saveProgramState();
+            } catch (error) {
+              console.log("Error saving data")
+            }
           }}
-          hasMenuTick={gzclp.getLiftIncrement(liftID) == increments[i]}
+          hasTick={gzclp.getLiftIncrement(liftID) == increments[i]}
           key={i}
         />
       )

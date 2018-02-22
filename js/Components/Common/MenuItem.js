@@ -13,20 +13,22 @@ export default (props) => {
     var {
       onPress,
       menuItemText,
+      hasTick,
       hasNavArrow,
-      hasMenuTick,
     } = props;
 
     return (
       <TouchableHighlight
-        style={styles.genericContainer}
+        style={styles.menuItemContainer}
         underlayColor={colours.underlayColor}
         onPress={onPress}
       >
-        <View style={styles.menuItem}>
-          <Text style={styles.menuItemText}>{menuItemText}</Text>
-          {hasMenuTick ? <Text style={styles.menuTick}>✓</Text> : null}
-          {hasNavArrow ? <Text style={styles.navArrow}>></Text> : null}
+        <View style={styles.menuItemTickAndContents}>
+          <View style={styles.menuItemContents}>
+            <Text style={styles.menuItemText}>{menuItemText}</Text>
+            {hasTick ? <Text style={styles.menuTick}>✓</Text> : null}
+            {hasNavArrow ? <Text style={styles.navArrow}>></Text> : null}
+          </View>
         </View>
       </TouchableHighlight>
     )

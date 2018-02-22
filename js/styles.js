@@ -7,21 +7,24 @@ import {
 StatusBar.setBarStyle('light-content');
 
 const DEVICE_W = Dimensions.get('window').width;
-const DEVICE_MARGIN = 15;
+const HORIZONTAL_PADDING = 15;
+const VERTICAL_PADDING = 12;
+//const COMPONENT_MARGIN = 22;
 
 const BUTTON_MARGIN = 8;
-const BUTTON_SIZE = (DEVICE_W - (2 * DEVICE_MARGIN)) / 5 - BUTTON_MARGIN;
+const BUTTON_SIZE = (DEVICE_W - (2 * HORIZONTAL_PADDING)) / 5 - BUTTON_MARGIN;
 
 export const colours = {
   primaryColour: '#fa375a',
-  lightGrey: '#eee',
-  mediumGrey: '#999',
-  darkGrey: '#666',
-  successful: '#4cd964',
-  //successful: '#fa375a',
-  failed: '#999',
-  underlayColor: '#ddd',
+  lightGrey: '#f0f0f0',
+  mediumGrey: '#aaa',
+  darkGrey: '#555',
+  failed: '#888',
+  underlayColor: '#f0f0f0',
+  negativeRed: '#ff3d3d',
+  positiveGreen: '#4cd964'
 };
+
 
 export const styles = StyleSheet.create({
   header: {
@@ -30,42 +33,62 @@ export const styles = StyleSheet.create({
   headerTitle: {
     fontWeight: 'bold',
   },
-  settingsIcon: {
-    marginLeft: DEVICE_MARGIN,
-    height: 50,
-    width: 25
+  headerIcon: {
+    height: 40,
+    width: 40
   },
   genericContainer: {
     backgroundColor: '#fff',
-    paddingHorizontal: DEVICE_MARGIN,
-    paddingVertical: 10,
+    paddingHorizontal: HORIZONTAL_PADDING,
+    paddingVertical: VERTICAL_PADDING,
     marginBottom: 1,
   },
 
-  menuHeading: {
-    paddingHorizontal: DEVICE_MARGIN,
-    marginVertical: 10,
-    fontSize: 15,
-    fontWeight: 'bold',
+
+  menuItemContainer: {
+    backgroundColor: '#fff',
+    paddingHorizontal: HORIZONTAL_PADDING,
+    marginBottom: 1,
   },
-  menuItem: {
+  menuHeading: {
+    paddingHorizontal: HORIZONTAL_PADDING,
+    marginTop: 16,
+    marginBottom: 8,
+    fontSize: 15,
+    //fontWeight: 'bold',
+    color: '#777',
+    //borderWidth: 1,
+  },
+  menuItemTickAndContents: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    //borderWidth: 1
+  },
+  menuItemContents: {
+    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    //borderWidth: 1
   },
   menuItemText: {
-    fontSize: 17,
+    paddingVertical: VERTICAL_PADDING,
+    fontSize: 15,
+    fontWeight: 'bold',
     alignItems: 'center',
+    //borderWidth: 1
   },
   menuTick: {
+    width: 26,
     fontSize: 22,
     color: colours.primaryColour,
-    marginVertical: -10,          // TODO: hack
+    //marginRight: 5,
+    //borderWidth: 1
   },
   navArrow: {
     fontSize: 22,
     color: '#bbb',
-    marginVertical: -10,          // TODO: hack
+    //borderWidth: 1
   },
 
 
@@ -81,10 +104,10 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   progressDataContainer: {
-    paddingHorizontal: DEVICE_MARGIN,
+    paddingHorizontal: HORIZONTAL_PADDING,
   },
   progressDataTitle: {
-    marginVertical: 10,
+    marginVertical: VERTICAL_PADDING,
   },
   progressDataContent: {
     fontFamily: 'Courier New',
@@ -96,8 +119,8 @@ export const styles = StyleSheet.create({
     marginBottom: 1,
   },
   liftInfoContainer: {
-    paddingHorizontal: DEVICE_MARGIN,
-    paddingVertical: 10,
+    paddingHorizontal: HORIZONTAL_PADDING,
+    paddingVertical: VERTICAL_PADDING,
   },
   liftName: {
     fontSize: 17,
@@ -107,8 +130,8 @@ export const styles = StyleSheet.create({
     marginVertical: 5,
   },
   liftButtonsContainer: {
-    marginHorizontal: DEVICE_MARGIN,
-    marginBottom: 15,
+    marginHorizontal: HORIZONTAL_PADDING,
+    marginBottom: VERTICAL_PADDING,
     flexDirection: 'row',
     flexWrap: 'wrap',
     //borderWidth: 1
@@ -148,7 +171,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   liftButtonAllSuccessful: {
-    backgroundColor: colours.successful,
+    backgroundColor: colours.positiveGreen,
     width: BUTTON_SIZE,
     height: BUTTON_SIZE,
     borderRadius: BUTTON_SIZE / 2,
@@ -182,7 +205,7 @@ export const styles = StyleSheet.create({
     position: 'absolute',
   },
   liftButtonBorderAllSuccessful: {
-    borderColor: colours.successful,
+    borderColor: colours.positiveGreen,
     borderWidth: 1.5,
     width: BUTTON_SIZE + 5,
     height: BUTTON_SIZE + 5,
@@ -208,7 +231,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colours.darkGrey,
-    paddingHorizontal: DEVICE_MARGIN,
+    paddingHorizontal: HORIZONTAL_PADDING,
     paddingVertical: 2,
   },
   timerNumbers: {
