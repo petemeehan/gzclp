@@ -45,11 +45,6 @@ export const styles = StyleSheet.create({
   },
 
 
-  menuItemContainer: {
-    backgroundColor: '#fff',
-    paddingHorizontal: HORIZONTAL_PADDING,
-    marginBottom: 1,
-  },
   menuHeading: {
     paddingHorizontal: HORIZONTAL_PADDING,
     marginTop: 16,
@@ -59,10 +54,10 @@ export const styles = StyleSheet.create({
     color: '#777',
     //borderWidth: 1,
   },
-  menuItemTickAndContents: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    //borderWidth: 1
+  menuItemContainer: {
+    backgroundColor: '#fff',
+    paddingHorizontal: HORIZONTAL_PADDING,
+    marginBottom: 1,
   },
   menuItemContents: {
     flex: 1,
@@ -75,14 +70,26 @@ export const styles = StyleSheet.create({
     paddingVertical: VERTICAL_PADDING,
     fontSize: 15,
     fontWeight: 'bold',
-    alignItems: 'center',
+    //alignItems: 'center',
     //borderWidth: 1
+  },
+  editableMenuItemText: {
+    paddingVertical: VERTICAL_PADDING,
+    fontSize: 15,
   },
   menuTick: {
     width: 26,
     fontSize: 22,
     color: colours.primaryColour,
     //marginRight: 5,
+    //borderWidth: 1
+  },
+  menuCross: {
+    width: 26,
+    fontSize: 22,
+    color: colours.primaryColour,
+    //marginRight: 5,
+    //textAlign: 'center',
     //borderWidth: 1
   },
   navArrow: {

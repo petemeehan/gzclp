@@ -23,9 +23,12 @@ export default (props) => {
         underlayColor={colours.underlayColor}
         onPress={onPress}
       >
-        <View style={styles.menuItemTickAndContents}>
-          <View style={styles.menuItemContents}>
+        <View style={styles.menuItemContents}>
+          <View>
             <Text style={styles.menuItemText}>{menuItemText}</Text>
+          </View>
+
+          <View>
             {hasTick ? <Text style={styles.menuTick}>✓</Text> : null}
             {hasNavArrow ? <Text style={styles.navArrow}>></Text> : null}
           </View>
