@@ -54,11 +54,6 @@ export const styles = StyleSheet.create({
     color: '#777',
     //borderWidth: 1,
   },
-  menuItemContainer: {
-    backgroundColor: '#fff',
-    paddingHorizontal: HORIZONTAL_PADDING,
-    marginBottom: 1,
-  },
   menuItemContents: {
     flex: 1,
     flexDirection: 'row',
@@ -67,9 +62,9 @@ export const styles = StyleSheet.create({
     //borderWidth: 1
   },
   menuItemText: {
-    paddingVertical: VERTICAL_PADDING,
     fontSize: 15,
     fontWeight: 'bold',
+    marginBottom: 5,
     //alignItems: 'center',
     //borderWidth: 1
   },
@@ -104,6 +99,7 @@ export const styles = StyleSheet.create({
     marginBottom: 5,
     fontSize: 17,
     fontWeight: 'bold',
+    //borderWidth: 1,
   },
   completedSessionTitle: {
     marginBottom: 5,

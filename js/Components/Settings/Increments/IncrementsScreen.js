@@ -38,7 +38,7 @@ export default class extends React.Component {
     for (let i = 0; i < liftIDs_T1.length; i++) {
       menuItemsT1.push(
         <MenuItem
-          menuItemText={gzclp.getLiftName( liftIDs_T1[i] )}
+          text={gzclp.getLiftName( liftIDs_T1[i] )}
           onPress={() => navigate('IncrementsPicker', { liftID: liftIDs_T1[i] })}
           hasNavArrow={true}
           key={i}
@@ -48,7 +48,7 @@ export default class extends React.Component {
     for (let i = 0; i < liftIDs_T2.length; i++) {
       menuItemsT2.push(
         <MenuItem
-          menuItemText={gzclp.getLiftName( liftIDs_T2[i] )}
+          text={gzclp.getLiftName( liftIDs_T2[i] )}
           onPress={() => navigate('IncrementsPicker', { liftID: liftIDs_T2[i] })}
           hasNavArrow={true}
           key={i}
@@ -58,7 +58,7 @@ export default class extends React.Component {
     for (let i = 0; i < liftIDs_T3.length; i++) {
       menuItemsT3.push(
         <MenuItem
-          menuItemText={gzclp.getLiftName( liftIDs_T3[i] )}
+          text={gzclp.getLiftName( liftIDs_T3[i] )}
           onPress={() => navigate('IncrementsPicker', { liftID: liftIDs_T3[i] })}
           hasNavArrow={true}
           key={i}

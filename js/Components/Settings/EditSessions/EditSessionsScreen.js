@@ -29,7 +29,7 @@ export default class extends React.Component {
     for (let i = 0; i < gzclp.getNumberOfSessions(); i++) {
       menuItems.push(
         <MenuItem
-          menuItemText={gzclp.getSessionName(i)}
+          text={gzclp.getSessionName(i)}
           onPress={() => navigate('EditSessionsPicker', { sessionID: i })}
           hasNavArrow={true}
           key={i}

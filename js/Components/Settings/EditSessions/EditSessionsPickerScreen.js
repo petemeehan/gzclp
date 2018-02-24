@@ -40,7 +40,7 @@ export default class extends React.Component {
     for (let i = 0; i < liftIDsT1.length; i++) {
       menuItemsT1.push(
         <MenuItem
-          menuItemText={gzclp.getLiftName( liftIDsT1[i] )}
+          text={gzclp.getLiftName( liftIDsT1[i] )}
           onPress={() => {
             // If the lift is already in the session, remove it. If not, add it
             sessionLifts.includes(liftIDsT1[i]) ?
@@ -63,7 +63,7 @@ export default class extends React.Component {
     for (let i = 0; i < liftIDsT2.length; i++) {
       menuItemsT2.push(
         <MenuItem
-          menuItemText={gzclp.getLiftName( liftIDsT2[i] )}
+          text={gzclp.getLiftName( liftIDsT2[i] )}
           onPress={() => {
             // If the lift is already in the session, remove it. If not, add it
             sessionLifts.includes(liftIDsT2[i]) ?
@@ -87,7 +87,7 @@ export default class extends React.Component {
     for (let i = 0; i < liftIDsT3.length; i++) {
       menuItemsT3.push(
         <MenuItem
-          menuItemText={gzclp.getLiftName( liftIDsT3[i] )}
+          text={gzclp.getLiftName( liftIDsT3[i] )}
           onPress={() => {
             // If the lift is already in the session, remove it. If not, add it
             sessionLifts.includes(liftIDsT3[i]) ?

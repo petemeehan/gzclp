@@ -12,20 +12,22 @@ import { styles, colours } from 'gzclp/js/styles';
 export default (props) => {
     var {
       onPress,
-      menuItemText,
+      text,
+      subtext,
       hasTick,
       hasNavArrow,
     } = props;
 
     return (
       <TouchableHighlight
-        style={styles.menuItemContainer}
+        style={styles.genericContainer}
         underlayColor={colours.underlayColor}
         onPress={onPress}
       >
         <View style={styles.menuItemContents}>
           <View>
-            <Text style={styles.menuItemText}>{menuItemText}</Text>
+            <Text style={styles.menuItemText}>{text}</Text>
+            <Text style={styles.menuItemSubtext}>Testing</Text>
           </View>
 
           <View>
