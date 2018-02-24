@@ -13,20 +13,10 @@ export default (props) => {
     var {
       onPress,
       title,
-      subtextArray,
+      subtitle,
       hasTick,
       hasNavArrow,
     } = props;
-
-
-    const subtextElements = [];
-    if (subtextArray) {
-      for (var i = 0; i < subtextArray.length; i++) {
-        subtextElements.push(
-          <Text style={styles.menuItemSubtext} key={i}>{subtextArray[i]}</Text>
-        )
-      }
-    }
 
     return (
       <TouchableHighlight
@@ -36,8 +26,8 @@ export default (props) => {
       >
         <View style={styles.menuItemContents}>
           <View>
-            <Text style={styles.menuItemText}>{title}</Text>
-            {subtextArray ? subtextElements : null}
+            <Text style={styles.menuItemTitle}>{title}</Text>
+            {subtitle ? <Text style={styles.menuItemSubtitle}>{subtitle}</Text> : null}
           </View>
 
           <View>

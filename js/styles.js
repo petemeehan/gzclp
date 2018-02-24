@@ -51,24 +51,23 @@ export const styles = StyleSheet.create({
     marginBottom: 8,
     fontSize: 15,
     //fontWeight: 'bold',
-    color: '#777',
+    color: colours.darkGrey,
     //borderWidth: 1,
   },
   menuItemContents: {
-    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     //borderWidth: 1
   },
-  menuItemText: {
+  menuItemTitle: {
     fontSize: 15,
     fontWeight: 'bold',
     marginBottom: 5,
     //alignItems: 'center',
     //borderWidth: 1
   },
-  menuItemSubtext: {
+  menuItemSubtitle: {
     color: colours.darkGrey
   },
   menuTick: {
@@ -76,7 +75,7 @@ export const styles = StyleSheet.create({
     fontSize: 22,
     color: colours.primaryColour,
     //marginRight: 5,
-    //borderWidth: 1
+    borderWidth: 1
   },
   menuCross: {
     width: 26,
