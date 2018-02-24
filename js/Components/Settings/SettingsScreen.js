@@ -48,19 +48,19 @@ export default class extends React.Component {
     return (
       <ScrollView>
         <MenuItem
-          text='Edit Sessions'
+          title='Edit Sessions'
           onPress={() => navigate('EditSessions')}
           hasNavArrow={true}
         />
         <MenuItem
-          text='Increments'
+          title='Increments'
           onPress={() => navigate('Increments')}
           hasNavArrow={true}
         />
 
         <View style={{marginTop: 22}}>
           <MenuItem
-            text='Reset Everything'
+            title='Reset Everything'
             onPress={() => this.handleResetButtonPress()}
             hasNavArrow={false}
           />

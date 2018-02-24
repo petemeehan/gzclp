@@ -12,11 +12,21 @@ import { styles, colours } from 'gzclp/js/styles';
 export default (props) => {
     var {
       onPress,
-      text,
-      subtext,
+      title,
+      subtextArray,
       hasTick,
       hasNavArrow,
     } = props;
+
+
+    const subtextElements = [];
+    if (subtextArray) {
+      for (var i = 0; i < subtextArray.length; i++) {
+        subtextElements.push(
+          <Text style={styles.menuItemSubtext} key={i}>{subtextArray[i]}</Text>
+        )
+      }
+    }
 
     return (
       <TouchableHighlight
@@ -26,8 +36,8 @@ export default (props) => {
       >
         <View style={styles.menuItemContents}>
           <View>
-            <Text style={styles.menuItemText}>{text}</Text>
-            <Text style={styles.menuItemSubtext}>Testing</Text>
+            <Text style={styles.menuItemText}>{title}</Text>
+            {subtextArray ? subtextElements : null}
           </View>
 
           <View>

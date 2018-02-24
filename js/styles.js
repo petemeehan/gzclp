@@ -68,9 +68,8 @@ export const styles = StyleSheet.create({
     //alignItems: 'center',
     //borderWidth: 1
   },
-  editableMenuItemText: {
-    paddingVertical: VERTICAL_PADDING,
-    fontSize: 15,
+  menuItemSubtext: {
+    color: colours.darkGrey
   },
   menuTick: {
     width: 26,
@@ -89,7 +88,7 @@ export const styles = StyleSheet.create({
   },
   navArrow: {
     fontSize: 22,
-    color: '#bbb',
+    color: colours.primaryColour,
     //borderWidth: 1
   },
 
@@ -115,6 +114,7 @@ export const styles = StyleSheet.create({
   progressDataContent: {
     fontFamily: 'Courier New',
   },
+
 
   liftContainer: {
     //borderWidth: 1,

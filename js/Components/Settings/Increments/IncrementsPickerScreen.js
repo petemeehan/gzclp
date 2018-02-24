@@ -32,7 +32,7 @@ export default class extends React.Component {
     for (let i = 0; i < increments.length; i++) {
       menuItems.push(
         <MenuItem
-          text={increments[i]}
+          title={increments[i]}
           onPress={() => {
             gzclp.setLiftIncrement(liftID, increments[i]);
             gzclp.refreshComponent(this);

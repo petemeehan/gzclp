@@ -27,9 +27,14 @@ export default class extends React.Component {
 
     const menuItems = []
     for (let i = 0; i < gzclp.getNumberOfSessions(); i++) {
+      const liftIDs = gzclp.getSessionLifts(i);
+      gzclp.sortLiftIDsByTier(liftIDs);
+      const lifts = liftIDs.map(id => gzclp.getLiftTier(id) + ' ' + gzclp.getLiftName(id));
+
       menuItems.push(
         <MenuItem
-          text={gzclp.getSessionName(i)}
+          title={gzclp.getSessionName(i)}
+          subtextArray={lifts}
           onPress={() => navigate('EditSessionsPicker', { sessionID: i })}
           hasNavArrow={true}
           key={i}

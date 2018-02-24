@@ -37,7 +37,7 @@ export default class extends React.Component {
     for (let i = 0; i < liftIDs.length; i++) {
       menuItems.push(
         <MenuItem
-          text={gzclp.getLiftTier( liftIDs[i] ) + ' ' + gzclp.getLiftName( liftIDs[i] )}
+          title={gzclp.getLiftTier( liftIDs[i] ) + ' ' + gzclp.getLiftName( liftIDs[i] )}
           onPress={() => {
             // Remove lift from session
             liftIDs.splice( liftIDs.indexOf(liftIDs[i]), 1 );
