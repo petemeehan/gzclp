@@ -40,8 +40,11 @@ export default class extends React.Component {
     for (let i = 0; i < liftIDsT1.length; i++) {
       menuItemsT1.push(
         <MenuItem
+          key={i}
           title={gzclp.getLiftName( liftIDsT1[i] )}
-          onPress={() => {
+          hasSwitch={true}
+          switchEnabled={sessionLifts.includes(liftIDsT1[i])}
+          switchOnValueChange={() => {
             // If the lift is already in the session, remove it. If not, add it
             sessionLifts.includes(liftIDsT1[i]) ?
               sessionLifts.splice( sessionLifts.indexOf(liftIDsT1[i]), 1 ) :
@@ -55,16 +58,17 @@ export default class extends React.Component {
               console.log("Error saving data")
             }
           }}
-          hasTick={sessionLifts.includes(liftIDsT1[i])}
-          key={i}
         />
       )
     };
     for (let i = 0; i < liftIDsT2.length; i++) {
       menuItemsT2.push(
         <MenuItem
+          key={i}
           title={gzclp.getLiftName( liftIDsT2[i] )}
-          onPress={() => {
+          hasSwitch={true}
+          switchEnabled={sessionLifts.includes(liftIDsT2[i])}
+          switchOnValueChange={() => {
             // If the lift is already in the session, remove it. If not, add it
             sessionLifts.includes(liftIDsT2[i]) ?
               sessionLifts.splice( sessionLifts.indexOf(liftIDsT2[i]), 1 ) :
@@ -78,17 +82,17 @@ export default class extends React.Component {
               console.log("Error saving data")
             }
           }}
-          isTickMenu={true}
-          hasTick={sessionLifts.includes(liftIDsT2[i])}
-          key={i}
         />
       )
     };
     for (let i = 0; i < liftIDsT3.length; i++) {
       menuItemsT3.push(
         <MenuItem
+          key={i}
           title={gzclp.getLiftName( liftIDsT3[i] )}
-          onPress={() => {
+          hasSwitch={true}
+          switchEnabled={sessionLifts.includes(liftIDsT3[i])}
+          switchOnValueChange={() => {
             // If the lift is already in the session, remove it. If not, add it
             sessionLifts.includes(liftIDsT3[i]) ?
               sessionLifts.splice( sessionLifts.indexOf(liftIDsT3[i]), 1 ) :
@@ -102,9 +106,6 @@ export default class extends React.Component {
               console.log("Error saving data")
             }
           }}
-          isTickMenu={true}
-          hasTick={sessionLifts.includes(liftIDsT3[i])}
-          key={i}
         />
       )
     };
@@ -112,13 +113,13 @@ export default class extends React.Component {
     return (
       <ScrollView>
         <Text style={styles.menuHeading}>T1 Lifts</Text>
-        {menuItemsT1}
+        <View style={{marginBottom: 10}}>{menuItemsT1}</View>
 
         <Text style={styles.menuHeading}>T2 Lifts</Text>
-        {menuItemsT2}
+        <View style={{marginBottom: 10}}>{menuItemsT2}</View>
 
         <Text style={styles.menuHeading}>T3 Lifts</Text>
-        {menuItemsT3}
+        <View style={{marginBottom: 10}}>{menuItemsT3}</View>
 
       </ScrollView>
     )

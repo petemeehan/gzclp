@@ -2,7 +2,8 @@ import React from 'react';
 import {
   Text,
   View,
-  TouchableHighlight
+  TouchableHighlight,
+  Switch,
 } from 'react-native';
 
 import { styles, colours } from 'gzclp/js/styles';
@@ -16,23 +17,34 @@ export default (props) => {
       subtitle,
       hasTick,
       hasNavArrow,
+      hasSwitch,
+      switchEnabled,
+      switchOnValueChange,
     } = props;
 
     return (
       <TouchableHighlight
-        style={styles.genericContainer}
         underlayColor={colours.underlayColor}
-        onPress={onPress}
+        onPress={hasSwitch ? null : onPress}
+        style={{
+          backgroundColor: '#fff',
+          marginBottom: 1,
+        }}
       >
-        <View style={styles.menuItemContents}>
-          <View>
-            <Text style={styles.menuItemTitle}>{title}</Text>
+        <View style={styles.menuItemContainer}>
+          <View style={styles.menuItemTitleContainer}>
+            <Text style={!hasSwitch || switchEnabled ? styles.menuItemTitle : styles.menuItemTitleGreyedOut}>{title}</Text>
             {subtitle ? <Text style={styles.menuItemSubtitle}>{subtitle}</Text> : null}
           </View>
 
           <View>
             {hasTick ? <Text style={styles.menuTick}>✓</Text> : null}
             {hasNavArrow ? <Text style={styles.navArrow}>></Text> : null}
+
+            {hasSwitch ? <Switch
+              value={switchEnabled}
+              onValueChange={switchOnValueChange}
+            /> : null}
           </View>
         </View>
       </TouchableHighlight>

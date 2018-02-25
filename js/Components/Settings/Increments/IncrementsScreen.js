@@ -69,13 +69,13 @@ export default class extends React.Component {
     return (
       <ScrollView>
         <Text style={styles.menuHeading}>T1 Lifts</Text>
-        {menuItemsT1}
+        <View style={{marginBottom: 10}}>{menuItemsT1}</View>
 
         <Text style={styles.menuHeading}>T2 Lifts</Text>
-        {menuItemsT2}
+        <View style={{marginBottom: 10}}>{menuItemsT2}</View>
 
         <Text style={styles.menuHeading}>T3 Lifts</Text>
-        {menuItemsT3}
+        <View style={{marginBottom: 10}}>{menuItemsT3}</View>
 
       </ScrollView>
     )

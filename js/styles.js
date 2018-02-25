@@ -9,7 +9,7 @@ StatusBar.setBarStyle('light-content');
 const DEVICE_W = Dimensions.get('window').width;
 const HORIZONTAL_PADDING = 15;
 const VERTICAL_PADDING = 12;
-//const COMPONENT_MARGIN = 22;
+const COMPONENT_MARGIN = 20;
 
 const BUTTON_MARGIN = 8;
 const BUTTON_SIZE = (DEVICE_W - (2 * HORIZONTAL_PADDING)) / 5 - BUTTON_MARGIN;
@@ -47,18 +47,20 @@ export const styles = StyleSheet.create({
 
   menuHeading: {
     paddingHorizontal: HORIZONTAL_PADDING,
-    marginTop: 16,
-    marginBottom: 8,
+    marginVertical: 8,
     fontSize: 15,
     //fontWeight: 'bold',
     color: colours.darkGrey,
     //borderWidth: 1,
   },
-  menuItemContents: {
+  menuItemContainer: {
+    paddingHorizontal: HORIZONTAL_PADDING,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    //borderWidth: 1
+  },
+  menuItemTitleContainer: {
+    paddingVertical: VERTICAL_PADDING,
   },
   menuItemTitle: {
     fontSize: 15,
@@ -67,15 +69,22 @@ export const styles = StyleSheet.create({
     //alignItems: 'center',
     //borderWidth: 1
   },
+  menuItemTitleGreyedOut: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    marginBottom: 5,
+    color: colours.mediumGrey,
+  },
   menuItemSubtitle: {
-    color: colours.darkGrey
+    color: colours.darkGrey,
+    fontSize: 13,
   },
   menuTick: {
     width: 26,
     fontSize: 22,
     color: colours.primaryColour,
     //marginRight: 5,
-    borderWidth: 1
+    //borderWidth: 1
   },
   menuCross: {
     width: 26,
