@@ -38,9 +38,13 @@ export default class extends React.Component {
     for (let i = 0; i < liftIDs_T1.length; i++) {
       menuItemsT1.push(
         <MenuItem
-          menuItemText={gzclp.getLiftName( liftIDs_T1[i] )}
-          onPress={() => navigate('IncrementsPicker', { liftID: liftIDs_T1[i] })}
+          title={gzclp.getLiftName( liftIDs_T1[i] )}
+          onPress={() => navigate('IncrementsPicker', {
+            liftID: liftIDs_T1[i],
+            refreshPreviousScreen: () => gzclp.refreshComponent(this)
+          })}
           hasNavArrow={true}
+          info={gzclp.getLiftIncrement(liftIDs_T1[i])}
           key={i}
         />
       )
@@ -48,8 +52,11 @@ export default class extends React.Component {
     for (let i = 0; i < liftIDs_T2.length; i++) {
       menuItemsT2.push(
         <MenuItem
-          menuItemText={gzclp.getLiftName( liftIDs_T2[i] )}
-          onPress={() => navigate('IncrementsPicker', { liftID: liftIDs_T2[i] })}
+          title={gzclp.getLiftName( liftIDs_T2[i] )}
+          onPress={() => navigate('IncrementsPicker', {
+            liftID: liftIDs_T2[i],
+            refreshPreviousScreen: () => gzclp.refreshComponent(this)
+          })}
           hasNavArrow={true}
           key={i}
         />
@@ -58,8 +65,11 @@ export default class extends React.Component {
     for (let i = 0; i < liftIDs_T3.length; i++) {
       menuItemsT3.push(
         <MenuItem
-          menuItemText={gzclp.getLiftName( liftIDs_T3[i] )}
-          onPress={() => navigate('IncrementsPicker', { liftID: liftIDs_T3[i] })}
+          title={gzclp.getLiftName( liftIDs_T3[i] )}
+          onPress={() => navigate('IncrementsPicker', {
+            liftID: liftIDs_T3[i],
+            refreshPreviousScreen: () => gzclp.refreshComponent(this)
+          })}
           hasNavArrow={true}
           key={i}
         />
@@ -69,13 +79,13 @@ export default class extends React.Component {
     return (
       <ScrollView>
         <Text style={styles.menuHeading}>T1 Lifts</Text>
-        <View>{menuItemsT1}</View>
+        <View style={{marginBottom: 10}}>{menuItemsT1}</View>
 
         <Text style={styles.menuHeading}>T2 Lifts</Text>
-        <View>{menuItemsT2}</View>
+        <View style={{marginBottom: 10}}>{menuItemsT2}</View>
 
         <Text style={styles.menuHeading}>T3 Lifts</Text>
-        <View>{menuItemsT3}</View>
+        <View style={{marginBottom: 10}}>{menuItemsT3}</View>
 
       </ScrollView>
     )

@@ -2,6 +2,7 @@ import {
   StyleSheet,
   Dimensions,
   StatusBar,
+
 } from 'react-native';
 
 StatusBar.setBarStyle('light-content');
@@ -9,7 +10,7 @@ StatusBar.setBarStyle('light-content');
 const DEVICE_W = Dimensions.get('window').width;
 const HORIZONTAL_PADDING = 15;
 const VERTICAL_PADDING = 12;
-//const COMPONENT_MARGIN = 22;
+const COMPONENT_MARGIN = 20;
 
 const BUTTON_MARGIN = 8;
 const BUTTON_SIZE = (DEVICE_W - (2 * HORIZONTAL_PADDING)) / 5 - BUTTON_MARGIN;
@@ -45,38 +46,44 @@ export const styles = StyleSheet.create({
   },
 
 
-  menuItemContainer: {
-    backgroundColor: '#fff',
-    paddingHorizontal: HORIZONTAL_PADDING,
-    marginBottom: 1,
-  },
   menuHeading: {
     paddingHorizontal: HORIZONTAL_PADDING,
-    marginTop: 16,
-    marginBottom: 8,
+    marginVertical: 8,
     fontSize: 15,
     //fontWeight: 'bold',
-    color: '#777',
+    color: colours.darkGrey,
     //borderWidth: 1,
   },
-  menuItemTickAndContents: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    //borderWidth: 1
-  },
-  menuItemContents: {
-    flex: 1,
+  menuItemContainer: {
+    paddingHorizontal: HORIZONTAL_PADDING,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  menuItemTitleContainer: {
+    paddingVertical: VERTICAL_PADDING,
     //borderWidth: 1
   },
-  menuItemText: {
-    paddingVertical: VERTICAL_PADDING,
+  menuItemTitle: {
     fontSize: 15,
     fontWeight: 'bold',
-    alignItems: 'center',
     //borderWidth: 1
+  },
+  menuItemTitleGreyedOut: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: colours.mediumGrey,
+  },
+  menuItemSubtitle: {
+    marginTop: 5,
+    color: colours.darkGrey,
+    fontSize: 13,
+  },
+  menuItemInfo: {
+    marginRight: 10,
+    color: colours.darkGrey,
+    fontSize: 15,
+    //fontWeight: 'bold',
   },
   menuTick: {
     width: 26,
@@ -85,9 +92,12 @@ export const styles = StyleSheet.create({
     //marginRight: 5,
     //borderWidth: 1
   },
-  navArrow: {
+  menuCross: {
+    width: 26,
     fontSize: 22,
-    color: '#bbb',
+    color: colours.primaryColour,
+    //marginRight: 5,
+    //textAlign: 'center',
     //borderWidth: 1
   },
 
@@ -97,6 +107,7 @@ export const styles = StyleSheet.create({
     marginBottom: 5,
     fontSize: 17,
     fontWeight: 'bold',
+    //borderWidth: 1,
   },
   completedSessionTitle: {
     marginBottom: 5,
@@ -112,6 +123,7 @@ export const styles = StyleSheet.create({
   progressDataContent: {
     fontFamily: 'Courier New',
   },
+
 
   liftContainer: {
     //borderWidth: 1,

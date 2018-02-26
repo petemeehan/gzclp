@@ -4,6 +4,7 @@ import {
   ScrollView,
   Text,
   TouchableHighlight,
+  Button
 } from 'react-native';
 
 import { gzclp } from 'gzclp/js/gzclp';
@@ -19,26 +20,28 @@ export default class extends React.Component {
   }
 
   static navigationOptions = ({ navigation }) => ({
-    title: gzclp.getLiftTier(navigation.state.params.liftID)
-     + ' ' + gzclp.getLiftName(navigation.state.params.liftID),
+    title: 'Session ' + gzclp.getSessionName(navigation.state.params.sessionID),
+    headerRight: <Button
+      title='Add Lift'
+      color='white'
+      onPress={() => null}
+    />
   });
 
   render() {
-    const { liftID, refreshPreviousScreen } = this.props.navigation.state.params;
+    const { sessionID } = this.props.navigation.state.params;
 
-    const increments = gzclp.getIncrements();
-    const menuItems = []
+    const liftIDs = gzclp.getSessionLifts(sessionID);
 
-    for (let i = 0; i < increments.length; i++) {
+    const menuItems = [];
+    for (let i = 0; i < liftIDs.length; i++) {
       menuItems.push(
         <MenuItem
-          title={increments[i]}
+          title={gzclp.getLiftTier( liftIDs[i] ) + ' ' + gzclp.getLiftName( liftIDs[i] )}
           onPress={() => {
-            gzclp.setLiftIncrement(liftID, increments[i]);
+            // Remove lift from session
+            liftIDs.splice( liftIDs.indexOf(liftIDs[i]), 1 );
             gzclp.refreshComponent(this);
-
-            // Refresh previous menu screen (to update menu info)
-            refreshPreviousScreen();
 
             // Store current state of the app
             try {
@@ -47,7 +50,6 @@ export default class extends React.Component {
               console.log("Error saving data")
             }
           }}
-          hasTick={gzclp.getLiftIncrement(liftID) == increments[i]}
           key={i}
         />
       )

@@ -10,6 +10,9 @@ import {
 import { styles, colours } from 'gzclp/js/styles';
 import { gzclp } from 'gzclp/js/gzclp';
 
+import Icon from 'react-native-vector-icons/Ionicons';
+const navArrow = <Icon name="ios-arrow-forward" size={22} color={colours.mediumGrey} />;
+
 import NextSessionButton from './NextSessionButton';
 import CompletedSessionResult from './CompletedSessionResult';
 import ProgramState from './ProgramState';
@@ -43,7 +46,7 @@ export default class extends React.Component {
 
     // Put refreshHomeScreen function into navigation.state.params
     // so it can be invoked in navigationOptions and then passed to Settings screen
-    this.props.navigation.setParams( {refreshHomeScreen: () => gzclp.refreshComponent(this)} )
+    this.props.navigation.setParams( {refreshHomeScreen: () => gzclp.refreshComponent(this)})
   }
 
   async loadSavedData() {
@@ -86,7 +89,7 @@ export default class extends React.Component {
           refreshHomeScreen={() => gzclp.refreshComponent(this)}
         />
 
-        <ScrollView style={{marginTop: 22}}>
+        <ScrollView style={{marginTop: 20}}>
           {previousSessionResults.reverse()}
         </ScrollView>
 

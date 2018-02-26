@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   View,
+  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
@@ -45,26 +46,26 @@ export default class extends React.Component {
     const { navigate } = this.props.navigation;
 
     return (
-      <View>
+      <ScrollView>
         <MenuItem
-          menuItemText='Edit Sessions'
+          title='Edit Sessions'
           onPress={() => navigate('EditSessions')}
           hasNavArrow={true}
         />
         <MenuItem
-          menuItemText='Increments'
+          title='Increments'
           onPress={() => navigate('Increments')}
           hasNavArrow={true}
         />
 
         <View style={{marginTop: 22}}>
           <MenuItem
-            menuItemText='Reset Everything'
+            title='Reset Everything'
             onPress={() => this.handleResetButtonPress()}
             hasNavArrow={false}
           />
         </View>
-      </View>
+      </ScrollView>
     )
   }
 }
