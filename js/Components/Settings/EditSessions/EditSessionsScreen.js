@@ -35,7 +35,10 @@ export default class extends React.Component {
         <MenuItem
           title={gzclp.getSessionName(i)}
           subtitle={liftsString}
-          onPress={() => navigate('EditSessionsPicker', { sessionID: i })}
+          onPress={() => navigate('EditSessionsPicker', {
+            sessionID: i,
+            refreshPreviousScreen: () => gzclp.refreshComponent(this)
+          })}
           hasNavArrow={true}
           key={i}
         />

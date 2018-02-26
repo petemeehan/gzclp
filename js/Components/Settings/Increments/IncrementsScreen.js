@@ -39,7 +39,10 @@ export default class extends React.Component {
       menuItemsT1.push(
         <MenuItem
           title={gzclp.getLiftName( liftIDs_T1[i] )}
-          onPress={() => navigate('IncrementsPicker', { liftID: liftIDs_T1[i] })}
+          onPress={() => navigate('IncrementsPicker', {
+            liftID: liftIDs_T1[i],
+            refreshPreviousScreen: () => gzclp.refreshComponent(this)
+          })}
           hasNavArrow={true}
           key={i}
         />
@@ -49,7 +52,10 @@ export default class extends React.Component {
       menuItemsT2.push(
         <MenuItem
           title={gzclp.getLiftName( liftIDs_T2[i] )}
-          onPress={() => navigate('IncrementsPicker', { liftID: liftIDs_T2[i] })}
+          onPress={() => navigate('IncrementsPicker', {
+            liftID: liftIDs_T2[i],
+            refreshPreviousScreen: () => gzclp.refreshComponent(this)
+          })}
           hasNavArrow={true}
           key={i}
         />
@@ -59,7 +65,10 @@ export default class extends React.Component {
       menuItemsT3.push(
         <MenuItem
           title={gzclp.getLiftName( liftIDs_T3[i] )}
-          onPress={() => navigate('IncrementsPicker', { liftID: liftIDs_T3[i] })}
+          onPress={() => navigate('IncrementsPicker', {
+            liftID: liftIDs_T3[i],
+            refreshPreviousScreen: () => gzclp.refreshComponent(this)
+          })}
           hasNavArrow={true}
           key={i}
         />

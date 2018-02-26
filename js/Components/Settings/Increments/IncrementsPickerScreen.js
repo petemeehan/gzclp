@@ -24,7 +24,7 @@ export default class extends React.Component {
   });
 
   render() {
-    const { liftID } = this.props.navigation.state.params;
+    const { liftID, refreshPreviousScreen } = this.props.navigation.state.params;
 
     const increments = gzclp.getIncrements();
     const menuItems = []
@@ -36,6 +36,9 @@ export default class extends React.Component {
           onPress={() => {
             gzclp.setLiftIncrement(liftID, increments[i]);
             gzclp.refreshComponent(this);
+
+            // Refresh previous menu screen (to update menu info)
+            refreshPreviousScreen();
 
             // Store current state of the app
             try {

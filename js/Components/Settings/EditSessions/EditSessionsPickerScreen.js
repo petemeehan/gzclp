@@ -4,6 +4,7 @@ import {
   ScrollView,
   Text,
   TouchableHighlight,
+  Button,
 } from 'react-native';
 
 import { gzclp } from 'gzclp/js/gzclp';
@@ -23,7 +24,7 @@ export default class extends React.Component {
   });
 
   render() {
-    const { sessionID } = this.props.navigation.state.params;
+    const { sessionID, refreshPreviousScreen } = this.props.navigation.state.params;
 
     const sessionLifts = gzclp.getSessionLifts(sessionID);
 
@@ -51,6 +52,9 @@ export default class extends React.Component {
               sessionLifts.push(liftIDsT1[i]);
             gzclp.refreshComponent(this);
 
+            // Refresh previous menu screen (to update menu info)
+            refreshPreviousScreen();
+
             // Store current state of the app
             try {
               gzclp.saveProgramState();
@@ -75,6 +79,9 @@ export default class extends React.Component {
               sessionLifts.push(liftIDsT2[i]);
             gzclp.refreshComponent(this);
 
+            // Refresh previous menu screen (to update menu info)
+            refreshPreviousScreen();
+
             // Store current state of the app
             try {
               gzclp.saveProgramState();
@@ -98,6 +105,9 @@ export default class extends React.Component {
               sessionLifts.splice( sessionLifts.indexOf(liftIDsT3[i]), 1 ) :
               sessionLifts.push(liftIDsT3[i]);
             gzclp.refreshComponent(this);
+
+            // Refresh previous menu screen (to update menu info)
+            refreshPreviousScreen();
 
             // Store current state of the app
             try {

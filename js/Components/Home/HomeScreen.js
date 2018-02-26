@@ -43,7 +43,7 @@ export default class extends React.Component {
 
     // Put refreshHomeScreen function into navigation.state.params
     // so it can be invoked in navigationOptions and then passed to Settings screen
-    this.props.navigation.setParams( {refreshHomeScreen: () => gzclp.refreshComponent(this)} )
+    this.props.navigation.setParams( {refreshHomeScreen: () => gzclp.refreshComponent(this)})
   }
 
   async loadSavedData() {
