@@ -2,6 +2,7 @@ import {
   StyleSheet,
   Dimensions,
   StatusBar,
+
 } from 'react-native';
 
 StatusBar.setBarStyle('light-content');
@@ -61,23 +62,28 @@ export const styles = StyleSheet.create({
   },
   menuItemTitleContainer: {
     paddingVertical: VERTICAL_PADDING,
+    //borderWidth: 1
   },
   menuItemTitle: {
     fontSize: 15,
     fontWeight: 'bold',
-    marginBottom: 5,
-    //alignItems: 'center',
     //borderWidth: 1
   },
   menuItemTitleGreyedOut: {
     fontSize: 15,
     fontWeight: 'bold',
-    marginBottom: 5,
     color: colours.mediumGrey,
   },
   menuItemSubtitle: {
+    marginTop: 5,
     color: colours.darkGrey,
     fontSize: 13,
+  },
+  menuItemInfo: {
+    marginRight: 10,
+    color: colours.darkGrey,
+    fontSize: 15,
+    //fontWeight: 'bold',
   },
   menuTick: {
     width: 26,
@@ -92,11 +98,6 @@ export const styles = StyleSheet.create({
     color: colours.primaryColour,
     //marginRight: 5,
     //textAlign: 'center',
-    //borderWidth: 1
-  },
-  navArrow: {
-    fontSize: 22,
-    color: colours.primaryColour,
     //borderWidth: 1
   },
 

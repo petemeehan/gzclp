@@ -10,6 +10,9 @@ import {
 import { styles, colours } from 'gzclp/js/styles';
 import { gzclp } from 'gzclp/js/gzclp';
 
+import Icon from 'react-native-vector-icons/Ionicons';
+const navArrow = <Icon name="ios-arrow-forward" size={22} color={colours.mediumGrey} />;
+
 import NextSessionButton from './NextSessionButton';
 import CompletedSessionResult from './CompletedSessionResult';
 import ProgramState from './ProgramState';

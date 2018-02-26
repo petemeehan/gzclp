@@ -44,6 +44,7 @@ export default class extends React.Component {
             refreshPreviousScreen: () => gzclp.refreshComponent(this)
           })}
           hasNavArrow={true}
+          info={gzclp.getLiftIncrement(liftIDs_T1[i])}
           key={i}
         />
       )

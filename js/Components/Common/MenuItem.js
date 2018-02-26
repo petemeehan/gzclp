@@ -8,13 +8,18 @@ import {
 
 import { styles, colours } from 'gzclp/js/styles';
 
+import Icon from 'react-native-vector-icons/Ionicons';
+const navArrow = <Icon name="ios-arrow-forward" size={22} color={colours.mediumGrey} />;
+const menuTick = <Icon name="md-checkmark-circle" size={26} color={colours.primaryColour} />;
 
+// TODO Use inline styles - since only used here and easier to keep track
 
 export default (props) => {
     var {
       onPress,
       title,
       subtitle,
+      info,
       hasTick,
       hasNavArrow,
       hasSwitch,
@@ -37,13 +42,15 @@ export default (props) => {
             {subtitle ? <Text style={styles.menuItemSubtitle}>{subtitle}</Text> : null}
           </View>
 
-          <View>
-            {hasTick ? <Text style={styles.menuTick}>✓</Text> : null}
-            {hasNavArrow ? <Text style={styles.navArrow}>></Text> : null}
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            {info ? <Text style={styles.menuItemInfo}>{info}</Text> : null}
+            {hasTick ? <Text style={styles.menuTick}>{menuTick}</Text> : null}
+            {hasNavArrow ? navArrow : null}
 
             {hasSwitch ? <Switch
               value={switchEnabled}
               onValueChange={switchOnValueChange}
+              onTintColor={colours.primaryColour}
             /> : null}
           </View>
         </View>
