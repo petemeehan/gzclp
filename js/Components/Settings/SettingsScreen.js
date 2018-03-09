@@ -13,6 +13,7 @@ import { gzclp } from 'gzclp/js/gzclp';
 import { styles, colours } from 'gzclp/js/styles';
 
 import MenuItem from 'gzclp/js/Components/Common/MenuItem';
+import EditSessionsMenu from './EditSessionsMenu';
 
 
 export default class extends React.Component {
@@ -47,14 +48,21 @@ export default class extends React.Component {
 
     return (
       <ScrollView>
-        <MenuItem
-          title='Edit Sessions'
-          onPress={() => navigate('EditSessions')}
-          hasNavArrow={true}
+        <Text style={styles.menuHeading}>EDIT SESSIONS</Text>
+        <EditSessionsMenu
+          navigate={navigate}
+          refreshParentScreen={() => gzclp.refreshComponent(this)}
         />
+
+        <Text style={styles.menuHeading}>EDIT LIFTS</Text>
         <MenuItem
           title='Increments'
           onPress={() => navigate('Increments')}
+          hasNavArrow={true}
+        />
+        <MenuItem
+          title='Weights'
+          onPress={() => navigate('Weights')}
           hasNavArrow={true}
         />
 

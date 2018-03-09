@@ -18,9 +18,10 @@ const BUTTON_SIZE = (DEVICE_W - (2 * HORIZONTAL_PADDING)) / 5 - BUTTON_MARGIN;
 export const colours = {
   primaryColour: '#fa375a',
   lightGrey: '#f0f0f0',
-  mediumGrey: '#aaa',
+  mediumGrey: '#909090',
   darkGrey: '#555',
-  failed: '#888',
+  failed: '#999',
+  inactiveLiftButton: '#f0f0f0',
   underlayColor: '#f0f0f0',
   negativeRed: '#ff3d3d',
   positiveGreen: '#4cd964'
@@ -48,8 +49,9 @@ export const styles = StyleSheet.create({
 
   menuHeading: {
     paddingHorizontal: HORIZONTAL_PADDING,
-    marginVertical: 8,
-    fontSize: 15,
+    marginBottom: 8,
+    marginTop: 15,
+    //fontSize: 13,
     //fontWeight: 'bold',
     color: colours.darkGrey,
     //borderWidth: 1,
@@ -80,25 +82,18 @@ export const styles = StyleSheet.create({
     fontSize: 13,
   },
   menuItemInfo: {
-    marginRight: 10,
-    color: colours.darkGrey,
+    //marginRight: 15,
+    color: colours.mediumGrey,
     fontSize: 15,
     //fontWeight: 'bold',
+    //borderWidth: 1,
   },
   menuTick: {
-    width: 26,
-    fontSize: 22,
-    color: colours.primaryColour,
-    //marginRight: 5,
-    //borderWidth: 1
   },
   menuCross: {
-    width: 26,
-    fontSize: 22,
-    color: colours.primaryColour,
-    //marginRight: 5,
-    //textAlign: 'center',
-    //borderWidth: 1
+  },
+  navArrow: {
+    marginLeft: 15,
   },
 
 
@@ -167,7 +162,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   liftButtonNotClickable: {
-    backgroundColor: colours.lightGrey,
+    backgroundColor: colours.inactiveLiftButton,
     width: BUTTON_SIZE,
     height: BUTTON_SIZE,
     borderRadius: BUTTON_SIZE / 2,

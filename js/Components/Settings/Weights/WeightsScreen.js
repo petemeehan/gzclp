@@ -19,7 +19,7 @@ export default class extends React.Component {
   }
 
   static navigationOptions = {
-    title: 'Increments',
+    title: 'Weights',
   };
 
   render() {
@@ -44,8 +44,7 @@ export default class extends React.Component {
             liftID: liftIDs_T1[i],
             refreshPreviousScreen: () => gzclp.refreshComponent(this)
           })}
-          hasNavArrow={true}
-          info={gzclp.getLiftIncrement(liftIDs_T1[i])}
+          info={gzclp.getNextAttemptWeight(liftIDs_T1[i])}
         />
       )
     };
@@ -58,8 +57,7 @@ export default class extends React.Component {
             liftID: liftIDs_T2[i],
             refreshPreviousScreen: () => gzclp.refreshComponent(this)
           })}
-          hasNavArrow={true}
-          info={gzclp.getLiftIncrement(liftIDs_T2[i])}
+          info={gzclp.getNextAttemptWeight(liftIDs_T2[i])}
         />
       )
     };
@@ -72,8 +70,7 @@ export default class extends React.Component {
             liftID: liftIDs_T3[i],
             refreshPreviousScreen: () => gzclp.refreshComponent(this)
           })}
-          hasNavArrow={true}
-          info={gzclp.getLiftIncrement(liftIDs_T3[i])}
+          info={gzclp.getNextAttemptWeight(liftIDs_T3[i])}
         />
       )
     };

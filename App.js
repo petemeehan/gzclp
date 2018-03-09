@@ -9,10 +9,10 @@ import HomeScreen from './js/Components/Home/HomeScreen';
 import SessionScreen from './js/Components/Session/SessionScreen';
 import SettingsScreen from './js/Components/Settings/SettingsScreen';
 
+import EditSessionsPickerScreen from './js/Components/Settings/EditSessions/EditSessionsPickerScreen';
 import IncrementsScreen from './js/Components/Settings/Increments/IncrementsScreen';
 import IncrementsPickerScreen from './js/Components/Settings/Increments/IncrementsPickerScreen';
-import EditSessionsScreen from './js/Components/Settings/EditSessions/EditSessionsScreen';
-import EditSessionsPickerScreen from './js/Components/Settings/EditSessions/EditSessionsPickerScreen';
+import WeightsScreen from './js/Components/Settings/Weights/WeightsScreen';
 
 
 /*-------------------- REACT NAVIGATION NAVIGATOR --------------------*/
@@ -30,10 +30,10 @@ const MainStack = StackNavigator({
 
 const SettingsStack = StackNavigator({
   Settings: {screen: SettingsScreen},
+  EditSessionsPicker: {screen: EditSessionsPickerScreen},
   Increments: {screen: IncrementsScreen},
   IncrementsPicker: {screen: IncrementsPickerScreen},
-  EditSessions: {screen: EditSessionsScreen},
-  EditSessionsPicker: {screen: EditSessionsPickerScreen},
+  Weights: {screen: WeightsScreen},
 }, {
   navigationOptions: {
     headerTintColor: '#fff',

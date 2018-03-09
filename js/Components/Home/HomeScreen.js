@@ -10,13 +10,11 @@ import {
 import { styles, colours } from 'gzclp/js/styles';
 import { gzclp } from 'gzclp/js/gzclp';
 
-import Icon from 'react-native-vector-icons/Ionicons';
-const navArrow = <Icon name="ios-arrow-forward" size={22} color={colours.mediumGrey} />;
-
 import NextSessionButton from './NextSessionButton';
 import CompletedSessionResult from './CompletedSessionResult';
 import ProgramState from './ProgramState';
 
+import { cogIcon } from 'gzclp/js/Components/Common/Icons';
 
 
 export default class extends React.Component {
@@ -31,12 +29,10 @@ export default class extends React.Component {
   static navigationOptions = ({ navigation }) => ({
     title: 'GZCLP',
     headerLeft: <TouchableOpacity
+      style={{width: 40, height: 40, justifyContent: 'center', alignItems: 'center'}}
       onPress={() => navigation.navigate('SettingsStack', navigation.state.params)}
     >
-      <Image
-        style={styles.headerIcon}
-        source={require('gzclp/icons/settings.png')}
-      />
+      {cogIcon}
     </TouchableOpacity>,
   });
 

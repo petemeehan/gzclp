@@ -24,7 +24,7 @@ export default class extends React.Component {
   });
 
   render() {
-    const { sessionID, refreshPreviousScreen } = this.props.navigation.state.params;
+    const { sessionID, refreshParentScreen } = this.props.navigation.state.params;
 
     const sessionLifts = gzclp.getSessionLifts(sessionID);
 
@@ -53,7 +53,7 @@ export default class extends React.Component {
             gzclp.refreshComponent(this);
 
             // Refresh previous menu screen (to update menu info)
-            refreshPreviousScreen();
+            refreshParentScreen();
 
             // Store current state of the app
             try {
@@ -80,7 +80,7 @@ export default class extends React.Component {
             gzclp.refreshComponent(this);
 
             // Refresh previous menu screen (to update menu info)
-            refreshPreviousScreen();
+            refreshParentScreen();
 
             // Store current state of the app
             try {
@@ -107,7 +107,7 @@ export default class extends React.Component {
             gzclp.refreshComponent(this);
 
             // Refresh previous menu screen (to update menu info)
-            refreshPreviousScreen();
+            refreshParentScreen();
 
             // Store current state of the app
             try {
@@ -122,13 +122,13 @@ export default class extends React.Component {
 
     return (
       <ScrollView>
-        <Text style={styles.menuHeading}>T1 Lifts</Text>
+        <Text style={styles.menuHeading}>T1 LIFTS</Text>
         <View style={{marginBottom: 10}}>{menuItemsT1}</View>
 
-        <Text style={styles.menuHeading}>T2 Lifts</Text>
+        <Text style={styles.menuHeading}>T2 LIFTS</Text>
         <View style={{marginBottom: 10}}>{menuItemsT2}</View>
 
-        <Text style={styles.menuHeading}>T3 Lifts</Text>
+        <Text style={styles.menuHeading}>T3 LIFTS</Text>
         <View style={{marginBottom: 10}}>{menuItemsT3}</View>
 
       </ScrollView>
