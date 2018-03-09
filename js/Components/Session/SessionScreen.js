@@ -23,9 +23,12 @@ export default class extends React.Component {
     this.state = {};
   }
 
-  static navigationOptions = ({ navigation }) => ({
-    title: 'Session ' + gzclp.getSessionName(navigation.state.params.sessionID)
-  })
+  static navigationOptions = ({ navigation }) => {
+    const sessionID = navigation.state.params.sessionID;
+    return {
+      title: 'Session ' + (sessionID + 1) + ': ' + gzclp.getSessionName(sessionID)
+    }
+  }
 
   componentWillMount() {
     // Initialise state

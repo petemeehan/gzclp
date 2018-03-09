@@ -16,16 +16,17 @@ import { navArrow } from 'gzclp/js/Components/Common/Icons';
 
 export default props => {
   const { navigate, refreshHomeScreen } = props;
+  const sessionID = gzclp.getCurrentSessionID();
 
   function handlePress() {
     // Navigate to Session screen, which will display according to provided parameters
     navigate('Session', {
-      sessionID: gzclp.getCurrentSessionID(),
+      sessionID: sessionID,
       refreshHomeScreen: refreshHomeScreen
     });
   }
 
-  const liftIDs = gzclp.getSessionLifts( gzclp.getCurrentSessionID() );
+  const liftIDs = gzclp.getSessionLifts(sessionID);
   gzclp.sortLiftIDsByTier(liftIDs);
 
   var lifts = [];
@@ -61,7 +62,7 @@ export default props => {
       <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
         <View>
           <Text style={styles.nextSessionTitle}>
-            {'Next Session: ' + gzclp.getSessionName( gzclp.getCurrentSessionID() )}
+            Session {sessionID + 1}: {gzclp.getSessionName( sessionID )}
           </Text>
 
           {lifts}

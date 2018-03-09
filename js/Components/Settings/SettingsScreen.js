@@ -38,6 +38,7 @@ export default class extends React.Component {
     try {
       await gzclp.deleteSavedProgramState();
       gzclp.resetProgramState();
+      gzclp.refreshComponent(this);
     } catch (error) {
       console.log("Error removing data");
     }
@@ -66,7 +67,7 @@ export default class extends React.Component {
           hasNavArrow={true}
         />
 
-        <View style={{marginTop: 22}}>
+        <View style={{marginTop: 40}}>
           <MenuItem
             title='Reset Everything'
             onPress={() => this.handleResetButtonPress()}

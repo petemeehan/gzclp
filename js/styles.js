@@ -22,7 +22,7 @@ export const colours = {
   darkGrey: '#555',
   failed: '#999',
   inactiveLiftButton: '#f0f0f0',
-  underlayColor: '#f0f0f0',
+  underlayColor: '#f5f5f5',
   negativeRed: '#ff3d3d',
   positiveGreen: '#4cd964'
 };
@@ -50,7 +50,7 @@ export const styles = StyleSheet.create({
   menuHeading: {
     paddingHorizontal: HORIZONTAL_PADDING,
     marginBottom: 8,
-    marginTop: 15,
+    marginTop: 20,
     //fontSize: 13,
     //fontWeight: 'bold',
     color: colours.darkGrey,

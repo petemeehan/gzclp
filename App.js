@@ -9,7 +9,7 @@ import HomeScreen from './js/Components/Home/HomeScreen';
 import SessionScreen from './js/Components/Session/SessionScreen';
 import SettingsScreen from './js/Components/Settings/SettingsScreen';
 
-import EditSessionsPickerScreen from './js/Components/Settings/EditSessions/EditSessionsPickerScreen';
+import EditSessionsPickerScreen from './js/Components/Settings/EditSessionsPicker/EditSessionsPickerScreen';
 import IncrementsScreen from './js/Components/Settings/Increments/IncrementsScreen';
 import IncrementsPickerScreen from './js/Components/Settings/Increments/IncrementsPickerScreen';
 import WeightsScreen from './js/Components/Settings/Weights/WeightsScreen';

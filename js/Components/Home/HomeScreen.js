@@ -5,6 +5,7 @@ import {
   Button,
   Image,
   TouchableOpacity,
+  Text,
 } from 'react-native';
 
 import { styles, colours } from 'gzclp/js/styles';
@@ -80,12 +81,14 @@ export default class extends React.Component {
 
     return (
       <View style={{flex: 1}}>
+        <Text style={styles.menuHeading}>NEXT SESSION</Text>
         <NextSessionButton
           navigate={navigate}
           refreshHomeScreen={() => gzclp.refreshComponent(this)}
         />
 
-        <ScrollView style={{marginTop: 20}}>
+        {previousSessionResults.length > 0 ? <Text style={styles.menuHeading}>PREVIOUS SESSIONS</Text> : null}
+        <ScrollView>
           {previousSessionResults.reverse()}
         </ScrollView>
 

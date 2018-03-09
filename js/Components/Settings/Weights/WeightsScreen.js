@@ -40,10 +40,9 @@ export default class extends React.Component {
         <MenuItem
           key={i}
           title={gzclp.getLiftName( liftIDs_T1[i] )}
-          onPress={() => navigate('IncrementsPicker', {
-            liftID: liftIDs_T1[i],
-            refreshPreviousScreen: () => gzclp.refreshComponent(this)
-          })}
+          onPress={() => {
+            liftIDs_T1[i]
+          }}
           info={gzclp.getNextAttemptWeight(liftIDs_T1[i])}
         />
       )
@@ -53,10 +52,9 @@ export default class extends React.Component {
         <MenuItem
           key={i}
           title={gzclp.getLiftName( liftIDs_T2[i] )}
-          onPress={() => navigate('IncrementsPicker', {
-            liftID: liftIDs_T2[i],
-            refreshPreviousScreen: () => gzclp.refreshComponent(this)
-          })}
+          onPress={() => {
+            liftIDs_T2[i]
+          }}
           info={gzclp.getNextAttemptWeight(liftIDs_T2[i])}
         />
       )
@@ -66,10 +64,9 @@ export default class extends React.Component {
         <MenuItem
           key={i}
           title={gzclp.getLiftName( liftIDs_T3[i] )}
-          onPress={() => navigate('IncrementsPicker', {
-            liftID: liftIDs_T3[i],
-            refreshPreviousScreen: () => gzclp.refreshComponent(this)
-          })}
+          onPress={() => {
+            liftIDs_T3[i]
+          }}
           info={gzclp.getNextAttemptWeight(liftIDs_T3[i])}
         />
       )
