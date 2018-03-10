@@ -36,38 +36,44 @@ export default class extends React.Component {
     const menuItemsT3 = [];
 
     for (let i = 0; i < liftIDs_T1.length; i++) {
+      const liftID = liftIDs_T1[i];
+
       menuItemsT1.push(
         <MenuItem
           key={i}
-          title={gzclp.getLiftName( liftIDs_T1[i] )}
-          onPress={() => {
-            liftIDs_T1[i]
-          }}
-          info={gzclp.getNextAttemptWeight(liftIDs_T1[i])}
+          title={gzclp.getLiftName( liftID )}
+
+          hasTextInput={true}
+          textInputDefaultValue={gzclp.getNextAttemptWeight(liftID).toString()}
+          textInputOnChangeText={text => gzclp.setNextAttemptWeight(liftID, text)}
         />
       )
     };
     for (let i = 0; i < liftIDs_T2.length; i++) {
+      const liftID = liftIDs_T2[i];
+
       menuItemsT2.push(
         <MenuItem
           key={i}
-          title={gzclp.getLiftName( liftIDs_T2[i] )}
-          onPress={() => {
-            liftIDs_T2[i]
-          }}
-          info={gzclp.getNextAttemptWeight(liftIDs_T2[i])}
+          title={gzclp.getLiftName( liftID )}
+
+          hasTextInput={true}
+          textInputDefaultValue={gzclp.getNextAttemptWeight(liftID).toString()}
+          textInputOnChangeText={text => gzclp.setNextAttemptWeight(liftID, text)}
         />
       )
     };
     for (let i = 0; i < liftIDs_T3.length; i++) {
+      const liftID = liftIDs_T3[i];
+
       menuItemsT3.push(
         <MenuItem
           key={i}
-          title={gzclp.getLiftName( liftIDs_T3[i] )}
-          onPress={() => {
-            liftIDs_T3[i]
-          }}
-          info={gzclp.getNextAttemptWeight(liftIDs_T3[i])}
+          title={gzclp.getLiftName( liftID )}
+
+          hasTextInput={true}
+          textInputDefaultValue={gzclp.getNextAttemptWeight(liftID).toString()}
+          textInputOnChangeText={text => gzclp.setNextAttemptWeight(liftID, text)}
         />
       )
     };

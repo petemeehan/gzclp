@@ -60,7 +60,8 @@ export const styles = StyleSheet.create({
     paddingHorizontal: HORIZONTAL_PADDING,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    //alignItems: 'center',
+    //borderWidth: 1
   },
   menuItemTitleContainer: {
     paddingVertical: VERTICAL_PADDING,
@@ -87,6 +88,11 @@ export const styles = StyleSheet.create({
     fontSize: 15,
     //fontWeight: 'bold',
     //borderWidth: 1,
+  },
+  menuItemTextInput: {
+    flex:1,
+    fontSize: 15,
+    textAlign: 'right'
   },
   menuTick: {
   },

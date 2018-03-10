@@ -5,7 +5,9 @@ import {
   Button,
   Image,
   TouchableOpacity,
+  TouchableHighlight,
   Text,
+  TextInput,
 } from 'react-native';
 
 import { styles, colours } from 'gzclp/js/styles';
@@ -92,10 +94,10 @@ export default class extends React.Component {
           {previousSessionResults.reverse()}
         </ScrollView>
 
-        {this.state.isProgramStateVisible ? <ProgramState /> : null}
 
+        {this.state.isProgramStateVisible ? <ProgramState /> : null}
         <Button
-          title={this.state.isProgramStateVisible ? 'Hide Current Progress' : 'Show Current Progress'}
+          title={this.state.isProgramStateVisible ? 'Hide current program state' : 'Show current program state'}
           color={colours.primaryColour}
           onPress={() => this.handleShowProgramStateButton()}
         />

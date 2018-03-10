@@ -4,6 +4,7 @@ import {
   View,
   TouchableHighlight,
   Switch,
+  TextInput
 } from 'react-native';
 
 import { styles, colours } from 'gzclp/js/styles';
@@ -23,6 +24,9 @@ export default (props) => {
       hasSwitch,
       switchEnabled,
       switchOnValueChange,
+      hasTextInput,
+      textInputDefaultValue,
+      textInputOnChangeText,
     } = props;
 
     return (
@@ -39,6 +43,13 @@ export default (props) => {
             <Text style={!hasSwitch || switchEnabled ? styles.menuItemTitle : styles.menuItemTitleGreyedOut}>{title}</Text>
             {subtitle ? <Text style={styles.menuItemSubtitle}>{subtitle}</Text> : null}
           </View>
+
+          {hasTextInput ? <TextInput
+            style={styles.menuItemTextInput}
+            keyboardType='numeric'
+            defaultValue={textInputDefaultValue}
+            onChangeText={textInputOnChangeText}
+          /> : null}
 
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
             {info ? <Text style={styles.menuItemInfo}>{info}</Text> : null}
