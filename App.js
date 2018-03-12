@@ -1,5 +1,7 @@
+import React from 'react';
 import { StackNavigator } from 'react-navigation';
 
+import { gzclp } from 'gzclp/js/gzclp';
 import { styles } from 'gzclp/js/styles';
 
 
@@ -14,8 +16,49 @@ import IncrementsScreen from './js/Components/Settings/Increments/IncrementsScre
 import IncrementsPickerScreen from './js/Components/Settings/Increments/IncrementsPickerScreen';
 import WeightsScreen from './js/Components/Settings/Weights/WeightsScreen';
 
+import WelcomeScreen from './js/Components/Welcome/WelcomeScreen';
 
-/*-------------------- REACT NAVIGATION NAVIGATOR --------------------*/
+
+
+export default class extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {dataFinishedFetching: false};
+  }
+
+  // Overwrite initial default program state values with stored ones, if they exist
+  async fetchSavedData() {
+    var storedProgramState;
+
+    try {
+      storedProgramState = await gzclp.fetchProgramState();
+      if (storedProgramState !== null) {
+        gzclp.setProgramState(storedProgramState);
+      } else {
+        console.log("No sessions completed yet");
+      }
+    } catch (error) {
+      console.log("Error setting fetched data");
+    }
+
+    this.setState({dataFinishedFetching: true});
+  }
+
+  componentWillMount() {
+    // Initialise program state with default values
+    gzclp.resetProgramState();
+
+    // Overwrite with saved values if applicable
+    this.fetchSavedData();
+  }
+
+  render() {
+    return this.state.dataFinishedFetching ? <RootStack /> : null;
+  }
+}
+
+
+/*-------------------- REACT NAVIGATION NAVIGATORS --------------------*/
 
 const MainStack = StackNavigator({
   Home: {screen: HomeScreen},
@@ -45,9 +88,9 @@ const SettingsStack = StackNavigator({
 const RootStack = StackNavigator({
   MainStack: {screen: MainStack},
   SettingsStack: {screen: SettingsStack},
+  Welcome: {screen: WelcomeScreen},
 }, {
+  initialRouteName: 'Welcome',
   mode: 'modal',
   headerMode: 'none',
 });
-
-export default RootStack;

@@ -16,7 +16,8 @@ const BUTTON_MARGIN = 8;
 const BUTTON_SIZE = (DEVICE_W - (2 * HORIZONTAL_PADDING)) / 5 - BUTTON_MARGIN;
 
 export const colours = {
-  primaryColour: '#fa375a',
+  primaryColour: '#fa375a',   // Pinky red
+  //primaryColour: '#00a79d', // Deep teal
   lightGrey: '#f0f0f0',
   mediumGrey: '#909090',
   darkGrey: '#555',

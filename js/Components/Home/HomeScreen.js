@@ -23,9 +23,6 @@ import { cogIcon } from 'gzclp/js/Components/Common/Icons';
 export default class extends React.Component {
   constructor(props) {
     super(props);
-    // Initialise program state with default values
-    gzclp.resetProgramState();
-
     this.state = {isProgramStateVisible: false};
   }
 
@@ -40,26 +37,9 @@ export default class extends React.Component {
   });
 
   componentWillMount() {
-    // Overwrite initial default program state values with stored ones, if they exist
-    this.loadSavedData();
-
     // Put refreshHomeScreen function into navigation.state.params
     // so it can be invoked in navigationOptions and then passed to Settings screen
     this.props.navigation.setParams( {refreshHomeScreen: () => gzclp.refreshComponent(this)})
-  }
-
-  async loadSavedData() {
-    var storedProgramState;
-
-    try {
-      storedProgramState = await gzclp.loadProgramState();
-      if (storedProgramState !== null) {
-        gzclp.setProgramState(storedProgramState);
-        gzclp.refreshComponent(this);
-      } else console.log("(No sessions completed)")
-    } catch (error) {
-      console.log("Error retrieving data");
-    }
   }
 
   handleShowProgramStateButton() {
