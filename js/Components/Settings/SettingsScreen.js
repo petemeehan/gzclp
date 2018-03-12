@@ -34,11 +34,11 @@ export default class extends React.Component {
   });
 
   // Remove stored data and reset program state to initial values
-  async handleResetButtonPress() {
+  async handleResetButton() {
     try {
       await gzclp.deleteSavedProgramState();
       gzclp.resetProgramState();
-      gzclp.refreshComponent(this);
+      this.props.navigation.navigate('Welcome');
     } catch (error) {
       console.log("Error removing data");
     }
@@ -70,7 +70,7 @@ export default class extends React.Component {
         <View style={{marginTop: 40}}>
           <MenuItem
             title='Reset Everything'
-            onPress={() => this.handleResetButtonPress()}
+            onPress={() => this.handleResetButton()}
             hasNavArrow={false}
           />
         </View>
