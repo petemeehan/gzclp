@@ -17,6 +17,7 @@ import IncrementsPickerScreen from './js/Components/Settings/Increments/Incremen
 import WeightsScreen from './js/Components/Settings/Weights/WeightsScreen';
 
 import WelcomeScreen from './js/Components/Welcome/WelcomeScreen';
+import StartingWeightsScreen from './js/Components/Welcome/StartingWeightsScreen';
 
 
 
@@ -85,12 +86,19 @@ const SettingsStack = StackNavigator({
   }
 })
 
+const WelcomeStack = StackNavigator({
+  Welcome: {screen: WelcomeScreen},
+  StartingWeights: {screen: StartingWeightsScreen}
+}, {
+  headerMode: 'none'
+})
+
 const RootStack = StackNavigator({
   MainStack: {screen: MainStack},
   SettingsStack: {screen: SettingsStack},
-  Welcome: {screen: WelcomeScreen},
+  WelcomeStack: {screen: WelcomeStack},
 }, {
-  initialRouteName: 'Welcome',
+  initialRouteName: 'WelcomeStack',
   mode: 'modal',
   headerMode: 'none',
 });

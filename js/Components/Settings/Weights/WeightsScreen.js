@@ -45,7 +45,16 @@ export default class extends React.Component {
 
           hasTextInput={true}
           textInputDefaultValue={gzclp.getNextAttemptWeight(liftID).toString()}
-          textInputOnChangeText={text => gzclp.setNextAttemptWeight(liftID, text)}
+          textInputOnChangeText={text => {
+            gzclp.setNextAttemptWeight(liftID, text);
+
+            // Store current state of the app
+            try {
+              gzclp.saveProgramState();
+            } catch (error) {
+              console.log("Error saving data")
+            }
+          }}
         />
       )
     };

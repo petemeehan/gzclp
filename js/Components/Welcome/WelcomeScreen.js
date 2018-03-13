@@ -15,10 +15,6 @@ export default class extends React.Component {
     super(props);
   }
 
-  static navigationOptions = ({ navigation }) => ({
-    title: 'Welcome'
-  });
-
   componentWillMount() {
     // If app has been opened before skip this screen
     const { navigate } = this.props.navigation;
@@ -27,22 +23,11 @@ export default class extends React.Component {
     }
   }
 
-  handleButton() {
-    const { navigate } = this.props.navigation;
-
-    // Remember that app has been opened once, so intro screen is skipped from now on
-    gzclp.setIsFirstTime(false);
-    gzclp.saveProgramState();
-
-    navigate('MainStack');
-  }
-
-
   render() {
     return (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colours.primaryColour}}>
 
-        <View style={{marginVertical: 40, alignItems: 'center'}}>
+        <View style={{marginVertical: 10, alignItems: 'center'}}>
           <Text style={{fontSize: 25, fontWeight: 'bold', color: 'white'}}>Welcome to GZCLP</Text>
           <Text style={{fontSize: 20, fontStyle: 'italic', color: 'white'}}>GZCL Linear Program</Text>
         </View>
@@ -50,10 +35,10 @@ export default class extends React.Component {
         {
           //TODO Make this a component
         }
-        <View style={{backgroundColor: 'white',borderWidth: 1, borderColor: 'white'}}>
+        <View style={{marginTop: 40, backgroundColor: 'white', borderWidth: 1, borderColor: 'white'}}>
           <TouchableOpacity
             style={{backgroundColor: colours.primaryColour, padding: 8}}
-            onPress={() => this.handleButton()}
+            onPress={() => this.props.navigation.navigate('StartingWeights')}
             activeOpacity={0.8}
           >
             <Text style={{fontSize: 18, color: 'white'}}>Get Started</Text>
