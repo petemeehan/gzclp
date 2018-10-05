@@ -7,13 +7,16 @@ import {
 
 StatusBar.setBarStyle('light-content');
 
+
 const DEVICE_W = Dimensions.get('window').width;
-const HORIZONTAL_PADDING = 15;
-const VERTICAL_PADDING = 12;
-const COMPONENT_MARGIN = 20;
+
+export const layoutConstants = {
+  HORIZONTAL_PADDING: 15,
+  VERTICAL_PADDING: 12
+}
 
 const BUTTON_MARGIN = 8;
-const BUTTON_SIZE = (DEVICE_W - (2 * HORIZONTAL_PADDING)) / 5 - BUTTON_MARGIN;
+const BUTTON_SIZE = (DEVICE_W - (2 * layoutConstants.HORIZONTAL_PADDING)) / 5 - BUTTON_MARGIN;
 
 export const colours = {
   primaryColour: '#fa375a',   // Pinky red
@@ -42,14 +45,14 @@ export const styles = StyleSheet.create({
   },
   genericContainer: {
     backgroundColor: '#fff',
-    paddingHorizontal: HORIZONTAL_PADDING,
-    paddingVertical: VERTICAL_PADDING,
+    paddingHorizontal: layoutConstants.HORIZONTAL_PADDING,
+    paddingVertical: layoutConstants.VERTICAL_PADDING,
     marginBottom: 1,
   },
 
 
   menuHeading: {
-    paddingHorizontal: HORIZONTAL_PADDING,
+    paddingHorizontal: layoutConstants.HORIZONTAL_PADDING,
     marginBottom: 8,
     marginTop: 20,
     //fontSize: 13,
@@ -57,48 +60,8 @@ export const styles = StyleSheet.create({
     color: colours.darkGrey,
     //borderWidth: 1,
   },
-  menuItemContainer: {
-    paddingHorizontal: HORIZONTAL_PADDING,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    //alignItems: 'center',
-    //borderWidth: 1
-  },
-  menuItemTitleContainer: {
-    paddingVertical: VERTICAL_PADDING,
-    //borderWidth: 1
-  },
-  menuItemTitle: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    //borderWidth: 1
-  },
-  menuItemTitleGreyedOut: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: colours.mediumGrey,
-  },
-  menuItemSubtitle: {
-    marginTop: 5,
-    color: colours.darkGrey,
-    fontSize: 13,
-  },
-  menuItemInfo: {
-    //marginRight: 15,
-    color: colours.mediumGrey,
-    fontSize: 15,
-    //fontWeight: 'bold',
-    //borderWidth: 1,
-  },
-  menuItemTextInput: {
-    flex:1,
-    fontSize: 15,
-    textAlign: 'right'
-  },
-  menuTick: {
-  },
-  menuCross: {
-  },
+
+
   navArrow: {
     marginLeft: 15,
   },
@@ -117,10 +80,10 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   progressDataContainer: {
-    paddingHorizontal: HORIZONTAL_PADDING,
+    paddingHorizontal: layoutConstants.HORIZONTAL_PADDING,
   },
   progressDataTitle: {
-    marginVertical: VERTICAL_PADDING,
+    marginVertical: layoutConstants.VERTICAL_PADDING,
   },
   progressDataContent: {
     fontFamily: 'Courier New',
@@ -133,8 +96,8 @@ export const styles = StyleSheet.create({
     marginBottom: 1,
   },
   liftInfoContainer: {
-    paddingHorizontal: HORIZONTAL_PADDING,
-    paddingVertical: VERTICAL_PADDING,
+    paddingHorizontal: layoutConstants.HORIZONTAL_PADDING,
+    paddingVertical: layoutConstants.VERTICAL_PADDING,
   },
   liftName: {
     fontSize: 17,
@@ -144,8 +107,8 @@ export const styles = StyleSheet.create({
     marginVertical: 5,
   },
   liftButtonsContainer: {
-    marginHorizontal: HORIZONTAL_PADDING,
-    marginBottom: VERTICAL_PADDING,
+    marginHorizontal: layoutConstants.HORIZONTAL_PADDING,
+    marginBottom: layoutConstants.VERTICAL_PADDING,
     flexDirection: 'row',
     flexWrap: 'wrap',
     //borderWidth: 1
@@ -245,7 +208,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: colours.darkGrey,
-    paddingHorizontal: HORIZONTAL_PADDING,
+    paddingHorizontal: layoutConstants.HORIZONTAL_PADDING,
     paddingVertical: 2,
   },
   timerNumbers: {

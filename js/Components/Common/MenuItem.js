@@ -4,18 +4,22 @@ import {
   View,
   TouchableHighlight,
   Switch,
-  TextInput
+  TextInput,
+  StyleSheet
 } from 'react-native';
 
-import { styles, colours } from 'gzclp/js/styles';
+import { styles, layoutConstants, colours } from 'gzclp/js/styles';
 import { navArrow, menuTick } from 'gzclp/js/Components/Common/Icons';
 
 
-// TODO Use inline styles - since only used here and easier to keep track
+// TODO Use inline menuItemStyles - since only used here and easier to keep track
 // TODO Hacked to to use for starting weight form - consider making new component
 
 export default (props) => {
     var {
+      backgroundColour,
+      textColour,
+      borderColour,
       onPress,
       title,
       subtitle,
@@ -29,46 +33,123 @@ export default (props) => {
       textInputDefaultValue,
       textInputOnChangeText,
       textInputPlaceholder,
-      style,
-      textColour,
     } = props;
 
     return (
       <TouchableHighlight
         underlayColor={colours.underlayColor}
         onPress={hasSwitch ? null : onPress}
-        style={style ? style : {
-          backgroundColor: '#fff',
-          marginBottom: 1,
+        style={{
+          backgroundColor: backgroundColour ? backgroundColour : 'white',
+          borderTopWidth: 1,
+          borderBottomWidth: 1,
+          borderColor: borderColour ? borderColour: colours.lightGrey,
+          marginBottom: -1,
         }}
       >
-        <View style={styles.menuItemContainer}>
-          <View style={styles.menuItemTitleContainer}>
-            <Text style={!hasSwitch || switchEnabled ? styles.menuItemTitle : styles.menuItemTitleGreyedOut}><Text style={textColour ? {color: textColour} : null}>{title}</Text></Text>
-            {subtitle ? <Text style={styles.menuItemSubtitle}><Text>{subtitle}</Text></Text> : null}
+        <View style={menuItemStyles.menuItemContainer}>
+          <View style={menuItemStyles.menuItemTitleContainer}>
+            <Text style={!hasSwitch || switchEnabled ? menuItemStyles.menuItemTitle : menuItemStyles.menuItemTitleGreyedOut}>
+              <Text style={textColour ? {color: textColour} : null}>
+                {title}
+              </Text>
+            </Text>
+
+            {subtitle ?
+              <Text style={menuItemStyles.menuItemSubtitle}>
+                <Text style={textColour ? {color: textColour} : null}>
+                  {subtitle}
+                </Text>
+              </Text>
+              : null
+            }
           </View>
 
-          {hasTextInput ? <TextInput
-            style={[styles.menuItemTextInput, textColour ? {color: textColour} : null]}
-            keyboardType='numeric'
-            placeholder={textInputPlaceholder}
-            defaultValue={textInputDefaultValue}
-            onChangeText={textInputOnChangeText}
-            returnKeyType='done'
-          /> : null}
+          {hasTextInput ?
+            <TextInput
+              style={[menuItemStyles.menuItemTextInput, textColour ? {color: textColour} : null]}
+              keyboardType='numeric'
+              placeholder={textInputPlaceholder}
+              defaultValue={textInputDefaultValue}
+              onChangeText={textInputOnChangeText}
+              returnKeyType='done'
+            />
+            : null
+          }
 
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            {info ? <Text style={styles.menuItemInfo}>{info}</Text> : null}
-            {hasTick ? <View style={styles.menuTick}>{menuTick}</View> : null}
+            {info ?
+              <Text style={menuItemStyles.menuItemInfo}>{info}</Text>
+              : null
+            }
+
             {hasNavArrow ? <View style={styles.navArrow}>{navArrow}</View> : null}
 
-            {hasSwitch ? <Switch
-              value={switchEnabled}
-              onValueChange={switchOnValueChange}
-              onTintColor={colours.primaryColour}
-            /> : null}
+            {hasTick ?
+              <View style={menuItemStyles.menuTick}>
+                {menuTick}
+              </View>
+              : null
+            }
+
+            {hasSwitch ?
+              <Switch
+                value={switchEnabled}
+                onValueChange={switchOnValueChange}
+                onTintColor={colours.primaryColour}
+              />
+              : null
+            }
           </View>
         </View>
       </TouchableHighlight>
     )
 }
+
+
+
+const menuItemStyles = StyleSheet.create({
+  menuItemContainer: {
+    paddingHorizontal: layoutConstants.HORIZONTAL_PADDING,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    //alignItems: 'center',
+    //borderWidth: 1
+  },
+  menuItemTitleContainer: {
+    paddingVertical: layoutConstants.VERTICAL_PADDING,
+    //borderWidth: 1
+  },
+  menuItemTitle: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    //borderWidth: 1
+  },
+  menuItemTitleGreyedOut: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    opacity: 0.6,
+  },
+  menuItemSubtitle: {
+    marginTop: 5,
+    opacity: 0.8,
+    fontSize: 13,
+    //fontWeight: 'bold'
+  },
+  menuItemInfo: {
+    //marginRight: 15,
+    opacity: 0.7,
+    fontSize: 15,
+    //fontWeight: 'bold',
+    //borderWidth: 1,
+  },
+  menuItemTextInput: {
+    flex:1,
+    fontSize: 15,
+    textAlign: 'right'
+  },
+  menuTick: {
+  },
+  menuCross: {
+  },
+})

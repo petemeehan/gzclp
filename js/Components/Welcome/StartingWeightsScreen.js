@@ -58,17 +58,17 @@ export default class extends React.Component {
         <MenuItem
           key={i}
           title={gzclp.getLiftName( liftID )}
+          backgroundColour='transparent'
+          borderColour='white'
+          textColour='white'
+
           hasTextInput={true}
           textInputPlaceholder='20'
           textInputOnChangeText={text => this.setState( {[liftID]: text} )}
           style={{
             backgroundColor: colours.primaryColour,
-            borderTopWidth: 1,
-            borderBottomWidth: 1,
             borderColor: 'white',
-            marginBottom: -1,
           }}
-          textColour='white'
         />
       )
     };
@@ -81,7 +81,7 @@ export default class extends React.Component {
             Find your starting weights
           </Text>
           <Text style={{marginVertical: 10, fontSize: 15, color: 'white', textAlign: 'center'}}>
-            If you've lifted before, enter your current estimated <Text style={{fontWeight: 'bold'}}>5 Rep Maxes</Text> for these lifts, or leave blank to start with an empty bar
+            If you've lifted before and know your estimated <Text style={{fontWeight: 'bold'}}>5-rep maxes</Text> you can enter them here, or leave blank to start with an empty bar
           </Text>
         </View>
 

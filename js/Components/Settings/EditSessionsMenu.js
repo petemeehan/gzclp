@@ -32,6 +32,7 @@ export default props => {
         })}
         hasNavArrow={true}
         key={i}
+        hasTopBorder={i == 0}
       />
     )
   };
