@@ -4,9 +4,7 @@ An app for iOS and Android to make following the GZCLP beginner strength trainin
 
 It tells you exactly what, when and how much to lift, tracks your progress, and tells you what you'll be lifting next time.
 
-## Development Notes
-
-### Current Status
+### Development Notes
 
 Basic functionality complete. Following functionality to be implemented before ready for release:
 * Graphs that display progress over time for each lift
