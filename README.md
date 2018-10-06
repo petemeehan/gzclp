@@ -6,6 +6,8 @@ It tells you exactly what, when and how much to lift, tracks your progress, and 
 
 ### Development Notes
 
+Written in JavaScript using [React Native](https://facebook.github.io/react-native/) and [Redux](https://redux.js.org/), and tested using [Expo CLI and Client](https://expo.io/tools).
+
 Basic functionality complete. Following functionality to be implemented before ready for release:
 * Graphs that display progress over time for each lift
 * Easier editing and reorganising of workouts (for example allow lifts to be reordered by dragging and dropping)
