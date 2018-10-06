@@ -29,8 +29,7 @@ export default props => {
 
     lifts.push(
       <View key={i} style={{flexDirection: 'row'}}>
-        <Text style={{width: 25}}>{tier}</Text>
-        <Text style={{width: 120}}>{name}</Text>
+        <Text style={{width: 150}}>{tier} {name}</Text>
         <Text>{resultString}</Text>
       </View>
     )

@@ -8,24 +8,25 @@ import {
 import { styles, colours } from 'gzclp/js/styles';
 import { gzclp } from 'gzclp/js/gzclp';
 
-import Icon from 'react-native-vector-icons/Ionicons';
-const navArrow = (<Icon name="ios-arrow-forward" size={22} color={colours.mediumGrey} />);
+import { navArrow } from 'gzclp/js/Components/Common/Icons';
+
 
 
 // TODO: dont use inline styles
 
 export default props => {
-  function handlePress() {
-    const { navigate, refreshHomeScreen } = props;
+  const { navigate, refreshHomeScreen } = props;
+  const sessionID = gzclp.getCurrentSessionID();
 
+  function handlePress() {
     // Navigate to Session screen, which will display according to provided parameters
     navigate('Session', {
-      sessionID: gzclp.getCurrentSessionID(),
+      sessionID: sessionID,
       refreshHomeScreen: refreshHomeScreen
     });
   }
 
-  const liftIDs = gzclp.getSessionLifts( gzclp.getCurrentSessionID() );
+  const liftIDs = gzclp.getSessionLifts(sessionID);
   gzclp.sortLiftIDsByTier(liftIDs);
 
   var lifts = [];
@@ -40,9 +41,8 @@ export default props => {
 
     lifts.push(
       <View key={i} style={{flexDirection: 'row'}}>
-        <Text style={{width: 25}}>{tier}</Text>
-        <Text style={{width: 120}}>{name}</Text>
-        <Text style={{width: 50}}>{numberOfSets}×{numberOfReps}</Text>
+        <Text style={{width: 150}}>{tier} {name}</Text>
+        <Text style={{width: 40}}>{numberOfSets}×{numberOfReps}</Text>
 
         <View style={{width: 50, alignItems: 'flex-end'}}>
           <Text>{weight} kg</Text>
@@ -62,7 +62,7 @@ export default props => {
       <View style={{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}>
         <View>
           <Text style={styles.nextSessionTitle}>
-            {'Next Session: ' + gzclp.getSessionName( gzclp.getCurrentSessionID() )}
+            Session {sessionID + 1}: {gzclp.getSessionName( sessionID )}
           </Text>
 
           {lifts}
