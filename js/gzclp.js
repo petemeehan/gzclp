@@ -114,6 +114,9 @@ gzclp.state.nextSessionID = 0;
 //  ]
 gzclp.state.completedSessions = [];
 
+// To check if this is first time app is run (if so, starting weights are calculated)
+gzclp.state.isFirstTime = true;
+
 
 
 /*-------------------- GETTERS & SETTERS --------------------*/
@@ -171,6 +174,9 @@ gzclp.getAllCompletedSessions = function() { return gzclp.state.completedSession
 gzclp.getCompletedSession = function(id) { return gzclp.state.completedSessions[id]};
 gzclp.setCompletedSessions = function(completedSessions) { gzclp.state.completedSessions = completedSessions; }
 gzclp.addCompletedSession = function(completedSession) { gzclp.state.completedSessions.push(completedSession); }
+
+gzclp.isFirstTime = function() { return gzclp.state.isFirstTime };
+gzclp.setIsFirstTime = function(bool) { gzclp.state.isFirstTime = bool };
 
 
 
@@ -273,6 +279,7 @@ gzclp.addToLiftPreviousAttempts = function(id, weight, repSchemeIndex) {
 gzclp.resetProgramState = function() {
   gzclp.setCurrentSessionID(0);
   gzclp.setNextLiftID(0);
+  gzclp.setIsFirstTime(true);
   gzclp.state.lifts = {};
   gzclp.state.completedSessions = [];
 
@@ -297,9 +304,9 @@ gzclp.saveProgramState = async function() {
   )
 }
 /*
- * Load stringified program state object and reparse it as an object
+ * Fetch stringified program state object and reparse it as an object
  */
-gzclp.loadProgramState = async function() {
+gzclp.fetchProgramState = async function() {
   var programStateString = await AsyncStorage.getItem(
     'programState',
     () => console.log("Program state loaded")

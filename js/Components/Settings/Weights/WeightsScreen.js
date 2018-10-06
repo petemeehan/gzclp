@@ -19,7 +19,7 @@ export default class extends React.Component {
   }
 
   static navigationOptions = {
-    title: 'Increments',
+    title: 'Weights',
   };
 
   render() {
@@ -36,44 +36,53 @@ export default class extends React.Component {
     const menuItemsT3 = [];
 
     for (let i = 0; i < liftIDs_T1.length; i++) {
+      const liftID = liftIDs_T1[i];
+
       menuItemsT1.push(
         <MenuItem
           key={i}
-          title={gzclp.getLiftName( liftIDs_T1[i] )}
-          onPress={() => navigate('IncrementsPicker', {
-            liftID: liftIDs_T1[i],
-            refreshPreviousScreen: () => gzclp.refreshComponent(this)
-          })}
-          hasNavArrow={true}
-          info={gzclp.getLiftIncrement(liftIDs_T1[i])}
+          title={gzclp.getLiftName( liftID )}
+
+          hasTextInput={true}
+          textInputDefaultValue={gzclp.getNextAttemptWeight(liftID).toString()}
+          textInputOnChangeText={text => {
+            gzclp.setNextAttemptWeight(liftID, text);
+
+            // Store current state of the app
+            try {
+              gzclp.saveProgramState();
+            } catch (error) {
+              console.log("Error saving data")
+            }
+          }}
         />
       )
     };
     for (let i = 0; i < liftIDs_T2.length; i++) {
+      const liftID = liftIDs_T2[i];
+
       menuItemsT2.push(
         <MenuItem
           key={i}
-          title={gzclp.getLiftName( liftIDs_T2[i] )}
-          onPress={() => navigate('IncrementsPicker', {
-            liftID: liftIDs_T2[i],
-            refreshPreviousScreen: () => gzclp.refreshComponent(this)
-          })}
-          hasNavArrow={true}
-          info={gzclp.getLiftIncrement(liftIDs_T2[i])}
+          title={gzclp.getLiftName( liftID )}
+
+          hasTextInput={true}
+          textInputDefaultValue={gzclp.getNextAttemptWeight(liftID).toString()}
+          textInputOnChangeText={text => gzclp.setNextAttemptWeight(liftID, text)}
         />
       )
     };
     for (let i = 0; i < liftIDs_T3.length; i++) {
+      const liftID = liftIDs_T3[i];
+
       menuItemsT3.push(
         <MenuItem
           key={i}
-          title={gzclp.getLiftName( liftIDs_T3[i] )}
-          onPress={() => navigate('IncrementsPicker', {
-            liftID: liftIDs_T3[i],
-            refreshPreviousScreen: () => gzclp.refreshComponent(this)
-          })}
-          hasNavArrow={true}
-          info={gzclp.getLiftIncrement(liftIDs_T3[i])}
+          title={gzclp.getLiftName( liftID )}
+
+          hasTextInput={true}
+          textInputDefaultValue={gzclp.getNextAttemptWeight(liftID).toString()}
+          textInputOnChangeText={text => gzclp.setNextAttemptWeight(liftID, text)}
         />
       )
     };

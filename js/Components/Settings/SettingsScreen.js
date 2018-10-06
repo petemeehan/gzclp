@@ -13,6 +13,7 @@ import { gzclp } from 'gzclp/js/gzclp';
 import { styles, colours } from 'gzclp/js/styles';
 
 import MenuItem from 'gzclp/js/Components/Common/MenuItem';
+import EditSessionsMenu from './EditSessionsMenu';
 
 
 export default class extends React.Component {
@@ -33,10 +34,11 @@ export default class extends React.Component {
   });
 
   // Remove stored data and reset program state to initial values
-  async handleResetButtonPress() {
+  async handleResetButton() {
     try {
       await gzclp.deleteSavedProgramState();
       gzclp.resetProgramState();
+      this.props.navigation.navigate('Welcome');
     } catch (error) {
       console.log("Error removing data");
     }
@@ -47,21 +49,28 @@ export default class extends React.Component {
 
     return (
       <ScrollView>
-        <MenuItem
-          title='Edit Sessions'
-          onPress={() => navigate('EditSessions')}
-          hasNavArrow={true}
+        <Text style={styles.menuHeading}>EDIT SESSIONS</Text>
+        <EditSessionsMenu
+          navigate={navigate}
+          refreshParentScreen={() => gzclp.refreshComponent(this)}
         />
+
+        <Text style={styles.menuHeading}>EDIT LIFTS</Text>
         <MenuItem
           title='Increments'
           onPress={() => navigate('Increments')}
           hasNavArrow={true}
         />
+        <MenuItem
+          title='Weights'
+          onPress={() => navigate('Weights')}
+          hasNavArrow={true}
+        />
 
-        <View style={{marginTop: 22}}>
+        <View style={{marginTop: 40}}>
           <MenuItem
             title='Reset Everything'
-            onPress={() => this.handleResetButtonPress()}
+            onPress={() => this.handleResetButton()}
             hasNavArrow={false}
           />
         </View>
