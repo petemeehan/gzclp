@@ -1,5 +1,5 @@
 import React from 'react';
-import { StackNavigator } from 'react-navigation';
+import { createStackNavigator } from 'react-navigation';
 
 import { gzclp } from 'gzclp/js/gzclp';
 import { styles } from 'gzclp/js/styles';
@@ -61,7 +61,7 @@ export default class extends React.Component {
 
 /*-------------------- REACT NAVIGATION NAVIGATORS --------------------*/
 
-const MainStack = StackNavigator({
+const MainStack = createStackNavigator({
   Home: {screen: HomeScreen},
   Session: {screen: SessionScreen},
 }, {
@@ -72,7 +72,7 @@ const MainStack = StackNavigator({
   }
 })
 
-const SettingsStack = StackNavigator({
+const SettingsStack = createStackNavigator({
   Settings: {screen: SettingsScreen},
   EditSessionsPicker: {screen: EditSessionsPickerScreen},
   Increments: {screen: IncrementsScreen},
@@ -86,14 +86,14 @@ const SettingsStack = StackNavigator({
   }
 })
 
-const WelcomeStack = StackNavigator({
+const WelcomeStack = createStackNavigator({
   Welcome: {screen: WelcomeScreen},
   StartingWeights: {screen: StartingWeightsScreen}
 }, {
   headerMode: 'none'
 })
 
-const RootStack = StackNavigator({
+const RootStack = createStackNavigator({
   MainStack: {screen: MainStack},
   SettingsStack: {screen: SettingsStack},
   WelcomeStack: {screen: WelcomeStack},
