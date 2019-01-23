@@ -97,6 +97,7 @@ const RootStack = createStackNavigator({
   MainStack: {screen: MainStack},
   SettingsStack: {screen: SettingsStack},
   WelcomeStack: {screen: WelcomeStack},
+  //LoginScreen: {screen: LoginScreen},
 }, {
   initialRouteName: 'WelcomeStack',
   mode: 'modal',
