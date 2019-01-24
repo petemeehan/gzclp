@@ -15,6 +15,7 @@ import EditSessionsPickerScreen from './js/Components/Settings/EditSessionsPicke
 import IncrementsScreen from './js/Components/Settings/Increments/IncrementsScreen';
 import IncrementsPickerScreen from './js/Components/Settings/Increments/IncrementsPickerScreen';
 import WeightsScreen from './js/Components/Settings/Weights/WeightsScreen';
+import PrivacyScreen from './js/Components/Settings/Privacy/PrivacyScreen';
 
 import WelcomeScreen from './js/Components/Welcome/WelcomeScreen';
 import StartingWeightsScreen from './js/Components/Welcome/StartingWeightsScreen';
@@ -78,6 +79,7 @@ const SettingsStack = createStackNavigator({
   Increments: {screen: IncrementsScreen},
   IncrementsPicker: {screen: IncrementsPickerScreen},
   Weights: {screen: WeightsScreen},
+  Privacy: {screen: PrivacyScreen}
 }, {
   navigationOptions: {
     headerTintColor: '#fff',

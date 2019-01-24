@@ -69,6 +69,14 @@ export default class extends React.Component {
 
         <View style={{marginTop: 40}}>
           <MenuItem
+            title='Privacy Policy'
+            onPress={() => navigate('Privacy')}
+            hasNavArrow={true}
+          />
+        </View>
+
+        <View style={{marginTop: 40}}>
+          <MenuItem
             title='Reset Everything'
             onPress={() => this.handleResetButton()}
             hasNavArrow={false}

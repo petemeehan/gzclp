@@ -64,7 +64,14 @@ export default class extends React.Component {
 
           hasTextInput={true}
           textInputPlaceholder='20'
-          textInputOnChangeText={text => this.setState( {[liftID]: text} )}
+          textInputOnChangeText={text => {
+            text = parseFloat(text);
+            this.setState( {[liftID]: text} );
+            // ES6 shorthand for:
+            //  var obj  = {};
+            //  obj[liftID] = text;
+            //  this.setState( obj );
+          }}
           style={{
             backgroundColor: colours.primaryColour,
             borderColor: 'white',
@@ -81,7 +88,7 @@ export default class extends React.Component {
             Find your starting weights
           </Text>
           <Text style={{marginVertical: 10, fontSize: 15, color: 'white', textAlign: 'center'}}>
-            If you've lifted before and know your estimated <Text style={{fontWeight: 'bold'}}>5-rep maxes</Text> you can enter them here, or leave blank to start with an empty bar
+            If you've lifted before and know (or can estimate) your <Text style={{fontWeight: 'bold'}}>5-rep maxes</Text>, you can enter them here, or else leave blank to start with an empty bar
           </Text>
         </View>
 

@@ -51,6 +51,17 @@ export const styles = StyleSheet.create({
   },
 
 
+  heading: {
+    fontSize: 17,
+    fontWeight: 'bold',
+    marginTop: layoutConstants.VERTICAL_PADDING,
+    marginBottom: layoutConstants.VERTICAL_PADDING / 2,
+  },
+  paragraph: {
+    marginTop: layoutConstants.VERTICAL_PADDING,
+  },
+
+
   menuHeading: {
     paddingHorizontal: layoutConstants.HORIZONTAL_PADDING,
     marginBottom: 8,
@@ -97,7 +108,7 @@ export const styles = StyleSheet.create({
   },
   liftInfoContainer: {
     paddingHorizontal: layoutConstants.HORIZONTAL_PADDING,
-    paddingVertical: layoutConstants.VERTICAL_PADDING,
+    paddingTop: layoutConstants.VERTICAL_PADDING,
   },
   liftName: {
     fontSize: 17,
@@ -116,6 +127,7 @@ export const styles = StyleSheet.create({
   // Container for both buttons including background one which gives "border" effect
   individualLiftButtonContainer: {
     marginRight: BUTTON_MARGIN,
+    marginTop: BUTTON_MARGIN,
     alignItems: 'center',
     justifyContent: 'center',
     //borderWidth: 1
