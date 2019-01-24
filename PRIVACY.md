@@ -1,4 +1,4 @@
-# Privacy Policy
+# Privacy policy
 
 **No personal data is collected, used or stored. At all.**
 
