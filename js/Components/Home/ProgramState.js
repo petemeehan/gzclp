@@ -14,7 +14,7 @@ export default () => {
 
   return (
     <View style={styles.progressDataContainer}>
-      <Text style={styles.progressDataTitle}>Current Program State</Text>
+      <Text style={styles.progressDataTitle}>Lift Data</Text>
       <Text style={styles.progressDataContent}>{output}</Text>
     </View>
   )

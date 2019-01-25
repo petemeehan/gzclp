@@ -28,12 +28,16 @@ export default class extends React.Component {
     gzclp.saveProgramState();
 
     // Set starting weights based on inputs, stored in state
+    // T1 is set to about 90% of 5RM, and T2 is 75% of this
     Object.keys(this.state).forEach( liftID => {
-      gzclp.setNextAttemptWeight(liftID, this.state[liftID]);
+      let T1Weight = this.state[liftID] * 0.9;
+      T1Weight = gzclp.roundDownToNearestIncrement(T1Weight, 2.5);
+      gzclp.setNextAttemptWeight(liftID, T1Weight);
       // Also set T2 versions of lifts
-      // TODO Fix this hack
-      const T2Weight = (this.state[liftID]) * 0.75;
-      gzclp.setNextAttemptWeight(parseInt(liftID) + 4, gzclp.roundDownToNearestIncrement(T2Weight, 2.5));
+      // TODO Fix this 'liftID + 4' hack!!
+      let T2Weight = this.state[liftID] * 0.675;
+      T2Weight = gzclp.roundDownToNearestIncrement(T2Weight, 2.5);
+      gzclp.setNextAttemptWeight(parseInt(liftID) + 4, T2Weight);
     });
 
     // Store current state of the app

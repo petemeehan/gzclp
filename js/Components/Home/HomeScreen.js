@@ -77,7 +77,7 @@ export default class extends React.Component {
 
         {this.state.isProgramStateVisible ? <ProgramState /> : null}
         <Button
-          title={this.state.isProgramStateVisible ? 'Hide current program state' : 'Show current program state'}
+          title={this.state.isProgramStateVisible ? 'Hide Lift Data' : 'Show Lift Data'}
           color={colours.primaryColour}
           onPress={() => this.handleShowProgramStateButton()}
         />
