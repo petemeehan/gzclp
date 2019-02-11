@@ -13,9 +13,9 @@ export default () => {
   var output = gzclp.outputProgramStateAsString();
 
   return (
-    <View style={styles.progressDataContainer}>
-      <Text style={styles.progressDataTitle}>Lift Data</Text>
-      <Text style={styles.progressDataContent}>{output}</Text>
+    <View style={styles.allLiftDataContainer}>
+      <Text style={styles.allLiftDataTitle}>Lift Data</Text>
+      <Text style={styles.allLiftDataContent}>{output}</Text>
     </View>
   )
 }

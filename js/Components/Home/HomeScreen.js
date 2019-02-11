@@ -77,11 +77,11 @@ export default class extends React.Component {
 
         {this.state.isProgramStateVisible ? <ProgramState /> : null}
         <Button
-          title={this.state.isProgramStateVisible ? 'Hide Lift Data' : 'Show Lift Data'}
+          title={this.state.isProgramStateVisible ? 'Hide Lift Info' : 'Show Lift Info'}
           color={colours.primaryColour}
           onPress={() => this.handleShowProgramStateButton()}
         />
       </View>
-    );
+    )
   }
 }

@@ -90,14 +90,16 @@ export const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: 'bold',
   },
-  progressDataContainer: {
+
+
+  allLiftDataContainer: {
     paddingHorizontal: layoutConstants.HORIZONTAL_PADDING,
   },
-  progressDataTitle: {
+  allLiftDataTitle: {
     marginVertical: layoutConstants.VERTICAL_PADDING,
   },
-  progressDataContent: {
-    fontFamily: 'Courier New',
+  allLiftDataContent: {
+    fontSize: 13,
   },
 
 

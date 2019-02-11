@@ -24,8 +24,13 @@ export default class extends React.Component {
   static navigationOptions = ({ navigation }) => ({
     title: 'Settings',
     headerLeft: <Button
+      // CHANGE BUTTON COLOUR FOR ANDROID VS IOS:
+      // iOS
+      //color='#fff'
+      // android
+      color={colours.primaryColour}
+
       title='Done'
-      color='#fff'
       onPress={() => {
         navigation.state.params.refreshHomeScreen();
         navigation.goBack(null);
