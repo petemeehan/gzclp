@@ -25,7 +25,8 @@
 			"bundleIdentifier": "com.petermeehan.gzclp"
 		},
 		"android": {
-			"package": "com.petermeehan.gzclp"
+			"package": "com.petermeehan.gzclp",
+      "permissions": [],
 		}
   }
 }

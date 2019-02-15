@@ -1,10 +1,10 @@
 # GZCLP App
 
-An app for iOS and Android to make following the GZCLP beginner strength training program easy.
+GZCLP is the official name for Cody LeFever’s linear-progression strength training program for beginners, and this app——for iOS and Android——makes following it easy.
 
 It tells you exactly what, when and how much to lift, tracks your progress, and tells you what you'll be lifting next time.
 
-If you have any questions or queries, feel free to [contact me](mailto:apetermeehan@gmail.com).
+If you have any questions or queries, feel free to [contact me](mailto:apetermeehan+apps@gmail.com).
 
 [Privacy policy](https://github.com/apmeehan/gzclp/blob/master/PRIVACY.md)
 
