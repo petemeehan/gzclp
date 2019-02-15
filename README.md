@@ -10,9 +10,9 @@ If you have any questions or queries, feel free to [contact me](mailto:apetermee
 
 ### Development Notes
 
-Written in JavaScript using [React Native](https://facebook.github.io/react-native/) and [Redux](https://redux.js.org/), and tested using [Expo CLI and Client](https://expo.io/tools).
+Written in JavaScript using [React Native](https://facebook.github.io/react-native/), and tested and compiled using [Expo CLI and Client](https://expo.io/tools).
 
-Basic functionality complete. Following functionality to be implemented in later version:
+Basic functionality complete. Following functionality to be implemented in later versions:
 * Graphs that display progress over time for each lift
 * Easier editing and reorganising of workouts (for example allow lifts to be reordered by dragging and dropping)
 * Allow user to export/back-up all workout data
