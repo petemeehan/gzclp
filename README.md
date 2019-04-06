@@ -1,12 +1,12 @@
 # GZCLP App
 
-GZCLP is the official name for Cody LeFever’s linear-progression strength training program for beginners, and this app—for iOS and Android—makes following it easy.
+GZCLP is the name for [Cody LeFever’s linear-progression strength training program for beginners](https://saynotobroscience.com/gzclp-infographic/), and this app for iOS and Android makes following it easy.
 
 It tells you exactly what, when and how much to lift, tracks your progress, and tells you what you'll be lifting next time.
 
-[<img alt="Screenshot 1" src="https://github.com/apmeehan/gzclp/blob/master/screenshots/1.png" width="260">](#)
-[<img alt="Screenshot 2" src="https://github.com/apmeehan/gzclp/blob/master/screenshots/2.png" width="260">](#)
-[<img alt="Screenshot 3" src="https://github.com/apmeehan/gzclp/blob/master/screenshots/3.png" width="260">](#)
+[<img alt="Screenshot 1" src="https://github.com/apmeehan/gzclp/blob/master/screenshots/1.png" width="270">](#)
+[<img alt="Screenshot 2" src="https://github.com/apmeehan/gzclp/blob/master/screenshots/2.png" width="270">](#)
+[<img alt="Screenshot 3" src="https://github.com/apmeehan/gzclp/blob/master/screenshots/3.png" width="270">](#)
 
 If you have any questions or queries, feel free to [contact me](mailto:apetermeehan+apps@gmail.com).
 
